@@ -1,4 +1,3 @@
 # Engine folders
 
-- [Read more](../docs/Sources-and-theory/index-theory)
-- 
+- [READ MORE](../docs/System-architecture/index-architecture.md)

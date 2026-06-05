@@ -6,9 +6,9 @@ This directory contains the complete technical documentation, architecture desig
 
 To navigate the documentation, you can use the following entry points or open this folder as a Vault in Obsidian to view the interactive graph:
 
-- [[index-architecture]] - System architecture, module interactions, containerization, and communication protocols.
-- [[index-theory]] - Chess algorithms, mathematical concepts of bitboards, search techniques, and evaluation functions.
-- [[index-logs]] - Verification processes, Perft test logs, and debugging documentation.
+- [System architecture](System-architecture/index-architecture.md) - System architecture, module interactions, containerization, and communication protocols.
+- [Chess theory](Sources-and-theory/index-theory.md) - Chess algorithms, mathematical concepts of bitboards, search techniques, and evaluation functions.
+- [Tests, debugging and logs](Logs-and-debugging/index-logs.md) - Verification processes, Perft test logs, and debugging documentation.
 
 ## Technical Stack Overview
 
