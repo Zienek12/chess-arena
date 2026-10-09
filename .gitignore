@@ -26,6 +26,7 @@ backend/*.out
 
 # Rust
 engines/target/
+engines/Cargo.lock
 
 # Env files
 .env
