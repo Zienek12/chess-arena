@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use crate::board::{Board, PieceKind};
+use crate::hash::position_hash;
 use crate::movegen::{in_check, legal_moves};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -10,9 +11,14 @@ pub enum GameStatus {
     Stalemate,
     FiftyMoveDraw,
     InsufficientMaterial,
+    ThreefoldRepetition,
 }
 
 pub fn game_status(board: &mut Board) -> GameStatus {
+    game_status_with_history(board, &[])
+}
+
+pub fn game_status_with_history(board: &mut Board, history: &[u64]) -> GameStatus {
     let side = board.side_to_move;
     let moves = legal_moves(board);
 
@@ -25,6 +31,10 @@ pub fn game_status(board: &mut Board) -> GameStatus {
     }
     if board.halfmove_clock >= 100 {
         return GameStatus::FiftyMoveDraw;
+    }
+    let current_hash = position_hash(board);
+    if history.iter().filter(|hash| **hash == current_hash).count() >= 3 {
+        return GameStatus::ThreefoldRepetition;
     }
     if insufficient_material(board) {
         return GameStatus::InsufficientMaterial;
@@ -78,5 +88,15 @@ mod tests {
         let mut board =
             parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
         assert_eq!(game_status(&mut board), GameStatus::Ongoing);
+    }
+
+    #[test]
+    fn detects_threefold_repetition() {
+        let mut board = parse_fen("7k/8/8/8/8/8/8/K7 w - - 0 1").unwrap();
+        let hash = position_hash(&board);
+        assert_eq!(
+            game_status_with_history(&mut board, &[hash, hash, hash]),
+            GameStatus::ThreefoldRepetition
+        );
     }
 }

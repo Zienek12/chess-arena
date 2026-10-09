@@ -2,6 +2,7 @@
 
 use crate::board::Board;
 use crate::fen::parse_fen;
+use crate::hash::position_hash;
 use crate::movegen::legal_moves;
 use crate::moves::Move;
 use rand::seq::SliceRandom;
@@ -10,12 +11,15 @@ const START_FEN: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 
 
 pub struct UciEngine {
     pub board: Board,
+    history: Vec<u64>,
 }
 
 impl UciEngine {
     pub fn new() -> Self {
+        let board = parse_fen(START_FEN).expect("start FEN must be valid");
         Self {
-            board: parse_fen(START_FEN).expect("start FEN must be valid"),
+            history: vec![position_hash(&board)],
+            board,
         }
     }
 
@@ -34,6 +38,7 @@ impl UciEngine {
             "isready" => vec!["readyok".to_string()],
             "ucinewgame" => {
                 self.board = parse_fen(START_FEN).expect("start FEN must be valid");
+                self.history = vec![position_hash(&self.board)];
                 Vec::new()
             }
             "position" => match self.set_position(parts.collect()) {
@@ -64,6 +69,7 @@ impl UciEngine {
         };
 
         let mut board = parse_fen(&fen).map_err(|error| error.to_string())?;
+        let mut history = vec![position_hash(&board)];
         let moves = if move_start < arguments.len() && arguments[move_start] == "moves" {
             &arguments[move_start + 1..]
         } else {
@@ -73,8 +79,10 @@ impl UciEngine {
             let chess_move = find_uci_move(&mut board, notation)
                 .ok_or_else(|| format!("illegal move {}", notation))?;
             board.make_move(chess_move);
+            history.push(position_hash(&board));
         }
         self.board = board;
+        self.history = history;
         Ok(())
     }
 
@@ -103,6 +111,7 @@ fn find_uci_move(board: &mut Board, notation: &str) -> Option<Move> {
 mod tests {
     use super::*;
     use crate::board::{Color, PieceKind, Square};
+    use crate::status::game_status_with_history;
 
     #[test]
     fn handles_start_position_and_go() {
@@ -132,5 +141,15 @@ mod tests {
     fn serializes_promotion_move() {
         let chess_move = Move::promotion(Square::E7, Square::E8, PieceKind::Queen, false);
         assert_eq!(chess_move.to_uci(), "e7e8q");
+    }
+
+    #[test]
+    fn tracks_threefold_repetition_history() {
+        let mut engine = UciEngine::new();
+        engine.handle_command("position startpos moves g1f3 g8f6 f3g1 f6g8 g1f3 g8f6 f3g1 f6g8");
+        assert_eq!(
+            game_status_with_history(&mut engine.board, &engine.history),
+            crate::status::GameStatus::ThreefoldRepetition
+        );
     }
 }
