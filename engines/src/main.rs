@@ -1,28 +1,34 @@
+mod attacks;
+mod board;
+mod fen;
+mod hash;
+mod movegen;
+mod moves;
+mod perft;
+mod status;
+mod uci;
+
 use std::io::{self, BufRead, Write};
+
+use uci::UciEngine;
 
 fn main() {
     let stdin = io::stdin();
     let mut stdout = io::stdout();
+    let mut engine = UciEngine::new();
 
     for line in stdin.lock().lines() {
-        let line = match line { Ok(l) => l, Err(_) => break };
+        let line = match line {
+            Ok(l) => l,
+            Err(_) => break,
+        };
         let l = line.trim();
-        if l == "uci" {
-            println!("id name uci_stub");
-            println!("id author example");
-            println!("uciok");
-            stdout.flush().unwrap();
-        } else if l == "isready" {
-            println!("readyok");
-            stdout.flush().unwrap();
-        } else if l.starts_with("position") {
-            // ignore for stub
-        } else if l.starts_with("go") {
-            // respond with a dummy bestmove
-            println!("bestmove e2e4");
-            stdout.flush().unwrap();
-        } else if l == "quit" {
+        if l == "quit" {
             break;
         }
+        for response in engine.handle_command(l) {
+            println!("{}", response);
+        }
+        stdout.flush().unwrap();
     }
 }

@@ -6,3 +6,5 @@ This section documents the high-level design of the distributed chess platform, 
 
 Select a topic to explore the implementation details:
 
+- [Engine implementation](engine-implementation.md)
+

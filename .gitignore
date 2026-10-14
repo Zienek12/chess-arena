@@ -5,6 +5,7 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+.vs
 
 # Node / Next.js
 node_modules/
@@ -26,6 +27,7 @@ backend/*.out
 
 # Rust
 engines/target/
+engines/Cargo.lock
 
 # Env files
 .env

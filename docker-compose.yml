@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: chess_arena
+      POSTGRES_USER: chess_arena
+      POSTGRES_PASSWORD: chess_arena_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chess_arena -d chess_arena"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      CHESS_ENGINE_VERSION: "${CHESS_ENGINE_VERSION:-v1}"
+      CHESS_ENGINE_IMAGES: "${CHESS_ENGINE_IMAGES:-v1=chess-arena-engine:local}"
+      DATABASE_URL: "postgres://chess_arena:chess_arena_dev@postgres:5432/chess_arena?sslmode=disable"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  postgres-data:
