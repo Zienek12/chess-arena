@@ -13,6 +13,6 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --system --create-home --uid 10001 arena
 COPY --from=build /out/arena /usr/local/bin/arena
-USER arena
+USER root
 EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/arena"]
