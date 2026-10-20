@@ -8,8 +8,8 @@ export default function ChessViewer() {
   const [connected, setConnected] = useState(false)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('Connecting to engine...')
-  const [engine, setEngine] = useState('')
-  const [engines, setEngines] = useState([])
+  const [engineVersions, setEngineVersions] = useState([])
+  const [selectedEngine, setSelectedEngine] = useState('')
   const wsRef = useRef(null)
 
   useEffect(() => {
@@ -29,10 +29,10 @@ export default function ChessViewer() {
           }
           chessRef.current = game
           setFen(game.fen())
-          setEngine(data.engine || '')
-          setEngines(data.engines || [])
           setBusy(false)
-          setMessage('Your turn')
+          setEngineVersions(data.engines || [])
+          setSelectedEngine(data.engine || '')
+          setMessage(`Your turn against ${data.engine || 'engine'}`)
         } else if (data.type === 'move') {
           chessRef.current.move({
             from: data.from,
@@ -96,37 +96,53 @@ export default function ChessViewer() {
     return false
   }
 
-  function handleEngineChange(event) {
-    const nextEngine = event.target.value
-    setEngine(nextEngine)
+  function resetGame(engine = selectedEngine) {
+    if (!connected || busy || !wsRef.current) {
+      return
+    }
     setBusy(true)
-    setMessage('Resetting game...')
-    wsRef.current?.send(JSON.stringify({ type: 'reset', engine: nextEngine }))
+    setMessage('Starting a new game...')
+    wsRef.current.send(JSON.stringify({ type: 'reset', engine }))
   }
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
         <span className={connected ? 'text-emerald-600' : 'text-rose-600'}>
           {connected ? 'Connected' : 'Offline'}
         </span>
         <span className="text-gray-600">{message}</span>
       </div>
-      {engines.length > 0 && (
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <span>Engine</span>
-          <select
-            className="rounded border border-gray-300 bg-white px-2 py-1"
-            value={engine}
-            onChange={handleEngineChange}
-            disabled={!connected || busy}
-          >
-            {engines.map((version) => (
-              <option key={version} value={version}>{version}</option>
-            ))}
-          </select>
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="text-sm text-gray-700" htmlFor="engine-version">
+          Engine
         </label>
-      )}
+        <select
+          id="engine-version"
+          className="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+          value={selectedEngine}
+          disabled={!connected || busy || engineVersions.length === 0}
+          onChange={(event) => {
+            setSelectedEngine(event.target.value)
+            resetGame(event.target.value)
+          }}
+        >
+          {engineVersions.length === 0 && <option value="">Unavailable</option>}
+          {engineVersions.map((engine) => (
+            <option key={engine} value={engine}>
+              {engine}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          className="rounded bg-gray-900 px-3 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={!connected || busy}
+          onClick={() => resetGame()}
+        >
+          New game
+        </button>
+      </div>
       <Chessboard
         position={fen}
         boardWidth={560}

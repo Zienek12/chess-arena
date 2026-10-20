@@ -6,7 +6,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-semibold mb-4">Chess Arena</h1>
-        <p className="mb-4 text-sm text-gray-600">Play as White against a selected UCI engine version.</p>
+        <p className="mb-4 text-sm text-gray-600">Play as White against the Rust engine.</p>
         <ChessViewer />
       </div>
     </div>
