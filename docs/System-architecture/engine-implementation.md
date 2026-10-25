@@ -13,6 +13,7 @@ The current implementation includes:
 - Attack generation.
 - Pseudo-legal and legal move generation.
 - FEN parsing and serialization.
+- Deterministic position hashing and threefold-repetition tracking.
 - Perft validation.
 - Basic game-status detection.
 - Basic UCI command handling.
@@ -30,6 +31,7 @@ The engine is located in `engines/`.
 | `src/attacks.rs` | Pawn, knight, king, bishop, rook, and queen attack generation. |
 | `src/movegen.rs` | Pseudo-legal moves, legal move filtering, check detection, and castling validation. |
 | `src/fen.rs` | FEN parsing, validation, and board serialization. |
+| `src/hash.rs` | Deterministic position hashing for repetition detection. |
 | `src/perft.rs` | Recursive legal move counting and divide support. |
 | `src/status.rs` | Checkmate, stalemate, fifty-move, insufficient-material, and ongoing status detection. |
 | `src/uci.rs` | UCI command handling and random legal move selection. |
@@ -183,7 +185,9 @@ The starting position currently matches these reference values:
 - The fifty-move draw threshold.
 - Basic insufficient material such as king versus king and king plus one minor piece versus king.
 
-Status detection first checks for checkmate or stalemate, then applies draw conditions. Repetition tracking and position-history hashing are not implemented yet.
+Status detection first checks for checkmate or stalemate, then applies draw conditions. The UCI engine stores the position hash after the initial position and after every applied move, allowing threefold repetition to be detected.
+
+The hash includes piece placement, side to move, castling rights, and relevant en passant state. Halfmove and fullmove counters are intentionally excluded because they do not define positional identity for repetition.
 
 ## UCI Interface
 
@@ -203,7 +207,7 @@ Currently handled commands:
 - `d`
 - `quit`
 
-Invalid commands and invalid positions are reported using an `info string` response.
+Invalid commands and invalid positions are reported as `info string error <message>`. The backend treats only lines with this prefix as errors; any other `info string` line is plain logging, as the UCI protocol allows, and is ignored.
 
 ### Current `go` behavior
 
@@ -260,7 +264,7 @@ The following features are not implemented yet:
 - Quiescence search.
 - Transposition tables.
 - Static position evaluation.
-- Repetition tracking and a complete threefold-repetition status API.
+- A broader repetition-history API outside the UCI engine.
 - Full UCI time-control handling such as `wtime`, `btime`, and `movetime`.
 - Optimized magic bitboards or generated lookup tables.
 - Library crate exports; the current project is primarily a binary crate.

@@ -80,8 +80,8 @@ func setEnginePosition(engine *uciEngine, history []string) error {
 	var positionError error
 	for engine.output.Scan() {
 		line := engine.output.Text()
-		if strings.HasPrefix(line, "info string ") {
-			positionError = fmt.Errorf("engine: %s", strings.TrimPrefix(line, "info string "))
+		if err, ok := engineError(line); ok {
+			positionError = err
 			continue
 		}
 		if line == "readyok" {

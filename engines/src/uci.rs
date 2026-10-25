@@ -43,13 +43,13 @@ impl UciEngine {
             }
             "position" => match self.set_position(parts.collect()) {
                 Ok(()) => Vec::new(),
-                Err(error) => vec![format!("info string {}", error)],
+                Err(error) => vec![format!("info string error {}", error)],
             },
             "go" => self.bestmove(),
             "d" => vec![format!("{}", self.board)],
             "stop" => Vec::new(),
             "quit" => Vec::new(),
-            _ => vec![format!("info string unknown command {}", keyword)],
+            _ => vec![format!("info string error unknown command {}", keyword)],
         }
     }
 
@@ -135,6 +135,19 @@ mod tests {
         let result = engine.handle_command("position fen 8/8/8/8/8/8/4K3/7k w - - 0 1");
         assert!(result.is_empty());
         assert_eq!(engine.handle_command("isready"), vec!["readyok"]);
+    }
+
+    #[test]
+    fn reports_errors_with_error_prefix() {
+        let mut engine = UciEngine::new();
+        assert_eq!(
+            engine.handle_command("position startpos moves e2e5"),
+            vec!["info string error illegal move e2e5"]
+        );
+        assert_eq!(
+            engine.handle_command("foo"),
+            vec!["info string error unknown command foo"]
+        );
     }
 
     #[test]

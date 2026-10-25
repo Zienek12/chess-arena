@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { Chess } from 'chess.js'
+import { Chess, DEFAULT_POSITION } from 'chess.js'
 import { Chessboard } from 'react-chessboard'
 
 export default function ChessViewer() {
   const chessRef = useRef(new Chess())
-  const [fen, setFen] = useState(chessRef.current.fen())
+  const [fen, setFen] = useState(DEFAULT_POSITION)
   const [connected, setConnected] = useState(false)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('Connecting to engine...')
@@ -84,13 +84,16 @@ export default function ChessViewer() {
       return false
     }
 
-    const promotion = movingPiece.type === 'p' && targetSquare[1] === '8' ? 'q' : ''
-    wsRef.current.send(JSON.stringify({
-      type: 'move',
-      from: sourceSquare,
-      to: targetSquare,
-      promotion,
-    }))
+    const promotion =
+      movingPiece.type === 'p' && targetSquare[1] === '8' ? 'q' : ''
+    wsRef.current.send(
+      JSON.stringify({
+        type: 'move',
+        from: sourceSquare,
+        to: targetSquare,
+        promotion,
+      })
+    )
     setBusy(true)
     setMessage('Engine is thinking...')
     return false

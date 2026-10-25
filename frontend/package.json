@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "eslint .",
+    "format:check": "prettier --check .",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "chess.js": "^1.0.0",
@@ -18,7 +21,8 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.0.0",
-    "eslint": "^8.0.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.6",
     "postcss": "^8.0.0",
     "prettier": "^2.0.0",
     "tailwindcss": "^3.0.0"

@@ -11,6 +11,16 @@ import (
 	"strings"
 )
 
+// Engines may send "info string" at any time for logging; only this prefix marks an error.
+const engineErrorPrefix = "info string error "
+
+func engineError(line string) (error, bool) {
+	if !strings.HasPrefix(line, engineErrorPrefix) {
+		return nil, false
+	}
+	return fmt.Errorf("engine: %s", strings.TrimPrefix(line, engineErrorPrefix)), true
+}
+
 type uciEngine struct {
 	command *exec.Cmd
 	input   io.WriteCloser
@@ -96,8 +106,8 @@ func (engine *uciEngine) sendAndWait(command string, expected string) error {
 	}
 	for engine.output.Scan() {
 		line := engine.output.Text()
-		if strings.HasPrefix(line, "info string ") {
-			return fmt.Errorf("engine: %s", strings.TrimPrefix(line, "info string "))
+		if err, ok := engineError(line); ok {
+			return err
 		}
 		if line == expected {
 			return nil
