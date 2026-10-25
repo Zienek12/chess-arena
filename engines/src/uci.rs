@@ -3,9 +3,10 @@
 use crate::board::Board;
 use crate::fen::parse_fen;
 use crate::hash::position_hash;
-use crate::movegen::legal_moves;
+use crate::movegen::{in_check, legal_moves};
 use crate::moves::Move;
 use rand::seq::SliceRandom;
+use std::time::{Duration, Instant};
 
 const START_FEN: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -87,16 +88,63 @@ impl UciEngine {
     }
 
     fn bestmove(&mut self) -> Vec<String> {
+        let started = Instant::now();
         let moves = legal_moves(&mut self.board);
-        match moves.first() {
-            Some(_) => {
-                let chess_move = moves
-                    .choose(&mut rand::thread_rng())
-                    .expect("moves is not empty");
-                vec![format!("bestmove {}", chess_move.to_uci())]
-            }
-            None => vec!["bestmove 0000".to_string()],
-        }
+        let Some(chess_move) = moves.choose(&mut rand::thread_rng()) else {
+            // No legal moves: report the terminal score so the arena sees mate or stalemate.
+            let score = if in_check(&self.board, self.board.side_to_move) {
+                "mate 0"
+            } else {
+                "cp 0"
+            };
+            return vec![
+                format!("info depth 0 score {}", score),
+                "bestmove 0000".to_string(),
+            ];
+        };
+
+        // Until a real search exists, every legal move counts as one searched node at depth 1.
+        let telemetry = SearchTelemetry {
+            depth: 1,
+            score_cp: 0,
+            nodes: moves.len() as u64,
+            elapsed: started.elapsed(),
+            pv: vec![*chess_move],
+        };
+        vec![
+            telemetry.to_info_line(),
+            format!("bestmove {}", chess_move.to_uci()),
+        ]
+    }
+}
+
+struct SearchTelemetry {
+    depth: u32,
+    score_cp: i32,
+    nodes: u64,
+    elapsed: Duration,
+    pv: Vec<Move>,
+}
+
+impl SearchTelemetry {
+    fn to_info_line(&self) -> String {
+        let micros = self.elapsed.as_micros().max(1);
+        let nps = (u128::from(self.nodes) * 1_000_000 / micros) as u64;
+        let pv: Vec<String> = self
+            .pv
+            .iter()
+            .map(|chess_move| chess_move.to_uci())
+            .collect();
+        format!(
+            "info depth {} seldepth {} score cp {} nodes {} nps {} time {} pv {}",
+            self.depth,
+            self.depth,
+            self.score_cp,
+            self.nodes,
+            nps,
+            self.elapsed.as_millis(),
+            pv.join(" ")
+        )
     }
 }
 
@@ -122,7 +170,8 @@ mod tests {
         );
         assert_eq!(engine.board.side_to_move, Color::Black);
         let response = engine.handle_command("go");
-        let notation = response[0].strip_prefix("bestmove ").unwrap();
+        assert_eq!(response.len(), 2);
+        let notation = response[1].strip_prefix("bestmove ").unwrap();
         assert!(notation.len() == 4);
         assert!(legal_moves(&mut engine.board)
             .iter()
@@ -147,6 +196,41 @@ mod tests {
         assert_eq!(
             engine.handle_command("foo"),
             vec!["info string error unknown command foo"]
+        );
+    }
+
+    #[test]
+    fn reports_telemetry_before_bestmove() {
+        let mut engine = UciEngine::new();
+        let response = engine.handle_command("go");
+        let fields: Vec<&str> = response[0].split_whitespace().collect();
+        assert_eq!(
+            &fields[..7],
+            ["info", "depth", "1", "seldepth", "1", "score", "cp"]
+        );
+        assert_eq!(fields[8..10], ["nodes", "20"]);
+        assert!(fields.contains(&"nps") && fields.contains(&"time"));
+        let pv = fields.last().unwrap();
+        assert_eq!(response[1], format!("bestmove {}", pv));
+    }
+
+    #[test]
+    fn reports_mate_score_when_checkmated() {
+        let mut engine = UciEngine::new();
+        engine.handle_command("position startpos moves f2f3 e7e5 g2g4 d8h4");
+        assert_eq!(
+            engine.handle_command("go"),
+            vec!["info depth 0 score mate 0", "bestmove 0000"]
+        );
+    }
+
+    #[test]
+    fn reports_draw_score_when_stalemated() {
+        let mut engine = UciEngine::new();
+        engine.handle_command("position fen 7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
+        assert_eq!(
+            engine.handle_command("go"),
+            vec!["info depth 0 score cp 0", "bestmove 0000"]
         );
     }
 

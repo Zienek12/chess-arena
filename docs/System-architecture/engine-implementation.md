@@ -165,13 +165,22 @@ FEN round-trip tests currently cover the standard starting position and position
 
 `perft` recursively counts legal positions without evaluation or search heuristics. It is the primary correctness check for the move generator and make/unmake implementation.
 
-The starting position currently matches these reference values:
+The test suite checks six standard positions from [Chess Programming Wiki](https://www.chessprogramming.org/Perft_Results), which together cover castling, en passant, promotions, discovered checks, and pins:
 
-| Depth | Nodes |
-| ---: | ---: |
-| 1 | 20 |
-| 2 | 400 |
-| 3 | 8902 |
+| Position | Fast tests (every `cargo test`) | Deep test (`--ignored`) |
+| --- | --- | ---: |
+| Start position | depths 1–4 | depth 5: 4,865,609 |
+| Kiwipete | depths 1–3 | depth 5: 193,690,690 |
+| Position 3 | depths 1–4 | depth 6: 11,030,083 |
+| Position 4 | depths 1–3 | depth 5: 15,833,292 |
+| Position 5 | depths 1–3 | depth 4: 2,103,487 |
+| Position 6 | depths 1–3 | depth 4: 3,894,594 |
+
+The deep tests are marked `#[ignore]` because they take about a minute in release mode, mostly Kiwipete. CI runs them as a separate step:
+
+```powershell
+cargo test --release perft -- --ignored
+```
 
 `divide` also provides a per-root-move breakdown for debugging move generation.
 
@@ -211,12 +220,33 @@ Invalid commands and invalid positions are reported as `info string error <messa
 
 ### Current `go` behavior
 
-The engine does not search the game tree yet. For `go` it:
+The engine does not search the game tree yet. Arguments after `go` (such as `movetime` or `wtime`) are accepted and ignored. For `go` it:
 
 1. Generates all legal moves for the current position.
 2. Selects one move uniformly from the generated vector using `rand` and `thread_rng`.
-3. Returns the move in UCI notation.
-4. Returns `bestmove 0000` if there are no legal moves.
+3. Reports one `info` telemetry line (see below).
+4. Returns the move in UCI notation.
+5. Returns `bestmove 0000` if there are no legal moves.
+
+### Search telemetry
+
+Before every `bestmove`, the engine sends a standard UCI `info` line. The arena reads these lines to record telemetry per move. Its format will not change when a real search replaces random selection; a search will simply send one line per completed iteration, and the last line before `bestmove` is the final result.
+
+```text
+info depth 1 seldepth 1 score cp 0 nodes 20 nps 27662 time 0 pv g8f6
+bestmove g8f6
+```
+
+| Field | Meaning | Current value |
+| --- | --- | --- |
+| `depth` / `seldepth` | Completed search depth in plies | Always `1` |
+| `score cp <n>` | Evaluation in centipawns from the side to move | Always `0` (no evaluator yet) |
+| `nodes` | Positions visited | Number of legal moves |
+| `nps` | Nodes per second | Derived from `nodes` and elapsed time |
+| `time` | Elapsed milliseconds | Time to generate and pick a move |
+| `pv` | Principal variation in UCI notation | The chosen move |
+
+When there is no legal move, the line has no search fields: `info depth 0 score mate 0` for checkmate, or `info depth 0 score cp 0` for stalemate.
 
 The random choice is intentionally temporary. It provides a valid UCI response while leaving the rules core independent from future search code.
 
@@ -253,8 +283,8 @@ The test suite covers:
 - Attack masks and blockers.
 - Check and castling legality.
 - FEN parsing and serialization.
-- Starting-position perft at depths one through three.
-- UCI command handling and legal random move selection.
+- Perft on six reference positions (shallow by default, deep with `--ignored`).
+- UCI command handling, legal random move selection, and `info` telemetry.
 
 ## Current Limitations
 
@@ -272,8 +302,7 @@ The following features are not implemented yet:
 ## Recommended Next Steps
 
 1. Add explicit game-status detection for checkmate, stalemate, the fifty-move rule, repetition, and insufficient material.
-2. Add perft positions covering castling, en passant, promotions, and tactical checks.
-3. Add a static evaluator.
-4. Replace random `go` behavior with a small deterministic search, then add alpha-beta pruning.
-5. Introduce benchmarks before optimizing slider attacks or board mutation.
-6. Add time-control parsing and cancellation support to the UCI layer.
+2. Add a static evaluator.
+3. Replace random `go` behavior with a small deterministic search, then add alpha-beta pruning.
+4. Introduce benchmarks before optimizing slider attacks or board mutation.
+5. Add time-control parsing and cancellation support to the UCI layer.

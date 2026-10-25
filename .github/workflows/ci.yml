@@ -44,9 +44,12 @@ jobs:
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-      # Release mode keeps deep perft tests fast.
       - name: Run tests
         run: cargo test --release --all-targets
+
+      # Ignored by default because they take about a minute (Kiwipete at depth 5).
+      - name: Run deep perft tests
+        run: cargo test --release perft -- --ignored
 
   arena:
     name: Arena (Go)
