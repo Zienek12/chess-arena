@@ -207,7 +207,7 @@ Currently handled commands:
 - `d`
 - `quit`
 
-Invalid commands and invalid positions are reported using an `info string` response.
+Invalid commands and invalid positions are reported as `info string error <message>`. The backend treats only lines with this prefix as errors; any other `info string` line is plain logging, as the UCI protocol allows, and is ignored.
 
 ### Current `go` behavior
 
