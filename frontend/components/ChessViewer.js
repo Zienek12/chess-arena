@@ -1,59 +1,83 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Chess, DEFAULT_POSITION } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import ResponsiveBoard from './ResponsiveBoard'
+import { Button, inputClass } from './ui'
+import { WS_URL } from '../lib/api'
+import { applyUciMove, boardHighlights, legalTargets } from '../lib/chess'
+
+const PLAYER = 'w'
 
 export default function ChessViewer() {
   const chessRef = useRef(new Chess())
+  const wsRef = useRef(null)
   const [fen, setFen] = useState(DEFAULT_POSITION)
+  const [lastMove, setLastMove] = useState(null)
+  const [selected, setSelected] = useState(null)
   const [connected, setConnected] = useState(false)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('Connecting to engine...')
   const [engineVersions, setEngineVersions] = useState([])
   const [selectedEngine, setSelectedEngine] = useState('')
-  const wsRef = useRef(null)
+
+  // A fresh game built from the FEN drives rendering; chessRef keeps the
+  // authoritative history and is only touched in event handlers.
+  const board = useMemo(() => new Chess(fen), [fen])
+  const canMove =
+    connected && !busy && board.turn() === PLAYER && !board.isGameOver()
+  const targets = useMemo(
+    () => (canMove ? legalTargets(board, selected) : []),
+    [board, selected, canMove]
+  )
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8080/ws')
+    function handleServerMessage(data) {
+      if (data.type === 'state') {
+        const game = new Chess()
+        for (const notation of data.moves || []) {
+          applyUciMove(game, notation)
+        }
+        chessRef.current = game
+        setFen(game.fen())
+        setLastMove(null)
+        setSelected(null)
+        setBusy(false)
+        setEngineVersions(data.engines || [])
+        setSelectedEngine(data.engine || '')
+        setMessage(`Your turn against ${data.engine || 'engine'}`)
+      } else if (data.type === 'move') {
+        const move = {
+          from: data.from,
+          to: data.to,
+          promotion: data.promotion || undefined,
+        }
+        chessRef.current.move(move)
+        setFen(chessRef.current.fen())
+        setLastMove(move)
+        if (data.turn === PLAYER) {
+          setBusy(false)
+          setMessage('Your turn')
+        } else {
+          setMessage('Engine is thinking...')
+        }
+      } else if (data.type === 'game_over') {
+        setBusy(false)
+        setMessage(data.message ? `Game over: ${data.message}` : 'Game over')
+      } else if (data.type === 'error') {
+        setBusy(false)
+        setMessage(data.message || 'The move was rejected')
+      }
+    }
+
+    const ws = new WebSocket(WS_URL)
     wsRef.current = ws
     ws.addEventListener('open', () => {
       setConnected(true)
       setMessage('Your turn')
     })
-    ws.addEventListener('message', (ev) => {
+    ws.addEventListener('message', (event) => {
       try {
-        const data = JSON.parse(ev.data)
-        if (data.type === 'state') {
-          const game = new Chess()
-          for (const notation of data.moves || []) {
-            applyUciMove(game, notation)
-          }
-          chessRef.current = game
-          setFen(game.fen())
-          setBusy(false)
-          setEngineVersions(data.engines || [])
-          setSelectedEngine(data.engine || '')
-          setMessage(`Your turn against ${data.engine || 'engine'}`)
-        } else if (data.type === 'move') {
-          chessRef.current.move({
-            from: data.from,
-            to: data.to,
-            promotion: data.promotion || undefined,
-          })
-          setFen(chessRef.current.fen())
-          if (data.turn === 'w') {
-            setBusy(false)
-            setMessage('Your turn')
-          } else {
-            setMessage('Engine is thinking...')
-          }
-        } else if (data.type === 'game_over') {
-          setBusy(false)
-          setMessage('Game over')
-        } else if (data.type === 'error') {
-          setBusy(false)
-          setMessage(data.message || 'The move was rejected')
-        }
-      } catch (e) {
+        handleServerMessage(JSON.parse(event.data))
+      } catch {
         setBusy(false)
         setMessage('Invalid server response')
       }
@@ -74,28 +98,43 @@ export default function ChessViewer() {
     }
   }, [])
 
-  function handlePieceDrop(sourceSquare, targetSquare, piece) {
-    if (!connected || busy || chessRef.current.turn() !== 'w') {
-      return false
-    }
-
-    const movingPiece = chessRef.current.get(sourceSquare)
-    if (!movingPiece || movingPiece.color !== 'w') {
-      return false
-    }
-
-    const promotion =
-      movingPiece.type === 'p' && targetSquare[1] === '8' ? 'q' : ''
-    wsRef.current.send(
-      JSON.stringify({
-        type: 'move',
-        from: sourceSquare,
-        to: targetSquare,
-        promotion,
-      })
+  function sendMove(from, to) {
+    const move = legalTargets(board, from).find(
+      (candidate) => candidate.to === to
     )
+    if (!move) {
+      return false
+    }
+    // Promotions always choose a queen.
+    const promotion = move.promotion ? 'q' : ''
+    wsRef.current.send(JSON.stringify({ type: 'move', from, to, promotion }))
+    setSelected(null)
     setBusy(true)
     setMessage('Engine is thinking...')
+    return true
+  }
+
+  function handleSquareClick(square) {
+    if (!canMove) {
+      return
+    }
+    if (selected && targets.some((move) => move.to === square)) {
+      sendMove(selected, square)
+      return
+    }
+    const piece = board.get(square)
+    if (piece && piece.color === PLAYER && square !== selected) {
+      setSelected(square)
+    } else {
+      setSelected(null)
+    }
+  }
+
+  function handlePieceDrop(sourceSquare, targetSquare) {
+    if (canMove) {
+      sendMove(sourceSquare, targetSquare)
+    }
+    // The board updates when the server confirms the move.
     return false
   }
 
@@ -109,7 +148,7 @@ export default function ChessViewer() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
         <span className={connected ? 'text-emerald-600' : 'text-rose-600'}>
           {connected ? 'Connected' : 'Offline'}
@@ -122,7 +161,7 @@ export default function ChessViewer() {
         </label>
         <select
           id="engine-version"
-          className="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+          className={`${inputClass} w-auto`}
           value={selectedEngine}
           disabled={!connected || busy || engineVersions.length === 0}
           onChange={(event) => {
@@ -137,29 +176,27 @@ export default function ChessViewer() {
             </option>
           ))}
         </select>
-        <button
-          type="button"
-          className="rounded bg-gray-900 px-3 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={!connected || busy}
-          onClick={() => resetGame()}
-        >
+        <Button disabled={!connected || busy} onClick={() => resetGame()}>
           New game
-        </button>
+        </Button>
       </div>
-      <Chessboard
+      <ResponsiveBoard
         position={fen}
-        boardWidth={560}
-        arePiecesDraggable={connected && !busy}
+        arePiecesDraggable={canMove}
+        isDraggablePiece={({ piece }) => piece[0] === PLAYER}
+        onPieceDragBegin={(_, square) => setSelected(square)}
         onPieceDrop={handlePieceDrop}
+        onSquareClick={handleSquareClick}
+        customSquareStyles={boardHighlights({
+          lastMove,
+          selected: canMove ? selected : null,
+          targets,
+        })}
       />
+      <p className="text-xs text-gray-500">
+        Click a piece to see where it can move, then click a highlighted square,
+        or drag the piece.
+      </p>
     </div>
   )
-}
-
-function applyUciMove(game, notation) {
-  game.move({
-    from: notation.slice(0, 2),
-    to: notation.slice(2, 4),
-    promotion: notation[4] || undefined,
-  })
 }
