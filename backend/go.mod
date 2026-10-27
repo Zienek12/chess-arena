@@ -1,10 +1,13 @@
 module chess-arena/arena
 
-go 1.21
+go 1.25.0
 
 require github.com/gorilla/websocket v1.5.0
 
-require github.com/jackc/pgx/v5 v5.7.2
+require (
+	github.com/corentings/chess/v2 v2.6.1
+	github.com/jackc/pgx/v5 v5.7.2
+)
 
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect

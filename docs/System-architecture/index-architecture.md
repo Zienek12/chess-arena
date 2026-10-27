@@ -8,6 +8,7 @@ Select a topic to explore the implementation details:
 
 - [Engine implementation](engine-implementation.md)
 - [Tournament model](tournament-model.md)
+- [Arena backend](arena-backend.md)
 
 ## Versioned engine runtime
 
@@ -19,6 +20,6 @@ The backend supports two engine sources:
 
 The selected version is sent in the WebSocket `state` message and can be
 changed by sending `{"type":"reset","engine":"<version>"}`. Docker-backed
-versions are started with `docker run --rm -i --init`, so the backend process
+versions are started in isolated containers (see [Arena backend](arena-backend.md#engine-sandbox)), so the backend process
 needs access to the Docker CLI and daemon. The root `docker-compose.yml`
 provides PostgreSQL and a backend service for local platform development.
