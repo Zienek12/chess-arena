@@ -3,6 +3,7 @@ import { mutate } from 'swr'
 import { DEFAULT_POSITION } from 'chess.js'
 import { Button, ErrorMessage, Field, inputClass } from '../ui'
 import { apiPost } from '../../lib/api'
+import { OPENINGS, OPENING_SUITE_NAME, openingsPGN } from '../../lib/openings'
 
 const PLACEHOLDERS = {
   fen: `# One FEN per line\n${DEFAULT_POSITION}`,
@@ -19,6 +20,17 @@ export async function createStartingPositionSet() {
   return set
 }
 
+// Importing the suite again returns the set that already exists.
+export async function createOpeningSuite() {
+  const set = await apiPost('/api/position-sets', {
+    name: OPENING_SUITE_NAME,
+    format: 'pgn',
+    content: openingsPGN(),
+  })
+  await mutate('/api/position-sets')
+  return set
+}
+
 // Imports starting positions from FEN lines or PGN games (the position after
 // each game's moves is used, so opening lines work).
 export default function PositionSetForm({ onCreated }) {
@@ -27,6 +39,18 @@ export default function PositionSetForm({ onCreated }) {
   const [content, setContent] = useState('')
   const [error, setError] = useState(null)
   const [saving, setSaving] = useState(false)
+
+  async function importSuite() {
+    setSaving(true)
+    setError(null)
+    try {
+      onCreated?.(await createOpeningSuite())
+    } catch (err) {
+      setError(err)
+    } finally {
+      setSaving(false)
+    }
+  }
 
   async function submit(event) {
     event.preventDefault()
@@ -47,6 +71,21 @@ export default function PositionSetForm({ onCreated }) {
 
   return (
     <form onSubmit={submit} className="space-y-3">
+      <div className="space-y-2 rounded border border-gray-200 p-3">
+        <p className="text-sm text-gray-600">
+          {OPENINGS.length} balanced positions from popular openings. Use{' '}
+          {OPENINGS.length * 2} games with alternating colors to play each one
+          with both colors.
+        </p>
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={saving}
+          onClick={importSuite}
+        >
+          Add opening suite
+        </Button>
+      </div>
       <div className="grid grid-cols-3 gap-3">
         <div className="col-span-2">
           <Field label="Name" htmlFor="positions-name">

@@ -25,7 +25,7 @@ docker compose up -d --build
 3) Open http://localhost:3000:
 
 - **Play** — play White against the engine.
-- **Tournaments** — register engine versions (name, version and Docker image, for example `chess-arena-engine:local`), import starting positions and start a tournament between any two versions.
+- **Tournaments** — register engine versions (name, version and Docker image, for example `chess-arena-engine:local`), import starting positions (or add the built-in suite of 50 balanced openings with **Add opening suite**) and start a tournament between any two versions. With alternating colors, use twice as many games as positions so every position is played with both colors.
 
 | Service | Address | Description |
 | --- | --- | --- |
