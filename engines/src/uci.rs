@@ -1,58 +1,143 @@
 #![allow(dead_code)]
 
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::thread::{self, JoinHandle};
+use std::time::Duration;
+
 use crate::board::Board;
 use crate::fen::parse_fen;
 use crate::hash::position_hash;
-use crate::movegen::{in_check, legal_moves};
+use crate::movegen::legal_moves;
 use crate::moves::Move;
-use rand::seq::SliceRandom;
-use std::time::{Duration, Instant};
+use crate::search::{search, SearchLimits};
 
 const START_FEN: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 // Reported with the crate version, which matches the engine-vX.Y.Z release tag.
 const ENGINE_NAME: &str = "chess-arena-engine";
 
+/// Receives every line the engine sends to the GUI. The search thread uses it
+/// too, so lines are written as soon as they exist.
+pub type Output = Arc<dyn Fn(String) + Send + Sync>;
+
+/// Whether the command loop should keep reading commands.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Flow {
+    Continue,
+    Quit,
+}
+
+struct RunningSearch {
+    stop: Arc<AtomicBool>,
+    thread: JoinHandle<()>,
+}
+
 pub struct UciEngine {
     pub board: Board,
     history: Vec<u64>,
+    output: Output,
+    search: Option<RunningSearch>,
 }
 
 impl UciEngine {
-    pub fn new() -> Self {
+    pub fn new(output: Output) -> Self {
         let board = parse_fen(START_FEN).expect("start FEN must be valid");
         Self {
             history: vec![position_hash(&board)],
             board,
+            output,
+            search: None,
         }
     }
 
-    pub fn handle_command(&mut self, command: &str) -> Vec<String> {
+    fn send(&self, line: impl Into<String>) {
+        (self.output)(line.into());
+    }
+
+    pub fn handle_command(&mut self, command: &str) -> Flow {
         let mut parts = command.split_whitespace();
         let Some(keyword) = parts.next() else {
-            return Vec::new();
+            return Flow::Continue;
         };
 
         match keyword {
-            "uci" => vec![
-                format!("id name {} {}", ENGINE_NAME, env!("CARGO_PKG_VERSION")),
-                "id author Chess Arena".to_string(),
-                "uciok".to_string(),
-            ],
-            "isready" => vec!["readyok".to_string()],
+            "uci" => {
+                self.send(format!(
+                    "id name {} {}",
+                    ENGINE_NAME,
+                    env!("CARGO_PKG_VERSION")
+                ));
+                self.send("id author Chess Arena");
+                self.send("uciok");
+            }
+            // Answered at once, even while a search is running.
+            "isready" => self.send("readyok"),
             "ucinewgame" => {
+                self.stop_search();
                 self.board = parse_fen(START_FEN).expect("start FEN must be valid");
                 self.history = vec![position_hash(&self.board)];
-                Vec::new()
             }
-            "position" => match self.set_position(parts.collect()) {
-                Ok(()) => Vec::new(),
-                Err(error) => vec![format!("info string error {}", error)],
+            "position" => {
+                self.stop_search();
+                if let Err(error) = self.set_position(parts.collect()) {
+                    self.send(format!("info string error {}", error));
+                }
+            }
+            "go" => match SearchLimits::parse(&parts.collect::<Vec<_>>()) {
+                Ok(limits) => self.start_search(limits),
+                Err(error) => self.send(format!("info string error {}", error)),
             },
-            "go" => self.bestmove(),
-            "d" => vec![format!("{}", self.board)],
-            "stop" => Vec::new(),
-            "quit" => Vec::new(),
-            _ => vec![format!("info string error unknown command {}", keyword)],
+            "stop" => self.stop_search(),
+            "d" => self.send(format!("{}", self.board)),
+            "quit" => {
+                self.stop_search();
+                return Flow::Quit;
+            }
+            _ => self.send(format!("info string error unknown command {}", keyword)),
+        }
+        Flow::Continue
+    }
+
+    /// Starts searching the current position on its own thread. Telemetry is
+    /// sent after every iteration, then `bestmove`.
+    fn start_search(&mut self, limits: SearchLimits) {
+        self.stop_search();
+        let stop = Arc::new(AtomicBool::new(false));
+        let thread_stop = Arc::clone(&stop);
+        let output = Arc::clone(&self.output);
+        let mut board = self.board;
+        let thread = thread::spawn(move || {
+            let infinite = limits.infinite;
+            let result = search(
+                &mut board,
+                limits,
+                Arc::clone(&thread_stop),
+                &mut |report| output(report.to_info_line()),
+            );
+            // UCI forbids bestmove before stop when searching infinitely.
+            while infinite && !thread_stop.load(Ordering::Relaxed) {
+                thread::sleep(Duration::from_millis(1));
+            }
+            let best = result
+                .best_move
+                .map_or_else(|| "0000".to_string(), |chess_move| chess_move.to_uci());
+            output(format!("bestmove {}", best));
+        });
+        self.search = Some(RunningSearch { stop, thread });
+    }
+
+    /// Stops a running search and waits for its bestmove.
+    pub fn stop_search(&mut self) {
+        if let Some(running) = self.search.take() {
+            running.stop.store(true, Ordering::Relaxed);
+            let _ = running.thread.join();
+        }
+    }
+
+    /// Waits for a running search to finish on its own.
+    pub fn wait_for_search(&mut self) {
+        if let Some(running) = self.search.take() {
+            let _ = running.thread.join();
         }
     }
 
@@ -88,66 +173,6 @@ impl UciEngine {
         self.history = history;
         Ok(())
     }
-
-    fn bestmove(&mut self) -> Vec<String> {
-        let started = Instant::now();
-        let moves = legal_moves(&mut self.board);
-        let Some(chess_move) = moves.choose(&mut rand::thread_rng()) else {
-            // No legal moves: report the terminal score so the arena sees mate or stalemate.
-            let score = if in_check(&self.board, self.board.side_to_move) {
-                "mate 0"
-            } else {
-                "cp 0"
-            };
-            return vec![
-                format!("info depth 0 score {}", score),
-                "bestmove 0000".to_string(),
-            ];
-        };
-
-        // Until a real search exists, every legal move counts as one searched node at depth 1.
-        let telemetry = SearchTelemetry {
-            depth: 1,
-            score_cp: 0,
-            nodes: moves.len() as u64,
-            elapsed: started.elapsed(),
-            pv: vec![*chess_move],
-        };
-        vec![
-            telemetry.to_info_line(),
-            format!("bestmove {}", chess_move.to_uci()),
-        ]
-    }
-}
-
-struct SearchTelemetry {
-    depth: u32,
-    score_cp: i32,
-    nodes: u64,
-    elapsed: Duration,
-    pv: Vec<Move>,
-}
-
-impl SearchTelemetry {
-    fn to_info_line(&self) -> String {
-        let micros = self.elapsed.as_micros().max(1);
-        let nps = (u128::from(self.nodes) * 1_000_000 / micros) as u64;
-        let pv: Vec<String> = self
-            .pv
-            .iter()
-            .map(|chess_move| chess_move.to_uci())
-            .collect();
-        format!(
-            "info depth {} seldepth {} score cp {} nodes {} nps {} time {} pv {}",
-            self.depth,
-            self.depth,
-            self.score_cp,
-            self.nodes,
-            nps,
-            self.elapsed.as_millis(),
-            pv.join(" ")
-        )
-    }
 }
 
 fn find_uci_move(board: &mut Board, notation: &str) -> Option<Move> {
@@ -162,53 +187,85 @@ mod tests {
     use super::*;
     use crate::board::{Color, PieceKind, Square};
     use crate::status::game_status_with_history;
+    use std::sync::Mutex;
+
+    /// An engine whose output is captured for assertions.
+    struct Harness {
+        engine: UciEngine,
+        lines: Arc<Mutex<Vec<String>>>,
+    }
+
+    impl Harness {
+        fn new() -> Self {
+            let lines = Arc::new(Mutex::new(Vec::new()));
+            let sink = Arc::clone(&lines);
+            let output: Output = Arc::new(move |line| sink.lock().unwrap().push(line));
+            Self {
+                engine: UciEngine::new(output),
+                lines,
+            }
+        }
+
+        /// Sends a command, waits for any search it started, and returns its output.
+        fn run(&mut self, command: &str) -> Vec<String> {
+            self.lines.lock().unwrap().clear();
+            self.engine.handle_command(command);
+            self.engine.wait_for_search();
+            std::mem::take(&mut *self.lines.lock().unwrap())
+        }
+
+        fn output(&self) -> Vec<String> {
+            self.lines.lock().unwrap().clone()
+        }
+    }
 
     #[test]
     fn handles_start_position_and_go() {
-        let mut engine = UciEngine::new();
-        assert_eq!(
-            engine.handle_command("position startpos moves e2e4"),
-            Vec::<String>::new()
-        );
-        assert_eq!(engine.board.side_to_move, Color::Black);
-        let response = engine.handle_command("go");
+        let mut uci = Harness::new();
+        assert!(uci.run("position startpos moves e2e4").is_empty());
+        assert_eq!(uci.engine.board.side_to_move, Color::Black);
+        let response = uci.run("go movetime 100");
         assert_eq!(response.len(), 2);
         let notation = response[1].strip_prefix("bestmove ").unwrap();
-        assert!(notation.len() == 4);
-        assert!(legal_moves(&mut engine.board)
+        assert!(legal_moves(&mut uci.engine.board)
             .iter()
             .any(|chess_move| chess_move.to_uci() == notation));
     }
 
     #[test]
     fn handles_fen_and_ready() {
-        let mut engine = UciEngine::new();
-        let result = engine.handle_command("position fen 8/8/8/8/8/8/4K3/7k w - - 0 1");
-        assert!(result.is_empty());
-        assert_eq!(engine.handle_command("isready"), vec!["readyok"]);
+        let mut uci = Harness::new();
+        assert!(uci
+            .run("position fen 8/8/8/8/8/8/4K3/7k w - - 0 1")
+            .is_empty());
+        assert_eq!(uci.run("isready"), vec!["readyok"]);
     }
 
     #[test]
     fn reports_errors_with_error_prefix() {
-        let mut engine = UciEngine::new();
+        let mut uci = Harness::new();
         assert_eq!(
-            engine.handle_command("position startpos moves e2e5"),
+            uci.run("position startpos moves e2e5"),
             vec!["info string error illegal move e2e5"]
         );
         assert_eq!(
-            engine.handle_command("foo"),
+            uci.run("foo"),
             vec!["info string error unknown command foo"]
+        );
+        assert_eq!(
+            uci.run("go movetime soon"),
+            vec!["info string error invalid go movetime value soon"]
         );
     }
 
     #[test]
     fn reports_telemetry_before_bestmove() {
-        let mut engine = UciEngine::new();
-        let response = engine.handle_command("go");
+        let mut uci = Harness::new();
+        let response = uci.run("go depth 1");
         let fields: Vec<&str> = response[0].split_whitespace().collect();
         assert_eq!(
-            &fields[..7],
-            ["info", "depth", "1", "seldepth", "1", "score", "cp"]
+            &fields[..8],
+            ["info", "depth", "1", "seldepth", "1", "score", "cp", "0"]
         );
         assert_eq!(fields[8..10], ["nodes", "20"]);
         assert!(fields.contains(&"nps") && fields.contains(&"time"));
@@ -218,28 +275,57 @@ mod tests {
 
     #[test]
     fn reports_mate_score_when_checkmated() {
-        let mut engine = UciEngine::new();
-        engine.handle_command("position startpos moves f2f3 e7e5 g2g4 d8h4");
+        let mut uci = Harness::new();
+        uci.run("position startpos moves f2f3 e7e5 g2g4 d8h4");
         assert_eq!(
-            engine.handle_command("go"),
-            vec!["info depth 0 score mate 0", "bestmove 0000"]
+            uci.run("go"),
+            vec![
+                "info depth 0 seldepth 0 score mate 0 nodes 0 nps 0 time 0",
+                "bestmove 0000"
+            ]
         );
     }
 
     #[test]
     fn reports_draw_score_when_stalemated() {
-        let mut engine = UciEngine::new();
-        engine.handle_command("position fen 7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
+        let mut uci = Harness::new();
+        uci.run("position fen 7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
         assert_eq!(
-            engine.handle_command("go"),
-            vec!["info depth 0 score cp 0", "bestmove 0000"]
+            uci.run("go"),
+            vec![
+                "info depth 0 seldepth 0 score cp 0 nodes 0 nps 0 time 0",
+                "bestmove 0000"
+            ]
         );
     }
 
     #[test]
+    fn infinite_search_waits_for_stop() {
+        let mut uci = Harness::new();
+        uci.engine.handle_command("go infinite");
+        thread::sleep(Duration::from_millis(20));
+        assert!(uci
+            .output()
+            .iter()
+            .all(|line| !line.starts_with("bestmove")));
+        uci.engine.handle_command("isready");
+        assert_eq!(uci.output().last().unwrap(), "readyok");
+        uci.engine.handle_command("stop");
+        assert!(uci.output().last().unwrap().starts_with("bestmove "));
+    }
+
+    #[test]
+    fn quit_stops_a_running_search() {
+        let mut uci = Harness::new();
+        uci.engine.handle_command("go infinite");
+        assert_eq!(uci.engine.handle_command("quit"), Flow::Quit);
+        assert!(uci.output().last().unwrap().starts_with("bestmove "));
+    }
+
+    #[test]
     fn reports_name_with_crate_version() {
-        let mut engine = UciEngine::new();
-        let response = engine.handle_command("uci");
+        let mut uci = Harness::new();
+        let response = uci.run("uci");
         assert_eq!(
             response[0],
             format!("id name chess-arena-engine {}", env!("CARGO_PKG_VERSION"))
@@ -255,10 +341,10 @@ mod tests {
 
     #[test]
     fn tracks_threefold_repetition_history() {
-        let mut engine = UciEngine::new();
-        engine.handle_command("position startpos moves g1f3 g8f6 f3g1 f6g8 g1f3 g8f6 f3g1 f6g8");
+        let mut uci = Harness::new();
+        uci.run("position startpos moves g1f3 g8f6 f3g1 f6g8 g1f3 g8f6 f3g1 f6g8");
         assert_eq!(
-            game_status_with_history(&mut engine.board, &engine.history),
+            game_status_with_history(&mut uci.engine.board, &uci.engine.history),
             crate::status::GameStatus::ThreefoldRepetition
         );
     }

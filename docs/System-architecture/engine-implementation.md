@@ -34,7 +34,10 @@ The engine is located in `engines/`.
 | `src/hash.rs` | Deterministic position hashing for repetition detection. |
 | `src/perft.rs` | Recursive legal move counting and divide support. |
 | `src/status.rs` | Checkmate, stalemate, fifty-move, insufficient-material, and ongoing status detection. |
-| `src/uci.rs` | UCI command handling and random legal move selection. |
+| `src/uci.rs` | UCI command handling; runs the search on its own thread and streams its output. |
+| `src/search/mod.rs` | Search entry point and `SearchContext`: node and seldepth counters, time and node limits, `stop`, iteration reports. |
+| `src/search/limits.rs` | Parsing of `go` arguments and the time budget per move. |
+| `src/search/report.rs` | `Score` (centipawns or mate) and the `info` line of an iteration. |
 | `Cargo.toml` | Rust package metadata and the `rand` dependency. |
 
 ## Board Representation
@@ -211,44 +214,69 @@ Currently handled commands:
 - `position startpos moves ...`
 - `position fen <six FEN fields>`
 - `position fen <six FEN fields> moves ...`
-- `go`
+- `go` with `movetime`, `depth`, `nodes`, `wtime`, `btime`, `winc`, `binc`, `movestogo`, `infinite` and `ponder`
 - `stop`
 - `d`
 - `quit`
 
 Invalid commands and invalid positions are reported as `info string error <message>`. The backend treats only lines with this prefix as errors; any other `info string` line is plain logging, as the UCI protocol allows, and is ignored.
 
-### Current `go` behavior
+### Searching
 
-The engine does not search the game tree yet. Arguments after `go` (such as `movetime` or `wtime`) are accepted and ignored. For `go` it:
+`go` starts the search on a separate thread, so the engine keeps reading commands while it thinks:
 
-1. Generates all legal moves for the current position.
-2. Selects one move uniformly from the generated vector using `rand` and `thread_rng`.
-3. Reports one `info` telemetry line (see below).
-4. Returns the move in UCI notation.
-5. Returns `bestmove 0000` if there are no legal moves.
+- `isready` is answered at once, even during a search.
+- `stop` ends the search; the engine then sends `bestmove`.
+- `position`, `ucinewgame`, `go` and `quit` stop a running search first.
+- With `go infinite` (or `go ponder`), `bestmove` is sent only after `stop`, as the UCI protocol requires.
+- Unsupported or malformed arguments, such as `go searchmoves`, are rejected with `info string error ...` and no search starts.
+
+The time budget for one move is:
+
+| `go` arguments | Budget |
+| --- | --- |
+| `movetime T` | `T` |
+| `wtime`/`btime` with optional `winc`/`binc` and `movestogo` | `time / movestogo + 3/4 × increment` (30 moves assumed without `movestogo`), at most the clock minus 50 ms |
+| only `depth`, `nodes`, or nothing | none; the search ends at the depth or node limit, or when it is done |
+| `infinite` | none; the search ends on `stop` |
+
+### Plugging in a search algorithm
+
+A search algorithm receives a `SearchContext` and uses it for all telemetry:
+
+```rust
+context.visit(ply);            // for every position entered, ply = half-moves below the root
+if context.should_stop() { }   // stop received, time budget or node limit used up
+context.report(depth, score, pv); // after every completed iteration
+```
+
+Each `report` is sent at once as an `info` line, and the last one becomes the move's telemetry in the arena. The algorithm itself only decides which positions to visit and which move is best.
+
+Until alpha-beta exists, the algorithm visits every root move once and picks one at random. Its telemetry is real: `nodes` counts the visited root moves, and a chosen move that checkmates is reported as `score mate 1`. When the time or node limit runs out, it picks among the moves visited so far, but always visits at least one.
 
 ### Search telemetry
 
-Before every `bestmove`, the engine sends a standard UCI `info` line. The arena reads these lines to record telemetry per move. Its format will not change when a real search replaces random selection; a search will simply send one line per completed iteration, and the last line before `bestmove` is the final result.
+After every completed iteration the engine sends a standard UCI `info` line, and finally `bestmove`. The arena keeps the last `info` line before `bestmove` and stores every field in `game_moves`.
 
 ```text
-info depth 1 seldepth 1 score cp 0 nodes 20 nps 27662 time 0 pv g8f6
-bestmove g8f6
+info depth 1 seldepth 1 score cp 0 nodes 20 nps 9640 time 2 pv e2e4
+bestmove e2e4
 ```
 
-| Field | Meaning | Current value |
+| Field | Meaning | Database column |
 | --- | --- | --- |
-| `depth` / `seldepth` | Completed search depth in plies | Always `1` |
-| `score cp <n>` | Evaluation in centipawns from the side to move | Always `0` (no evaluator yet) |
-| `nodes` | Positions visited | Number of legal moves |
-| `nps` | Nodes per second | Derived from `nodes` and elapsed time |
-| `time` | Elapsed milliseconds | Time to generate and pick a move |
-| `pv` | Principal variation in UCI notation | The chosen move |
+| `depth` | Completed iteration depth in plies | `depth` |
+| `seldepth` | Deepest ply reached, including extensions | `seldepth` |
+| `score cp <n>` | Evaluation in centipawns from the side to move | `score_cp` |
+| `score mate <n>` | Mate in `n` moves; negative when the side to move gets mated | `score_mate` |
+| `nodes` | Positions visited since the search started | `nodes` |
+| `nps` | Nodes per second | `nps` |
+| `time` | Milliseconds since the search started | `engine_time_ms` |
+| `pv` | Principal variation in UCI notation | `pv` |
 
-When there is no legal move, the line has no search fields: `info depth 0 score mate 0` for checkmate, or `info depth 0 score cp 0` for stalemate.
+The arena also stores its own measurement of the time between `go` and `bestmove` as `think_time_ms`.
 
-The random choice is intentionally temporary. It provides a valid UCI response while leaving the rules core independent from future search code.
+When there is no legal move, the engine reports depth 0 and no `pv`: `info depth 0 seldepth 0 score mate 0 nodes 0 nps 0 time 0` for checkmate, or `score cp 0` for stalemate, followed by `bestmove 0000`.
 
 ## Running the Engine
 
@@ -338,7 +366,6 @@ The following features are not implemented yet:
 - Transposition tables.
 - Static position evaluation.
 - A broader repetition-history API outside the UCI engine.
-- Full UCI time-control handling such as `wtime`, `btime`, and `movetime`.
 - Optimized magic bitboards or generated lookup tables.
 - Library crate exports; the current project is primarily a binary crate.
 
@@ -348,4 +375,3 @@ The following features are not implemented yet:
 2. Add a static evaluator.
 3. Replace random `go` behavior with a small deterministic search, then add alpha-beta pruning.
 4. Introduce benchmarks before optimizing slider attacks or board mutation.
-5. Add time-control parsing and cancellation support to the UCI layer.
