@@ -286,6 +286,49 @@ The test suite covers:
 - Perft on six reference positions (shallow by default, deep with `--ignored`).
 - UCI command handling, legal random move selection, and `info` telemetry.
 
+## Versioning and Releases
+
+An engine version is defined in one place, `engines/Cargo.toml`, and appears identically everywhere else:
+
+| Where | Form | Example |
+| --- | --- | --- |
+| `engines/Cargo.toml` | `X.Y.Z` | `version = "1.1.0"` |
+| Git tag | `engine-vX.Y.Z` | `engine-v1.1.0` |
+| Docker image | `<user>/chess-arena-engine:X.Y.Z` | `zienek/chess-arena-engine:1.1.0` |
+| UCI handshake | `id name chess-arena-engine X.Y.Z` | `id name chess-arena-engine 1.1.0` |
+
+Versions follow [semantic versioning](https://semver.org): raise the major version when playing strength or behavior changes incompatibly, the minor version for new features such as a better evaluation, and the patch version for fixes. Prereleases use a suffix, such as `1.2.0-rc.1`.
+
+### Publishing a version
+
+1. Set the new version in `engines/Cargo.toml` and run `cargo build` so `Cargo.lock` is updated.
+2. Commit, then tag the commit and push the tag:
+
+   ```powershell
+   git tag engine-v1.1.0
+   git push origin engine-v1.1.0
+   ```
+
+The `Publish engine image` workflow then:
+
+1. rejects the tag unless it has the form `engine-vX.Y.Z` (optionally with a prerelease suffix) and matches `engines/Cargo.toml`;
+2. runs the full CI on the tagged commit;
+3. builds the image from the tagged commit and pushes these tags:
+
+| Image tag | Pushed when |
+| --- | --- |
+| `X.Y.Z` | always |
+| `X.Y` | the version is the newest stable patch of `X.Y` |
+| `latest` | the version is the newest stable version overall |
+
+Publishing an older version again never moves `X.Y` or `latest` back to it, and prereleases never move them.
+
+To publish an existing tag again, for example after a failed run, start the workflow manually under **Actions → Publish engine image → Run workflow** and enter the tag, such as `engine-v1.1.0`. The workflow builds that tag, whichever branch it is started from.
+
+In tournaments, register engines by their exact version tag (`zienek/chess-arena-engine:1.1.0`) rather than `latest` or `X.Y`. These two tags move to newer versions, so results would no longer show which version played. The arena pulls an image the first time a game needs it.
+
+The image `chess-arena-engine:engine-v1.0` was published before this scheme existed. It predates search telemetry and the `info string error` prefix.
+
 ## Current Limitations
 
 The following features are not implemented yet:

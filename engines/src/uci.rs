@@ -9,6 +9,8 @@ use rand::seq::SliceRandom;
 use std::time::{Duration, Instant};
 
 const START_FEN: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+// Reported with the crate version, which matches the engine-vX.Y.Z release tag.
+const ENGINE_NAME: &str = "chess-arena-engine";
 
 pub struct UciEngine {
     pub board: Board,
@@ -32,8 +34,8 @@ impl UciEngine {
 
         match keyword {
             "uci" => vec![
-                "id name uci_stub".to_string(),
-                "id author example".to_string(),
+                format!("id name {} {}", ENGINE_NAME, env!("CARGO_PKG_VERSION")),
+                "id author Chess Arena".to_string(),
                 "uciok".to_string(),
             ],
             "isready" => vec!["readyok".to_string()],
@@ -232,6 +234,17 @@ mod tests {
             engine.handle_command("go"),
             vec!["info depth 0 score cp 0", "bestmove 0000"]
         );
+    }
+
+    #[test]
+    fn reports_name_with_crate_version() {
+        let mut engine = UciEngine::new();
+        let response = engine.handle_command("uci");
+        assert_eq!(
+            response[0],
+            format!("id name chess-arena-engine {}", env!("CARGO_PKG_VERSION"))
+        );
+        assert_eq!(response.last().unwrap(), "uciok");
     }
 
     #[test]

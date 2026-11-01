@@ -1,13 +1,18 @@
 name: Publish engine image
 
+# One version, three places: engines/Cargo.toml says X.Y.Z, the git tag is
+# engine-vX.Y.Z, and the Docker image is <user>/chess-arena-engine:X.Y.Z.
+# Push the tag to publish, or run this workflow manually with an existing tag
+# to publish it again.
+
 on:
   push:
     tags:
       - "engine-v*"
   workflow_dispatch:
     inputs:
-      tag:
-        description: Docker image tag
+      release_tag:
+        description: Existing git tag to publish, for example engine-v1.1.0
         required: true
         type: string
 
@@ -15,27 +20,98 @@ env:
   IMAGE_NAME: ${{ vars.DOCKERHUB_USERNAME }}/chess-arena-engine
 
 jobs:
+  version:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      tag: ${{ steps.resolve.outputs.tag }}
+      version: ${{ steps.resolve.outputs.version }}
+      minor: ${{ steps.resolve.outputs.minor }}
+      latest: ${{ steps.resolve.outputs.latest }}
+      latest_minor: ${{ steps.resolve.outputs.latest_minor }}
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
+          fetch-depth: 0
+
+      - name: Resolve and validate version
+        id: resolve
+        env:
+          TAG: ${{ inputs.release_tag || github.ref_name }}
+        run: |
+          if [[ ! "$TAG" =~ ^engine-v(([0-9]+)\.([0-9]+)\.([0-9]+)(-[0-9A-Za-z.-]+)?)$ ]]; then
+            echo "::error::Tag '$TAG' must look like engine-vX.Y.Z or engine-vX.Y.Z-rc.1"
+            exit 1
+          fi
+          version="${BASH_REMATCH[1]}"
+          minor="${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
+          prerelease="${BASH_REMATCH[5]}"
+
+          cargo_version=$(sed -n 's/^version = "\(.*\)"$/\1/p' engines/Cargo.toml | head -n 1)
+          if [[ "$cargo_version" != "$version" ]]; then
+            echo "::error::Tag '$TAG' does not match version '$cargo_version' in engines/Cargo.toml"
+            exit 1
+          fi
+
+          # Moving tags only advance: republishing an old version must not
+          # move "latest" or "X.Y" back to it. Prereleases never move them.
+          # "|| true" because a grep without matches would stop the step (pipefail).
+          stable=$(git tag --list 'engine-v*' | sed 's/^engine-v//' | { grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || true; } | sort -V)
+          newest=$(echo "$stable" | tail -n 1)
+          newest_in_minor=$(echo "$stable" | { grep -E "^${minor//./\\.}\." || true; } | tail -n 1)
+          latest=false
+          latest_minor=false
+          if [[ -z "$prerelease" ]]; then
+            [[ "$version" == "$newest" ]] && latest=true
+            [[ "$version" == "$newest_in_minor" ]] && latest_minor=true
+          fi
+
+          {
+            echo "tag=$TAG"
+            echo "version=$version"
+            echo "minor=$minor"
+            echo "latest=$latest"
+            echo "latest_minor=$latest_minor"
+          } >> "$GITHUB_OUTPUT"
+          echo "Publishing $version (X.Y: $latest_minor, latest: $latest)" >> "$GITHUB_STEP_SUMMARY"
+
   ci:
+    needs: version
     uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ needs.version.outputs.tag }}
 
   publish:
-    needs: ci
+    name: Build and push
+    needs: [version, ci]
     runs-on: ubuntu-latest
     permissions:
       contents: read
 
     steps:
-      - name: Check out source
+      - name: Check out release tag
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.tag }}
 
       - name: Set image metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=false
           tags: |
-            type=match,pattern=engine-v(.*),group=1
-            type=raw,value=${{ inputs.tag }},enable=${{ inputs.tag != '' }}
+            type=raw,value=${{ needs.version.outputs.version }}
+            type=raw,value=${{ needs.version.outputs.minor }},enable=${{ needs.version.outputs.latest_minor }}
+            type=raw,value=latest,enable=${{ needs.version.outputs.latest }}
+          labels: |
+            org.opencontainers.image.version=${{ needs.version.outputs.version }}
+            org.opencontainers.image.title=chess-arena-engine
 
       - name: Log in to DockerHub
         uses: docker/login-action@v3
