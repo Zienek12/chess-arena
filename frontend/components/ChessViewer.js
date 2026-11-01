@@ -82,6 +82,11 @@ export default function ChessViewer() {
         setBusy(false)
         setMessage(data.message ? `Game over: ${data.message}` : 'Game over')
       } else if (data.type === 'error') {
+        // Sent when an engine failed to start; another one can be chosen.
+        if (data.engines) {
+          setEngineVersions(data.engines)
+          setSelectedEngine(data.engine || '')
+        }
         setBusy(false)
         setMessage(data.message || 'The move was rejected')
       }

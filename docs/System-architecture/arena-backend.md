@@ -122,7 +122,7 @@ Tournament body:
 | `ARENA_MOVE_MARGIN_MS` | `1000` | Tolerance on top of `movetime` before a time forfeit. |
 | `ARENA_SEARCH_TIMEOUT_MS` | `60000` | Per-move deadline for `depth` and `nodes` limits. |
 | `ARENA_ENGINE_NETWORK` | `none` | Docker network for engine containers. |
-| `CHESS_ENGINE_VERSION`, `CHESS_ENGINE_IMAGES`, `CHESS_ENGINE_PATH` | | Engines offered on `/ws`; see [index-architecture.md](index-architecture.md). |
+| `CHESS_ENGINE_VERSION`, `CHESS_ENGINE_IMAGES`, `CHESS_ENGINE_PATH` | | Engines offered on `/ws` besides the registered ones; see [index-architecture.md](index-architecture.md). |
 
 ## Testing
 

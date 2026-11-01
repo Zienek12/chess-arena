@@ -12,11 +12,19 @@ Select a topic to explore the implementation details:
 
 ## Versioned engine runtime
 
-The backend supports two engine sources:
+The Play page offers, in this order:
 
-- `local`, which uses `CHESS_ENGINE_PATH` or the repository's debug binary.
-- Named Docker images configured with `CHESS_ENGINE_IMAGES`, a comma-separated
+- Every engine registered for tournaments (`POST /api/engines`), named
+  `name version`, with its UCI options. A newly registered engine appears at the
+  next new game, without a restart.
+- Docker images configured with `CHESS_ENGINE_IMAGES`, a comma-separated
   allowlist in the form `version=image`.
+- `local`, which uses `CHESS_ENGINE_PATH` or the repository's debug binary. It
+  is listed only when that file exists.
+
+`CHESS_ENGINE_VERSION` names the engine selected on connect; without it, or
+when it is not available, the first engine is selected. If an engine fails to
+start, the error message carries the list so another one can be chosen.
 
 The selected version is sent in the WebSocket `state` message and can be
 changed by sending `{"type":"reset","engine":"<version>"}`. Docker-backed

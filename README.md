@@ -50,7 +50,8 @@ Settings can be changed with environment variables or a `.env` file next to `doc
 | `ARENA_WORKERS` | `2` | Games played in parallel |
 | `NEXT_PUBLIC_API_URL` | `http://localhost:8080` | Backend address used by the browser; requires `--build` after a change |
 | `CORS_ORIGINS` | `http://localhost:3000` | Frontend addresses allowed to call the backend |
-| `CHESS_ENGINE_IMAGES` | `v1=chess-arena-engine:local` | Engine versions offered on the Play page |
+| `CHESS_ENGINE_IMAGES` | empty | Extra `version=image` engines offered on the Play page, besides the engines registered on the Tournaments page |
+| `CHESS_ENGINE_VERSION` | first engine | Engine selected when the Play page opens, e.g. `Alpha-Beta 1.2.0` |
 
 Notes:
 

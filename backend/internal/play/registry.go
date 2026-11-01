@@ -2,6 +2,7 @@
 package play
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,17 +11,32 @@ import (
 	"strings"
 
 	"chess-arena/arena/internal/sandbox"
+	"chess-arena/arena/internal/store"
 )
 
 // LocalVersion runs the engine built in ../engines instead of a Docker image.
 const LocalVersion = "local"
 
-// Registry maps engine versions offered to players to Docker images. It is
-// configured from the environment and is separate from the tournament engines.
+// EngineSource lists the engines registered for tournaments. *store.Store
+// implements it.
+type EngineSource interface {
+	ListEngines(ctx context.Context) ([]store.Engine, error)
+}
+
+// Registry holds the engines configured from the environment. Players can
+// choose these and every engine registered for tournaments.
 type Registry struct {
 	DefaultVersion string
 	Images         map[string]string
 	LocalPath      string
+}
+
+// Choice is one engine a player can select.
+type Choice struct {
+	Name       string
+	Spec       sandbox.Spec
+	UCIOptions map[string]string
+	Local      bool
 }
 
 // LoadRegistry reads CHESS_ENGINE_VERSION, CHESS_ENGINE_IMAGES
@@ -30,9 +46,6 @@ func LoadRegistry() (Registry, error) {
 		DefaultVersion: strings.TrimSpace(os.Getenv("CHESS_ENGINE_VERSION")),
 		Images:         make(map[string]string),
 		LocalPath:      os.Getenv("CHESS_ENGINE_PATH"),
-	}
-	if registry.DefaultVersion == "" {
-		registry.DefaultVersion = LocalVersion
 	}
 	if registry.LocalPath == "" {
 		executable := "chess-arena-engine"
@@ -56,26 +69,77 @@ func LoadRegistry() (Registry, error) {
 	return registry, nil
 }
 
-// Versions lists "local" followed by the configured versions in order.
-func (registry Registry) Versions() []string {
+// Choices lists the registered engines ("name version", in registry order),
+// then the configured images by version, then "local" when its binary exists.
+// source may be nil when there is no database.
+func (registry Registry) Choices(ctx context.Context, source EngineSource) ([]Choice, error) {
+	var choices []Choice
+	seen := make(map[string]bool)
+	add := func(choice Choice) {
+		if !seen[choice.Name] {
+			seen[choice.Name] = true
+			choices = append(choices, choice)
+		}
+	}
+
+	if source != nil {
+		engines, err := source.ListEngines(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, engine := range engines {
+			add(Choice{Name: engine.DisplayName(), Spec: dockerSpec(engine.Image), UCIOptions: engine.UCIOptions})
+		}
+	}
+
 	versions := make([]string, 0, len(registry.Images))
 	for version := range registry.Images {
 		versions = append(versions, version)
 	}
 	sort.Strings(versions)
-	return append([]string{LocalVersion}, versions...)
+	for _, version := range versions {
+		add(Choice{Name: version, Spec: dockerSpec(registry.Images[version])})
+	}
+
+	if info, err := os.Stat(registry.LocalPath); err == nil && !info.IsDir() {
+		add(Choice{Name: LocalVersion, Spec: sandbox.Spec{Command: registry.LocalPath}, Local: true})
+	}
+	return choices, nil
 }
 
-// spec returns how to start version and which launcher starts it.
-func (registry Registry) spec(version string, docker sandbox.Launcher) (sandbox.Spec, sandbox.Launcher, error) {
-	if version == "" {
-		version = registry.DefaultVersion
+// Default is the engine selected when a player connects: CHESS_ENGINE_VERSION
+// when it is available, otherwise the first choice.
+func (registry Registry) Default(choices []Choice) string {
+	for _, choice := range choices {
+		if choice.Name == registry.DefaultVersion {
+			return choice.Name
+		}
 	}
-	if image, ok := registry.Images[version]; ok {
-		return sandbox.Spec{Image: image, CPUs: 1, MemoryMB: 256}, docker, nil
+	if len(choices) == 0 {
+		return ""
 	}
-	if version == LocalVersion {
-		return sandbox.Spec{Command: registry.LocalPath}, sandbox.LocalLauncher{}, nil
+	return choices[0].Name
+}
+
+func dockerSpec(image string) sandbox.Spec {
+	return sandbox.Spec{Image: image, CPUs: 1, MemoryMB: 256}
+}
+
+// names returns the name of every choice.
+func names(choices []Choice) []string {
+	result := make([]string, len(choices))
+	for index, choice := range choices {
+		result[index] = choice.Name
 	}
-	return sandbox.Spec{}, nil, fmt.Errorf("engine version %q is not configured", version)
+	return result
+}
+
+// find returns the choice called name.
+func find(choices []Choice, name string) (Choice, error) {
+	for _, choice := range choices {
+		if choice.Name == name {
+			return choice, nil
+		}
+	}
+	return Choice{}, fmt.Errorf("engine %q is not available", name)
 }

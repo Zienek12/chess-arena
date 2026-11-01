@@ -49,15 +49,17 @@ type serverMessage struct {
 // Handler serves one human-versus-engine game per WebSocket connection.
 type Handler struct {
 	registry Registry
+	engines  EngineSource
 	docker   sandbox.Launcher
 	origins  []string
 	logger   *slog.Logger
 }
 
-// NewHandler returns the WebSocket handler. Connections are accepted only from
-// the listed browser origins.
-func NewHandler(registry Registry, docker sandbox.Launcher, origins []string, logger *slog.Logger) *Handler {
-	return &Handler{registry: registry, docker: docker, origins: origins, logger: logger}
+// NewHandler returns the WebSocket handler. Players choose from the engines
+// in registry and in engines, which may be nil without a database.
+// Connections are accepted only from the listed browser origins.
+func NewHandler(registry Registry, engines EngineSource, docker sandbox.Launcher, origins []string, logger *slog.Logger) *Handler {
+	return &Handler{registry: registry, engines: engines, docker: docker, origins: origins, logger: logger}
 }
 
 // session is the state of one connection.
@@ -84,8 +86,7 @@ func (handler *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	s := &session{handler: handler, conn: conn}
 	defer s.closeEngine()
-	if err := s.reset(ctx, handler.registry.DefaultVersion); err != nil {
-		_ = conn.WriteJSON(serverMessage{Type: "error", Message: err.Error()})
+	if err := s.reset(ctx, ""); err != nil {
 		return
 	}
 	for {
@@ -103,7 +104,6 @@ func (handler *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				version = message.Engine
 			}
 			if err := s.reset(ctx, version); err != nil {
-				_ = conn.WriteJSON(serverMessage{Type: "error", Message: err.Error()})
 				return
 			}
 		case "move":
@@ -116,33 +116,65 @@ func (handler *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// reset starts a fresh engine of version and a new game.
+// reset starts a fresh engine of version, or the default one when version is
+// empty, and a new game. When the engine cannot start the player is told why
+// and can pick another; only connection failures are returned.
 func (s *session) reset(ctx context.Context, version string) error {
 	s.closeEngine()
-	spec, launcher, err := s.handler.registry.spec(version, s.handler.docker)
+	choices, err := s.handler.registry.Choices(ctx, s.handler.engines)
+	if err != nil {
+		s.handler.logger.Warn("listing engines failed", "error", err)
+		return s.conn.WriteJSON(serverMessage{Type: "error", Message: "could not list engines"})
+	}
+	if version == "" {
+		version = s.handler.registry.Default(choices)
+	}
+	if err := s.start(ctx, choices, version); err != nil {
+		if errors.Is(err, context.Canceled) {
+			return err
+		}
+		return s.conn.WriteJSON(serverMessage{
+			Type: "error", Message: fmt.Sprintf("engine %s failed to start: %v", version, err),
+			Engine: version, Engines: names(choices),
+		})
+	}
+	s.version = version
+	s.game, _ = rules.NewGame("")
+	return s.conn.WriteJSON(serverMessage{
+		Type: "state", Moves: []string{}, Turn: string(rules.White),
+		Engine: version, Engines: names(choices),
+	})
+}
+
+// start launches the engine called version and completes the UCI handshake.
+func (s *session) start(ctx context.Context, choices []Choice, version string) error {
+	choice, err := find(choices, version)
 	if err != nil {
 		return err
 	}
-	process, err := launcher.Start(ctx, spec)
+	launcher := s.handler.docker
+	if choice.Local {
+		launcher = sandbox.LocalLauncher{}
+	}
+	process, err := launcher.Start(ctx, choice.Spec)
 	if err != nil {
 		return err
 	}
 	engine := uci.NewClient(process.Stdin, process.Stdout, process.Stop)
-	if _, err := engine.Handshake(ctx, nil, startTimeout); err != nil {
+	if _, err := engine.Handshake(ctx, choice.UCIOptions, startTimeout); err != nil {
 		_ = engine.Close()
 		return err
 	}
-	s.engine, s.version = engine, version
-	s.game, _ = rules.NewGame("")
-	return s.conn.WriteJSON(serverMessage{
-		Type: "state", Moves: []string{}, Turn: string(rules.White),
-		Engine: version, Engines: s.handler.registry.Versions(),
-	})
+	s.engine = engine
+	return nil
 }
 
 // move applies the player's move and answers with the engine's move. Rejected
 // moves are reported to the client; only connection failures are returned.
 func (s *session) move(ctx context.Context, message clientMessage) error {
+	if s.engine == nil {
+		return s.conn.WriteJSON(serverMessage{Type: "error", Message: "no engine is running; choose one and start a new game"})
+	}
 	if message.From == "" || message.To == "" {
 		return s.conn.WriteJSON(serverMessage{Type: "error", Message: "move requires from and to squares"})
 	}

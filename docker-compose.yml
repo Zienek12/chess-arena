@@ -20,8 +20,8 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     environment:
-      CHESS_ENGINE_VERSION: "${CHESS_ENGINE_VERSION:-v1}"
-      CHESS_ENGINE_IMAGES: "${CHESS_ENGINE_IMAGES:-v1=chess-arena-engine:local}"
+      CHESS_ENGINE_VERSION: "${CHESS_ENGINE_VERSION:-}"
+      CHESS_ENGINE_IMAGES: "${CHESS_ENGINE_IMAGES:-}"
       DATABASE_URL: "postgres://chess_arena:chess_arena_dev@postgres:5432/chess_arena?sslmode=disable"
       ARENA_WORKERS: "${ARENA_WORKERS:-2}"
       CORS_ORIGINS: "${CORS_ORIGINS:-http://localhost:3000}"

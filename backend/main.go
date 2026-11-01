@@ -45,7 +45,8 @@ func run(logger *slog.Logger) error {
 	docker.Network = cfg.EngineNetwork
 
 	mux := http.NewServeMux()
-	mux.Handle("/ws", play.NewHandler(registry, docker, cfg.CORSOrigins, logger))
+	// Players can also choose the engines registered for tournaments.
+	var engines play.EngineSource
 
 	var workers sync.WaitGroup
 	if cfg.DatabaseURL == "" {
@@ -62,6 +63,7 @@ func run(logger *slog.Logger) error {
 		logger.Info("database schema is up to date")
 
 		repository := store.New(pool)
+		engines = repository
 		api.NewServer(repository, logger).Register(mux)
 		for index := 1; index <= cfg.Workers; index++ {
 			worker := arena.NewWorker(arena.Config{
@@ -77,6 +79,7 @@ func run(logger *slog.Logger) error {
 		}
 		logger.Info("arena workers started", "count", cfg.Workers)
 	}
+	mux.Handle("/ws", play.NewHandler(registry, engines, docker, cfg.CORSOrigins, logger))
 
 	server := &http.Server{
 		Addr:              cfg.HTTPAddr,
