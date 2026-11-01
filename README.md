@@ -25,7 +25,7 @@ go run .
 
 Without `DATABASE_URL` only the WebSocket game runs. With it (for example `docker compose up postgres` and `DATABASE_URL=postgres://chess_arena:chess_arena_dev@localhost:5432/chess_arena?sslmode=disable`) the tournament API and arena workers start as well.
 
-The backend expects the engine at `../engines/target/debug/uci_stub.exe` on Windows or `../engines/target/debug/uci_stub` on other systems. Set `CHESS_ENGINE_PATH` to override this location.
+The backend expects the engine at `../engines/target/debug/chess-arena-engine.exe` on Windows or `../engines/target/debug/chess-arena-engine` on other systems. Set `CHESS_ENGINE_PATH` to override this location.
 
 3) Run the frontend (requires Node.js 18+):
 

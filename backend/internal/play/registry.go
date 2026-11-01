@@ -35,7 +35,7 @@ func LoadRegistry() (Registry, error) {
 		registry.DefaultVersion = LocalVersion
 	}
 	if registry.LocalPath == "" {
-		executable := "uci_stub"
+		executable := "chess-arena-engine"
 		if runtime.GOOS == "windows" {
 			executable += ".exe"
 		}
