@@ -1,5 +1,6 @@
 mod attacks;
 mod board;
+mod eval;
 mod fen;
 mod hash;
 mod movegen;

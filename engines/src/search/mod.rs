@@ -1,12 +1,13 @@
 //! Search entry point and the telemetry every search algorithm reports.
 //!
-//! A search algorithm plugs into [`SearchContext`]: it calls
-//! [`SearchContext::visit`] for every position it enters, checks
-//! [`SearchContext::should_stop`] regularly, and calls
-//! [`SearchContext::report`] after every completed iteration. The context
-//! turns that into the `info` lines the arena stores with each move.
+//! [`search`] runs iterative deepening: it searches to depth 1, 2, 3, ...
+//! with alpha-beta ([`alphabeta`]) until a limit is reached, and reports
+//! every completed depth. [`SearchContext`] counts nodes, enforces the limits
+//! and turns reports into the `info` lines the arena stores with each move.
 
+mod alphabeta;
 mod limits;
+mod ordering;
 mod report;
 
 pub use limits::SearchLimits;
@@ -16,11 +17,18 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use rand::seq::SliceRandom;
-
 use crate::board::Board;
 use crate::movegen::{in_check, legal_moves};
 use crate::moves::Move;
+
+use alphabeta::{to_uci_score, Search, INFINITY, MATE, MAX_PLY};
+use ordering::order_moves;
+
+/// Depth searched by a bare `go`, which sets no time, depth or node limit.
+const DEFAULT_DEPTH: u32 = 5;
+/// How many nodes pass between checks of the clock and the stop flag; a
+/// power of two, so the check is a bit mask.
+const STOP_CHECK_INTERVAL: u64 = 1024;
 
 /// Counters, limits and the stop signal of one running search.
 pub struct SearchContext<'a> {
@@ -30,6 +38,10 @@ pub struct SearchContext<'a> {
     stop: Arc<AtomicBool>,
     nodes: u64,
     seldepth: u32,
+    aborted: bool,
+    /// Limits are ignored until the first iteration completes, so a search
+    /// always returns a legal move.
+    can_abort: bool,
     on_report: &'a mut dyn FnMut(&SearchReport),
     last_report: Option<SearchReport>,
 }
@@ -48,6 +60,8 @@ impl<'a> SearchContext<'a> {
             stop,
             nodes: 0,
             seldepth: 0,
+            aborted: false,
+            can_abort: false,
             on_report,
             last_report: None,
         }
@@ -59,13 +73,40 @@ impl<'a> SearchContext<'a> {
         self.seldepth = self.seldepth.max(ply);
     }
 
-    /// True once `stop` was received or the time or node limit is used up.
-    pub fn should_stop(&self) -> bool {
+    /// True once the search must stop: `stop` was received, or the time or
+    /// node limit is used up. Cheap enough to call at every node; the clock is
+    /// only read every `STOP_CHECK_INTERVAL` nodes.
+    pub fn poll_stop(&mut self) -> bool {
+        if self.aborted {
+            return true;
+        }
+        if !self.can_abort {
+            return false;
+        }
+        let node_limit = self.limits.nodes.is_some_and(|limit| self.nodes >= limit);
+        if node_limit || (self.nodes & (STOP_CHECK_INTERVAL - 1) == 0 && self.time_is_up()) {
+            self.aborted = true;
+        }
+        self.aborted
+    }
+
+    fn time_is_up(&self) -> bool {
         self.stop.load(Ordering::Relaxed)
             || self
                 .budget
                 .is_some_and(|budget| self.started.elapsed() >= budget)
-            || self.limits.nodes.is_some_and(|limit| self.nodes >= limit)
+    }
+
+    /// Whether another iteration is worth starting. An iteration usually takes
+    /// longer than all previous ones together, so none starts after half of
+    /// the time budget.
+    fn can_start_iteration(&self) -> bool {
+        !self.aborted
+            && !self.stop.load(Ordering::Relaxed)
+            && self.limits.nodes.is_none_or(|limit| self.nodes < limit)
+            && self
+                .budget
+                .is_none_or(|budget| self.started.elapsed() < budget / 2)
     }
 
     /// Publishes a completed iteration.
@@ -80,6 +121,7 @@ impl<'a> SearchContext<'a> {
         };
         (self.on_report)(&report);
         self.last_report = Some(report);
+        self.can_abort = true;
     }
 }
 
@@ -92,66 +134,128 @@ pub struct SearchResult {
 }
 
 /// Searches `board` within `limits`, calling `on_report` after every
-/// completed iteration.
+/// completed depth. `history` holds the position hashes of the game so far,
+/// ending with the current position, so repetitions are recognized as draws.
 pub fn search(
     board: &mut Board,
+    history: &[u64],
     limits: SearchLimits,
     stop: Arc<AtomicBool>,
     on_report: &mut dyn FnMut(&SearchReport),
 ) -> SearchResult {
+    let max_depth = match limits.depth {
+        Some(depth) => depth.clamp(1, MAX_PLY),
+        None if limits.nodes.is_none()
+            && !limits.infinite
+            && limits.time_budget(board.side_to_move).is_none() =>
+        {
+            DEFAULT_DEPTH
+        }
+        None => MAX_PLY,
+    };
     let mut context = SearchContext::new(board, limits, stop, on_report);
-    let best_move = random_root_move(board, &mut context);
-    let report = context
-        .last_report
-        .take()
-        .expect("a search reports at least once");
-    SearchResult { best_move, report }
-}
 
-/// Placeholder until alpha-beta exists: picks a random legal move, but
-/// reports real telemetry. Every root move is visited, and a move that mates
-/// at once is reported as `mate 1`.
-fn random_root_move(board: &mut Board, context: &mut SearchContext) -> Option<Move> {
-    let moves = legal_moves(board);
-    if moves.is_empty() {
+    let mut root_moves = legal_moves(board);
+    if root_moves.is_empty() {
         let score = if in_check(board, board.side_to_move) {
             Score::Mate(0)
         } else {
             Score::Cp(0)
         };
         context.report(0, score, Vec::new());
-        return None;
+        let report = context.last_report.take().expect("reported above");
+        return SearchResult {
+            best_move: None,
+            report,
+        };
     }
 
-    let visited = visit_root_moves(board, &moves, context);
-    let &(chess_move, mates) = visited
-        .choose(&mut rand::thread_rng())
-        .expect("at least one move was visited");
-    let score = if mates { Score::Mate(1) } else { Score::Cp(0) };
-    context.report(1, score, vec![chess_move]);
-    Some(chess_move)
-}
-
-/// Visits each root move until the search must stop, recording whether the
-/// move checkmates. The first move is always visited, so a move exists even
-/// on a tiny budget.
-fn visit_root_moves(
-    board: &mut Board,
-    moves: &[Move],
-    context: &mut SearchContext,
-) -> Vec<(Move, bool)> {
-    let mut visited = Vec::with_capacity(moves.len());
-    for &chess_move in moves {
-        if !visited.is_empty() && context.should_stop() {
+    let mut best_line: Vec<Move> = Vec::new();
+    for depth in 1..=max_depth {
+        if depth > 1 && !context.can_start_iteration() {
             break;
         }
-        let undo = board.make_move(chess_move);
-        context.visit(1);
-        let mates = legal_moves(board).is_empty() && in_check(board, board.side_to_move);
-        board.unmake_move(chess_move, undo);
-        visited.push((chess_move, mates));
+        let Some((score, line)) = search_root(
+            board,
+            history,
+            &mut root_moves,
+            depth,
+            &best_line,
+            &mut context,
+        ) else {
+            break;
+        };
+        best_line = line;
+        context.report(depth, to_uci_score(score), best_line.clone());
+        // A forced mate within the horizon will not change with more depth.
+        if score.abs() >= MATE - depth as i32 {
+            break;
+        }
+        // With a single legal move there is nothing to decide.
+        if root_moves.len() == 1 && context.budget.is_some() {
+            break;
+        }
     }
-    visited
+
+    let report = context
+        .last_report
+        .take()
+        .expect("the first iteration always completes");
+    SearchResult {
+        best_move: best_line.first().copied(),
+        report,
+    }
+}
+
+/// Searches all root moves to `depth`. Returns the score and principal
+/// variation, or `None` when the iteration was aborted. The best move is
+/// moved to the front of `root_moves` for the next iteration.
+fn search_root(
+    board: &mut Board,
+    history: &[u64],
+    root_moves: &mut [Move],
+    depth: u32,
+    previous_line: &[Move],
+    context: &mut SearchContext,
+) -> Option<(i32, Vec<Move>)> {
+    order_moves(board, root_moves, previous_line.first().copied());
+    let mut path = history.to_vec();
+    if path.is_empty() {
+        path.push(crate::hash::position_hash(board));
+    }
+    let mut searcher = Search {
+        board,
+        context,
+        path,
+    };
+
+    let mut alpha = -INFINITY;
+    let mut best_index = 0;
+    let mut best_line = Vec::new();
+    let mut child_line = Vec::new();
+    for (index, &chess_move) in root_moves.iter().enumerate() {
+        let hint = (index == 0 && !previous_line.is_empty()).then(|| &previous_line[1..]);
+        let undo = searcher.board.make_move(chess_move);
+        searcher.context.visit(1);
+        let hash = crate::hash::position_hash(searcher.board);
+        searcher.path.push(hash);
+        let score = -searcher.negamax(depth - 1, 1, -INFINITY, -alpha, hint, &mut child_line);
+        searcher.path.pop();
+        searcher.board.unmake_move(chess_move, undo);
+
+        if searcher.context.poll_stop() {
+            return None;
+        }
+        if score > alpha {
+            alpha = score;
+            best_index = index;
+            best_line.clear();
+            best_line.push(chess_move);
+            best_line.extend_from_slice(&child_line);
+        }
+    }
+    root_moves[..=best_index].rotate_right(1);
+    Some((alpha, best_line))
 }
 
 #[cfg(test)]
@@ -161,9 +265,11 @@ mod tests {
 
     fn run(fen: &str, limits: SearchLimits) -> (SearchResult, Vec<SearchReport>) {
         let mut board = parse_fen(fen).unwrap();
+        let history = vec![crate::hash::position_hash(&board)];
         let mut reports = Vec::new();
         let result = search(
             &mut board,
+            &history,
             limits,
             Arc::new(AtomicBool::new(false)),
             &mut |report| reports.push(report.clone()),
@@ -171,38 +277,104 @@ mod tests {
         (result, reports)
     }
 
-    #[test]
-    fn reports_root_telemetry() {
-        let (result, reports) = run(
-            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-            SearchLimits::default(),
-        );
-        assert_eq!(reports.len(), 1);
-        let report = &result.report;
-        assert_eq!(report, &reports[0]);
-        assert_eq!((report.depth, report.seldepth, report.nodes), (1, 1, 20));
-        assert_eq!(report.score, Score::Cp(0));
-        assert_eq!(report.pv, vec![result.best_move.unwrap()]);
+    fn depth(depth: u32) -> SearchLimits {
+        SearchLimits {
+            depth: Some(depth),
+            ..SearchLimits::default()
+        }
+    }
+
+    fn best(result: &SearchResult) -> String {
+        result.best_move.unwrap().to_uci()
     }
 
     #[test]
-    fn detects_mating_root_moves() {
-        // Back-rank mate: only Ra8 checkmates.
-        let mut board = parse_fen("7k/5ppp/8/8/8/8/8/R5K1 w - - 0 1").unwrap();
-        let moves = legal_moves(&mut board);
-        let mut ignore = |_: &SearchReport| {};
-        let mut context = SearchContext::new(
-            &board,
-            SearchLimits::default(),
-            Arc::new(AtomicBool::new(false)),
-            &mut ignore,
+    fn reports_every_depth() {
+        let (result, reports) = run(
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            depth(3),
         );
-        let mating: Vec<String> = visit_root_moves(&mut board, &moves, &mut context)
-            .into_iter()
-            .filter(|&(_, mates)| mates)
-            .map(|(chess_move, _)| chess_move.to_uci())
-            .collect();
-        assert_eq!(mating, vec!["a1a8"]);
+        let depths: Vec<u32> = reports.iter().map(|report| report.depth).collect();
+        assert_eq!(depths, vec![1, 2, 3]);
+        assert_eq!(reports[0].nodes, 20);
+        assert!(reports.windows(2).all(|pair| pair[0].nodes < pair[1].nodes));
+        assert_eq!(&result.report, reports.last().unwrap());
+        assert_eq!(result.report.pv.len(), 3);
+        assert_eq!(result.report.pv[0], result.best_move.unwrap());
+    }
+
+    #[test]
+    fn finds_mate_in_one() {
+        let (result, _) = run("7k/5ppp/8/8/8/8/8/R5K1 w - - 0 1", depth(3));
+        assert_eq!(best(&result), "a1a8");
+        assert_eq!(result.report.score, Score::Mate(1));
+    }
+
+    #[test]
+    fn finds_mate_in_two() {
+        // 1. Kb6 Kb8 2. Rh8#
+        let (result, _) = run("k7/8/2K5/8/8/8/8/7R w - - 0 1", depth(4));
+        assert_eq!(result.report.score, Score::Mate(2));
+        assert_eq!(result.report.pv.len(), 3);
+    }
+
+    #[test]
+    fn reports_being_mated() {
+        // Black's only move is Kb8, then Rh8#.
+        let (result, _) = run("k7/8/1K6/8/8/8/8/7R b - - 0 1", depth(3));
+        assert_eq!(result.report.score, Score::Mate(-1));
+        assert_eq!(best(&result), "a8b8");
+    }
+
+    #[test]
+    fn captures_hanging_queen() {
+        let (result, _) = run("4k3/8/8/3q4/8/8/8/3RK3 w - - 0 1", depth(2));
+        assert_eq!(best(&result), "d1d5");
+        assert!(matches!(result.report.score, Score::Cp(cp) if cp > 300));
+    }
+
+    #[test]
+    fn avoids_losing_the_queen() {
+        // Qxd7?? loses the queen to the king; the queen should stay safe.
+        let (result, _) = run("4k3/3p4/8/8/8/8/8/3QK3 w - - 0 1", depth(3));
+        assert_ne!(best(&result), "d1d7");
+    }
+
+    #[test]
+    fn prefers_mate_to_stalemate() {
+        // Qg7# mates; Qg6 would stalemate the king on h8.
+        let (result, _) = run("7k/8/5K2/8/8/8/8/6Q1 w - - 0 1", depth(2));
+        assert_eq!(best(&result), "g1g7");
+        assert_eq!(result.report.score, Score::Mate(1));
+    }
+
+    #[test]
+    fn scores_repetition_as_draw() {
+        // White is a rook down but can repeat: the knight shuffle returns to a
+        // position already seen twice.
+        let mut board = parse_fen("4k3/8/8/8/8/8/1r6/4K1N1 w - - 0 1").unwrap();
+        let start = crate::hash::position_hash(&board);
+        let mut history = vec![start];
+        for notation in ["g1f3", "e8d8", "f3g1", "d8e8"] {
+            let chess_move = legal_moves(&mut board)
+                .into_iter()
+                .find(|m| m.to_uci() == notation)
+                .unwrap();
+            board.make_move(chess_move);
+            history.push(crate::hash::position_hash(&board));
+        }
+        let mut reports = Vec::new();
+        let result = search(
+            &mut board,
+            &history,
+            depth(1),
+            Arc::new(AtomicBool::new(false)),
+            &mut |report| reports.push(report.clone()),
+        );
+        // Ng1-f3 repeats the position after White's first move: a draw beats
+        // being a rook down.
+        assert_eq!(best(&result), "g1f3");
+        assert_eq!(result.report.score, Score::Cp(0));
     }
 
     #[test]
@@ -221,15 +393,51 @@ mod tests {
     }
 
     #[test]
-    fn stops_at_node_limit_but_still_returns_a_move() {
-        let (result, _) = run(
+    fn node_limit_stops_after_the_first_depth() {
+        let (result, reports) = run(
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
             SearchLimits {
                 nodes: Some(5),
                 ..SearchLimits::default()
             },
         );
-        assert_eq!(result.report.nodes, 5);
+        // Depth 1 always completes (20 nodes); no deeper iteration starts.
+        assert_eq!(reports.len(), 1);
+        assert_eq!(result.report.nodes, 20);
+        assert!(result.best_move.is_some());
+    }
+
+    #[test]
+    fn time_limit_is_respected() {
+        let started = Instant::now();
+        let (result, _) = run(
+            "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",
+            SearchLimits {
+                movetime: Some(Duration::from_millis(200)),
+                ..SearchLimits::default()
+            },
+        );
+        assert!(result.best_move.is_some());
+        assert!(started.elapsed() < Duration::from_millis(400));
+    }
+
+    #[test]
+    fn stop_flag_ends_an_infinite_search() {
+        let mut board =
+            parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
+        let history = vec![crate::hash::position_hash(&board)];
+        let stop = Arc::new(AtomicBool::new(false));
+        let setter = Arc::clone(&stop);
+        let handle = std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(100));
+            setter.store(true, Ordering::Relaxed);
+        });
+        let limits = SearchLimits {
+            infinite: true,
+            ..SearchLimits::default()
+        };
+        let result = search(&mut board, &history, limits, stop, &mut |_| {});
+        handle.join().unwrap();
         assert!(result.best_move.is_some());
     }
 }

@@ -42,7 +42,7 @@ pub fn game_status_with_history(board: &mut Board, history: &[u64]) -> GameStatu
     GameStatus::Ongoing
 }
 
-fn insufficient_material(board: &Board) -> bool {
+pub fn insufficient_material(board: &Board) -> bool {
     if board.piece_bb(PieceKind::Pawn).0 != 0
         || board.piece_bb(PieceKind::Rook).0 != 0
         || board.piece_bb(PieceKind::Queen).0 != 0

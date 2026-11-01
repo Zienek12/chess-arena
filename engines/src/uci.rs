@@ -106,10 +106,12 @@ impl UciEngine {
         let thread_stop = Arc::clone(&stop);
         let output = Arc::clone(&self.output);
         let mut board = self.board;
+        let history = self.history.clone();
         let thread = thread::spawn(move || {
             let infinite = limits.infinite;
             let result = search(
                 &mut board,
+                &history,
                 limits,
                 Arc::clone(&thread_stop),
                 &mut |report| output(report.to_info_line()),
@@ -225,8 +227,11 @@ mod tests {
         assert!(uci.run("position startpos moves e2e4").is_empty());
         assert_eq!(uci.engine.board.side_to_move, Color::Black);
         let response = uci.run("go movetime 100");
-        assert_eq!(response.len(), 2);
-        let notation = response[1].strip_prefix("bestmove ").unwrap();
+        // One info line per completed depth, then bestmove.
+        let (bestmove, infos) = response.split_last().unwrap();
+        assert!(!infos.is_empty());
+        assert!(infos.iter().all(|line| line.starts_with("info depth ")));
+        let notation = bestmove.strip_prefix("bestmove ").unwrap();
         assert!(legal_moves(&mut uci.engine.board)
             .iter()
             .any(|chess_move| chess_move.to_uci() == notation));
@@ -264,8 +269,8 @@ mod tests {
         let response = uci.run("go depth 1");
         let fields: Vec<&str> = response[0].split_whitespace().collect();
         assert_eq!(
-            &fields[..8],
-            ["info", "depth", "1", "seldepth", "1", "score", "cp", "0"]
+            &fields[..7],
+            ["info", "depth", "1", "seldepth", "1", "score", "cp"]
         );
         assert_eq!(fields[8..10], ["nodes", "20"]);
         assert!(fields.contains(&"nps") && fields.contains(&"time"));
