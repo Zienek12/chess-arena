@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Chess, DEFAULT_POSITION } from 'chess.js'
+import MoveLog from './MoveLog'
 import ResponsiveBoard from './ResponsiveBoard'
+import TelemetryPanel from './TelemetryPanel'
 import { Button, inputClass } from './ui'
 import { WS_URL } from '../lib/api'
 import { applyUciMove, boardHighlights, legalTargets } from '../lib/chess'
@@ -18,6 +20,10 @@ export default function ChessViewer() {
   const [message, setMessage] = useState('Connecting to engine...')
   const [engineVersions, setEngineVersions] = useState([])
   const [selectedEngine, setSelectedEngine] = useState('')
+  // Every move of the game; engine moves carry the search telemetry.
+  const [moveLog, setMoveLog] = useState([])
+  // Engine move shown in the telemetry panel; null follows the latest one.
+  const [inspected, setInspected] = useState(null)
 
   // A fresh game built from the FEN drives rendering; chessRef keeps the
   // authoritative history and is only touched in event handlers.
@@ -38,6 +44,8 @@ export default function ChessViewer() {
         }
         chessRef.current = game
         setFen(game.fen())
+        setMoveLog([])
+        setInspected(null)
         setLastMove(null)
         setSelected(null)
         setBusy(false)
@@ -50,7 +58,18 @@ export default function ChessViewer() {
           to: data.to,
           promotion: data.promotion || undefined,
         }
-        chessRef.current.move(move)
+        const fenBefore = chessRef.current.fen()
+        const played = chessRef.current.move(move)
+        const entry = {
+          number: Number(fenBefore.split(' ')[5]),
+          color: played.color,
+          san: played.san,
+          fenBefore,
+          info: data.info,
+          thinkTimeMs: data.think_time_ms,
+        }
+        setMoveLog((log) => [...log, entry])
+        setInspected(null)
         setFen(chessRef.current.fen())
         setLastMove(move)
         if (data.turn === PLAYER) {
@@ -147,56 +166,83 @@ export default function ChessViewer() {
     wsRef.current.send(JSON.stringify({ type: 'reset', engine }))
   }
 
+  const engineMoves = moveLog.filter((entry) => entry.info !== undefined)
+  const shownMove =
+    inspected !== null
+      ? moveLog[inspected]
+      : engineMoves[engineMoves.length - 1]
+  const thinking = busy && inspected === null && board.turn() !== PLAYER
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-        <span className={connected ? 'text-emerald-600' : 'text-rose-600'}>
-          {connected ? 'Connected' : 'Offline'}
-        </span>
-        <span className="text-gray-600">{message}</span>
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,560px)_1fr]">
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+          <span className={connected ? 'text-emerald-600' : 'text-rose-600'}>
+            {connected ? 'Connected' : 'Offline'}
+          </span>
+          <span className="text-gray-600">{message}</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="text-sm text-gray-700" htmlFor="engine-version">
+            Engine
+          </label>
+          <select
+            id="engine-version"
+            className={`${inputClass} w-auto`}
+            value={selectedEngine}
+            disabled={!connected || busy || engineVersions.length === 0}
+            onChange={(event) => {
+              setSelectedEngine(event.target.value)
+              resetGame(event.target.value)
+            }}
+          >
+            {engineVersions.length === 0 && (
+              <option value="">Unavailable</option>
+            )}
+            {engineVersions.map((engine) => (
+              <option key={engine} value={engine}>
+                {engine}
+              </option>
+            ))}
+          </select>
+          <Button disabled={!connected || busy} onClick={() => resetGame()}>
+            New game
+          </Button>
+        </div>
+        <ResponsiveBoard
+          position={fen}
+          arePiecesDraggable={canMove}
+          isDraggablePiece={({ piece }) => piece[0] === PLAYER}
+          onPieceDragBegin={(_, square) => setSelected(square)}
+          onPieceDrop={handlePieceDrop}
+          onSquareClick={handleSquareClick}
+          customSquareStyles={boardHighlights({
+            lastMove,
+            selected: canMove ? selected : null,
+            targets,
+          })}
+        />
+        <p className="text-xs text-gray-500">
+          Click a piece to see where it can move, then click a highlighted
+          square, or drag the piece.
+        </p>
       </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="text-sm text-gray-700" htmlFor="engine-version">
-          Engine
-        </label>
-        <select
-          id="engine-version"
-          className={`${inputClass} w-auto`}
-          value={selectedEngine}
-          disabled={!connected || busy || engineVersions.length === 0}
-          onChange={(event) => {
-            setSelectedEngine(event.target.value)
-            resetGame(event.target.value)
-          }}
-        >
-          {engineVersions.length === 0 && <option value="">Unavailable</option>}
-          {engineVersions.map((engine) => (
-            <option key={engine} value={engine}>
-              {engine}
-            </option>
-          ))}
-        </select>
-        <Button disabled={!connected || busy} onClick={() => resetGame()}>
-          New game
-        </Button>
+      <div className="space-y-4">
+        <TelemetryPanel
+          move={shownMove}
+          thinking={thinking}
+          title={
+            inspected !== null
+              ? 'Engine search (selected move)'
+              : 'Engine search (last move)'
+          }
+        />
+        <MoveLog
+          moves={moveLog}
+          selectedIndex={inspected}
+          onSelect={(index) => setInspected(index === inspected ? null : index)}
+        />
       </div>
-      <ResponsiveBoard
-        position={fen}
-        arePiecesDraggable={canMove}
-        isDraggablePiece={({ piece }) => piece[0] === PLAYER}
-        onPieceDragBegin={(_, square) => setSelected(square)}
-        onPieceDrop={handlePieceDrop}
-        onSquareClick={handleSquareClick}
-        customSquareStyles={boardHighlights({
-          lastMove,
-          selected: canMove ? selected : null,
-          targets,
-        })}
-      />
-      <p className="text-xs text-gray-500">
-        Click a piece to see where it can move, then click a highlighted square,
-        or drag the piece.
-      </p>
     </div>
   )
 }

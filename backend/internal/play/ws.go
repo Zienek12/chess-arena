@@ -41,6 +41,9 @@ type serverMessage struct {
 	Engine    string   `json:"engine,omitempty"`
 	Engines   []string `json:"engines,omitempty"`
 	Result    string   `json:"result,omitempty"`
+	// Info and ThinkTimeMs describe the engine's search; only set on engine moves.
+	Info        *uci.Info `json:"info,omitempty"`
+	ThinkTimeMs int64     `json:"think_time_ms,omitempty"`
 }
 
 // Handler serves one human-versus-engine game per WebSocket connection.
@@ -169,7 +172,7 @@ func (s *session) move(ctx context.Context, message clientMessage) error {
 	}
 	if err := s.conn.WriteJSON(serverMessage{
 		Type: "move", From: result.BestMove[:2], To: result.BestMove[2:4], Promotion: result.BestMove[4:],
-		Turn: string(s.game.Turn()),
+		Turn: string(s.game.Turn()), Info: &result.Info, ThinkTimeMs: result.Elapsed.Milliseconds(),
 	}); err != nil {
 		return err
 	}

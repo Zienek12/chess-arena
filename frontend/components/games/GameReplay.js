@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ResponsiveBoard from '../ResponsiveBoard'
+import TelemetryPanel from '../TelemetryPanel'
 import { Button } from '../ui'
 import {
   boardHighlights,
@@ -27,6 +28,16 @@ export default function GameReplay({ game }) {
 
   const fen = ply === 0 ? game.start_fen : moves[ply - 1].fen_after
   const lastMove = ply === 0 ? null : parseUci(moves[ply - 1].uci)
+  const shownMove =
+    ply === 0
+      ? null
+      : {
+          color: (ply % 2 === 1) !== startsWithBlack ? 'w' : 'b',
+          san: san[ply - 1],
+          fenBefore: ply === 1 ? game.start_fen : moves[ply - 2].fen_after,
+          info: moves[ply - 1].info,
+          thinkTimeMs: moves[ply - 1].think_time_ms,
+        }
 
   function goTo(next) {
     const clamped = Math.max(0, Math.min(moves.length, next))
@@ -102,6 +113,10 @@ export default function GameReplay({ game }) {
         <p className="text-xs text-gray-500">
           Use ← and → to step through the moves.
         </p>
+        <TelemetryPanel
+          move={shownMove}
+          title={ply === 0 ? 'Engine search' : `Engine search (move ${ply})`}
+        />
       </div>
 
       <div className="max-h-[640px] overflow-y-auto rounded border border-gray-200 bg-white">
