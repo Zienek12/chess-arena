@@ -10,4 +10,3 @@ name = "chess-arena-engine"
 path = "src/main.rs"
 
 [dependencies]
-rand = "0.8.5"

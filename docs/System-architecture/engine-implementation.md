@@ -35,10 +35,13 @@ The engine is located in `engines/`.
 | `src/perft.rs` | Recursive legal move counting and divide support. |
 | `src/status.rs` | Checkmate, stalemate, fifty-move, insufficient-material, and ongoing status detection. |
 | `src/uci.rs` | UCI command handling; runs the search on its own thread and streams its output. |
-| `src/search/mod.rs` | Search entry point and `SearchContext`: node and seldepth counters, time and node limits, `stop`, iteration reports. |
+| `src/eval.rs` | Static evaluation: material and piece-square tables. |
+| `src/search/mod.rs` | Iterative deepening and `SearchContext`: node and seldepth counters, time and node limits, `stop`, iteration reports. |
+| `src/search/alphabeta.rs` | Negamax with alpha-beta pruning, mate scores, draw detection, principal variation. |
+| `src/search/ordering.rs` | Move ordering: previous best move, then MVV-LVA captures, then promotions. |
 | `src/search/limits.rs` | Parsing of `go` arguments and the time budget per move. |
 | `src/search/report.rs` | `Score` (centipawns or mate) and the `info` line of an iteration. |
-| `Cargo.toml` | Rust package metadata and the `rand` dependency. |
+| `Cargo.toml` | Rust package metadata; the engine has no dependencies. |
 
 ## Board Representation
 
@@ -237,22 +240,37 @@ The time budget for one move is:
 | --- | --- |
 | `movetime T` | `T` |
 | `wtime`/`btime` with optional `winc`/`binc` and `movestogo` | `time / movestogo + 3/4 × increment` (30 moves assumed without `movestogo`), at most the clock minus 50 ms |
-| only `depth`, `nodes`, or nothing | none; the search ends at the depth or node limit, or when it is done |
+| only `depth` or `nodes` | none; the search ends at the depth or node limit |
+| nothing (bare `go`) | none; the search stops at depth 5 |
 | `infinite` | none; the search ends on `stop` |
 
-### Plugging in a search algorithm
+### Evaluation
 
-A search algorithm receives a `SearchContext` and uses it for all telemetry:
+`eval.rs` scores a position in centipawns from the side to move:
 
-```rust
-context.visit(ply);            // for every position entered, ply = half-moves below the root
-if context.should_stop() { }   // stop received, time budget or node limit used up
-context.report(depth, score, pv); // after every completed iteration
-```
+- **Material:** pawn 100, knight 320, bishop 330, rook 500, queen 900.
+- **Piece-square tables:** a bonus or penalty for every piece on every square, from Tomasz Michniewski's [Simplified Evaluation Function](https://www.chessprogramming.org/Simplified_Evaluation_Function). Knights prefer the center, pawns gain value as they advance, rooks like the seventh rank.
+- **King:** blended between a middlegame table (stay sheltered behind pawns) and an endgame table (walk to the center), weighted by the knights, bishops, rooks and queens left on the board.
 
-Each `report` is sent at once as an `info` line, and the last one becomes the move's telemetry in the arena. The algorithm itself only decides which positions to visit and which move is best.
+### Search
 
-Until alpha-beta exists, the algorithm visits every root move once and picks one at random. Its telemetry is real: `nodes` counts the visited root moves, and a chosen move that checkmates is reported as `score mate 1`. When the time or node limit runs out, it picks among the moves visited so far, but always visits at least one.
+`search()` runs **iterative deepening**: it searches to depth 1, then 2, 3 and so on, and sends an `info` line after each completed depth. Each depth is a **negamax search with alpha-beta pruning** (`alphabeta.rs`):
+
+- Leaves (depth 0) are scored by `evaluate`. There is no quiescence search yet.
+- Checkmate scores `-(MATE - ply)`, so the search prefers the fastest mate and the slowest defeat. Scores near `MATE` are reported as `score mate N`.
+- Stalemate, the fifty-move rule, insufficient material and repetitions score 0. A position that already occurred in the game or on the search path counts as a draw, so the engine both avoids repetitions when winning and seeks them when losing; for this the UCI layer passes the game's position history to the search.
+- The principal variation is collected while searching and reported as `pv`.
+
+**Move ordering** (`ordering.rs`) makes the pruning effective: the best move of the previous depth (and the rest of its line) is searched first, then captures ordered by MVV-LVA (most valuable victim, least valuable attacker), then promotions, then quiet moves.
+
+**Stopping:**
+
+- Depth 1 always completes, so a legal move is always returned, even with `nodes 1` or `movetime 1`.
+- After that, the clock and the stop flag are checked every 1024 nodes, and the node limit at every node. An interrupted depth is discarded; the best move of the last completed depth is played.
+- No new depth starts after half of the time budget, because it would rarely finish.
+- The search ends early when it finds a forced mate within its depth, or when there is only one legal move.
+
+Every algorithm reports through `SearchContext`: `visit(ply)` for every position entered, `poll_stop()` to check the limits, and `report(depth, score, pv)` after every completed depth. The context turns reports into `info` lines and keeps the counters for the telemetry.
 
 ### Search telemetry
 
@@ -293,7 +311,7 @@ A simple UCI session can be sent through standard input:
 @('uci', 'isready', 'position startpos moves e2e4', 'go', 'quit') | cargo run --quiet
 ```
 
-The selected move after `go` is expected to vary because it is random, but it must always be legal for the current position.
+With `go movetime 1000`, the release build typically reaches depth 5 from the starting position (about 100,000 nodes).
 
 ## Verification
 
@@ -312,7 +330,8 @@ The test suite covers:
 - Check and castling legality.
 - FEN parsing and serialization.
 - Perft on six reference positions (shallow by default, deep with `--ignored`).
-- UCI command handling, legal random move selection, and `info` telemetry.
+- Evaluation, move ordering and alpha-beta search: mates in one and two, winning material, avoiding stalemate and repetition draws, limits and `stop`.
+- UCI command handling and `info` telemetry.
 
 ## Versioning and Releases
 
@@ -361,17 +380,17 @@ The image `chess-arena-engine:engine-v1.0` was published before this scheme exis
 
 The following features are not implemented yet:
 
-- Minimax, alpha-beta, or any other search algorithm.
-- Quiescence search.
+- Quiescence search; without it the evaluation swings between odd and even depths (horizon effect).
 - Transposition tables.
-- Static position evaluation.
+- Killer moves and history heuristics for ordering quiet moves.
+- Evaluation terms beyond material and piece-square tables (pawn structure, mobility, king safety).
 - A broader repetition-history API outside the UCI engine.
 - Optimized magic bitboards or generated lookup tables.
 - Library crate exports; the current project is primarily a binary crate.
 
 ## Recommended Next Steps
 
-1. Add explicit game-status detection for checkmate, stalemate, the fifty-move rule, repetition, and insufficient material.
-2. Add a static evaluator.
-3. Replace random `go` behavior with a small deterministic search, then add alpha-beta pruning.
+1. Add quiescence search over captures.
+2. Add a transposition table keyed by the position hash.
+3. Add killer moves and history heuristics.
 4. Introduce benchmarks before optimizing slider attacks or board mutation.
