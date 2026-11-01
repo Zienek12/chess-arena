@@ -3,5 +3,11 @@ name = "Alpha-Beta"
 version = "1.1.0"
 edition = "2021"
 
+# The executable name is fixed, so renaming the package does not break the
+# Dockerfile or the backend, which start the engine by this name.
+[[bin]]
+name = "chess-arena-engine"
+path = "src/main.rs"
+
 [dependencies]
 rand = "0.8.5"
