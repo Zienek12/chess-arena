@@ -4,8 +4,30 @@ import Layout from '../../components/Layout'
 import EngineTelemetryTable from '../../components/EngineTelemetryTable'
 import GameReplay from '../../components/games/GameReplay'
 import { BackendUnavailable, Card, StatusBadge } from '../../components/ui'
-import { API_URL, useEngineNames, useGame } from '../../lib/api'
+import { API_URL, openingLabel, useEngineNames, useGame } from '../../lib/api'
 import { summarizeTelemetry } from '../../lib/chess'
+
+// Where Stockfish's review of the game stands.
+function AnalysisStatus({ game }) {
+  const { analysis } = game
+  let text
+  if (game.status !== 'completed') {
+    text = 'Stockfish analyzes the game once it is finished.'
+  } else if (!analysis) {
+    text = 'Waiting for Stockfish analysis...'
+  } else if (analysis.status === 'completed') {
+    text = `Analyzed by ${
+      analysis.engine
+    } with ${analysis.nodes.toLocaleString()} nodes per position.`
+  } else if (analysis.status === 'failed') {
+    text = `Stockfish analysis failed: ${analysis.error}`
+  } else {
+    text = analysis.error
+      ? `Stockfish analysis is waiting to retry: ${analysis.error}`
+      : 'Stockfish is analyzing the game...'
+  }
+  return <p className="mt-1 text-xs text-gray-500">{text}</p>
+}
 
 export default function GamePage() {
   const { query } = useRouter()
@@ -48,6 +70,13 @@ export default function GamePage() {
             Game {game.game_number} <StatusBadge status={game.status} />
           </h1>
           <p className="mt-1 text-sm text-gray-600">
+            Opening:{' '}
+            <span className="font-medium text-gray-900">
+              {openingLabel(game)}
+            </span>
+            {game.opening && ` (position ${game.position_number})`}
+          </p>
+          <p className="mt-1 text-sm text-gray-600">
             <span className="font-medium text-gray-900">{white}</span> (White)
             vs <span className="font-medium text-gray-900">{black}</span>{' '}
             (Black)
@@ -60,6 +89,7 @@ export default function GamePage() {
               </>
             )}
           </p>
+          <AnalysisStatus game={game} />
         </div>
         {game.pgn && (
           <a

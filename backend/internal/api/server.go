@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"slices"
 
+	"chess-arena/arena/internal/sandbox"
 	"chess-arena/arena/internal/store"
 	"chess-arena/arena/internal/tournament"
 )
@@ -28,17 +29,30 @@ type Store interface {
 	CancelTournament(ctx context.Context, id string) error
 	ListGames(ctx context.Context, tournamentID string) ([]store.GameSummary, error)
 	GetGame(ctx context.Context, id string) (store.GameDetail, error)
+	Leaderboard(ctx context.Context) ([]store.LeaderboardEntry, error)
+}
+
+// Options configure optional API features.
+type Options struct {
+	// Token, when set, is required as "Authorization: Bearer <token>" for
+	// every request that changes data.
+	Token string
+	// Images, when set, limits the Docker images engines may be registered with.
+	Images *sandbox.ImagePolicy
+	// Events, when set, enables the /api/events stream.
+	Events Events
 }
 
 // Server holds the API dependencies.
 type Server struct {
-	store  Store
-	logger *slog.Logger
+	store   Store
+	logger  *slog.Logger
+	options Options
 }
 
 // NewServer returns an API server.
-func NewServer(store Store, logger *slog.Logger) *Server {
-	return &Server{store: store, logger: logger}
+func NewServer(store Store, logger *slog.Logger, options Options) *Server {
+	return &Server{store: store, logger: logger, options: options}
 }
 
 // Register adds the API routes to mux.
@@ -46,17 +60,22 @@ func (server *Server) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
+	mux.HandleFunc("GET /api/auth", server.authStatus)
 	mux.HandleFunc("GET /api/engines", server.listEngines)
-	mux.HandleFunc("POST /api/engines", server.createEngine)
+	mux.HandleFunc("POST /api/engines", server.requireToken(server.createEngine))
 	mux.HandleFunc("GET /api/position-sets", server.listPositionSets)
-	mux.HandleFunc("POST /api/position-sets", server.createPositionSet)
+	mux.HandleFunc("POST /api/position-sets", server.requireToken(server.createPositionSet))
 	mux.HandleFunc("GET /api/tournaments", server.listTournaments)
-	mux.HandleFunc("POST /api/tournaments", server.createTournament)
+	mux.HandleFunc("POST /api/tournaments", server.requireToken(server.createTournament))
 	mux.HandleFunc("GET /api/tournaments/{id}", server.getTournament)
-	mux.HandleFunc("POST /api/tournaments/{id}/cancel", server.cancelTournament)
+	mux.HandleFunc("POST /api/tournaments/{id}/cancel", server.requireToken(server.cancelTournament))
 	mux.HandleFunc("GET /api/tournaments/{id}/games", server.listGames)
 	mux.HandleFunc("GET /api/games/{id}", server.getGame)
 	mux.HandleFunc("GET /api/games/{id}/pgn", server.getGamePGN)
+	mux.HandleFunc("GET /api/leaderboard", server.leaderboard)
+	if server.options.Events != nil {
+		mux.HandleFunc("GET /api/events", server.streamEvents)
+	}
 }
 
 // WithCORS allows the listed browser origins to call the API.
@@ -66,7 +85,7 @@ func WithCORS(next http.Handler, origins []string) http.Handler {
 		if origin != "" && slices.Contains(origins, origin) {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 			w.Header().Add("Vary", "Origin")
 		}
 		if r.Method == http.MethodOptions {

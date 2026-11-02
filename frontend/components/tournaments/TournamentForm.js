@@ -16,6 +16,11 @@ const LIMITS = {
   nodes: { label: 'Nodes', defaultValue: 100000 },
 }
 
+const POSITION_ORDERS = {
+  random: 'Random (a different sample for every tournament)',
+  sequential: 'In the order of the set',
+}
+
 const COLOR_ORDERS = {
   alternate: 'Alternate (each position played with both colors)',
   engine_a_white: 'Engine A always White',
@@ -36,8 +41,14 @@ export default function TournamentForm() {
     limitType: 'movetime_ms',
     limitValue: LIMITS.movetime_ms.defaultValue,
     colorOrder: 'alternate',
+    positionOrder: 'random',
     cpus: 1,
     memoryMb: 256,
+    sprt: false,
+    elo0: 0,
+    elo1: 10,
+    alpha: 0.05,
+    beta: 0.05,
   })
   const [error, setError] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -82,8 +93,17 @@ export default function TournamentForm() {
         game_count: form.gameCount,
         limit: { [form.limitType]: form.limitValue },
         color_order: form.colorOrder,
+        position_order: form.positionOrder,
         cpus: form.cpus,
         memory_mb: form.memoryMb,
+        sprt: form.sprt
+          ? {
+              elo0: form.elo0,
+              elo1: form.elo1,
+              alpha: form.alpha,
+              beta: form.beta,
+            }
+          : undefined,
       })
       await mutate('/api/tournaments')
       router.push(`/tournaments/${tournament.id}`)
@@ -216,6 +236,71 @@ export default function TournamentForm() {
           />
         </Field>
       </div>
+      <div className="space-y-3 rounded border border-gray-200 p-3">
+        <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <input
+            type="checkbox"
+            checked={form.sprt}
+            onChange={(event) =>
+              setForm({ ...form, sprt: event.target.checked })
+            }
+          />
+          Stop early with SPRT
+        </label>
+        <p className="text-xs text-gray-500">
+          Tests whether engine A is stronger than engine B and stops as soon as
+          the result is clear; the number of games becomes the maximum. Use for
+          example H0 = 0 and H1 = 10 Elo to test a small improvement.
+        </p>
+        {form.sprt && (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <Field label="H0 Elo" htmlFor="sprt-elo0">
+              <input
+                id="sprt-elo0"
+                type="number"
+                step="any"
+                className={inputClass}
+                value={form.elo0}
+                onChange={update('elo0', Number)}
+              />
+            </Field>
+            <Field label="H1 Elo" htmlFor="sprt-elo1">
+              <input
+                id="sprt-elo1"
+                type="number"
+                step="any"
+                className={inputClass}
+                value={form.elo1}
+                onChange={update('elo1', Number)}
+              />
+            </Field>
+            <Field label="α" htmlFor="sprt-alpha">
+              <input
+                id="sprt-alpha"
+                type="number"
+                step="0.01"
+                min="0.01"
+                max="0.49"
+                className={inputClass}
+                value={form.alpha}
+                onChange={update('alpha', Number)}
+              />
+            </Field>
+            <Field label="β" htmlFor="sprt-beta">
+              <input
+                id="sprt-beta"
+                type="number"
+                step="0.01"
+                min="0.01"
+                max="0.49"
+                className={inputClass}
+                value={form.beta}
+                onChange={update('beta', Number)}
+              />
+            </Field>
+          </div>
+        )}
+      </div>
       <details className="rounded border border-gray-200 p-3">
         <summary className="cursor-pointer text-sm font-medium text-gray-700">
           Advanced
@@ -229,6 +314,24 @@ export default function TournamentForm() {
               onChange={update('colorOrder')}
             >
               {Object.entries(COLOR_ORDERS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field
+            label="Order of starting positions"
+            htmlFor="position-order"
+            hint="Random order keeps short tournaments, and ones stopped early by SPRT, from only playing the first openings of a set."
+          >
+            <select
+              id="position-order"
+              className={inputClass}
+              value={form.positionOrder}
+              onChange={update('positionOrder')}
+            >
+              {Object.entries(POSITION_ORDERS).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>

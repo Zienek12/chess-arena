@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useState } from 'react'
 import EngineTelemetryTable from '../../components/EngineTelemetryTable'
 import Layout from '../../components/Layout'
+import StatsCard from '../../components/tournaments/StatsCard'
 import {
   BackendUnavailable,
   Button,
@@ -13,6 +14,7 @@ import {
 import {
   apiPost,
   isActive,
+  openingLabel,
   useEngineNames,
   useTournament,
   useTournamentGames,
@@ -68,6 +70,7 @@ function GamesTable({ games, names }) {
             <th className="py-2 pr-3">#</th>
             <th className="py-2 pr-3">White</th>
             <th className="py-2 pr-3">Black</th>
+            <th className="py-2 pr-3">Opening</th>
             <th className="py-2 pr-3">Result</th>
             <th className="py-2 pr-3">Termination</th>
             <th className="py-2 pr-3 text-right">Moves</th>
@@ -91,9 +94,15 @@ function GamesTable({ games, names }) {
               </td>
               <td className="py-2 pr-3">{names[game.white_engine_id]}</td>
               <td className="py-2 pr-3">{names[game.black_engine_id]}</td>
+              <td
+                className="max-w-56 truncate py-2 pr-3 text-gray-600"
+                title={`Starting position ${game.position_number}`}
+              >
+                {openingLabel(game)}
+              </td>
               <td className="py-2 pr-3 font-mono">{game.result || '–'}</td>
               <td className="py-2 pr-3 text-gray-600">
-                {game.termination.replaceAll('_', ' ')}
+                {game.termination?.replaceAll('_', ' ') || '–'}
               </td>
               <td className="py-2 pr-3 text-right">
                 {Math.ceil(game.ply / 2)}
@@ -170,8 +179,12 @@ export default function TournamentPage() {
             {tournament.name} <StatusBadge status={tournament.status} />
           </h1>
           <p className="mt-1 text-sm text-gray-600">
+            {tournament.sprt ? 'up to ' : ''}
             {tournament.game_count} games · {describeLimit(tournament.limit)} ·{' '}
-            {tournament.cpus} CPU, {tournament.memory_mb} MB per engine
+            {tournament.position_order === 'random'
+              ? 'positions in random order'
+              : 'positions in set order'}{' '}
+            · {tournament.cpus} CPU, {tournament.memory_mb} MB per engine
           </p>
         </div>
         {isActive(tournament.status) && (
@@ -217,6 +230,14 @@ export default function TournamentPage() {
           </div>
         </Card>
       </div>
+
+      {tournament.stats && (
+        <StatsCard
+          tournament={tournament}
+          engineA={engineA}
+          engineB={engineB}
+        />
+      )}
 
       {tournament.telemetry && (
         <Card title="Engine search" className="mt-6">

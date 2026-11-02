@@ -14,18 +14,22 @@ import (
 
 // GameSummary is one row of a tournament's game list.
 type GameSummary struct {
-	ID            string     `json:"id"`
-	TournamentID  string     `json:"tournament_id"`
-	GameNumber    int        `json:"game_number"`
-	Status        string     `json:"status"`
-	Result        string     `json:"result,omitempty"`
-	Termination   string     `json:"termination,omitempty"`
-	WhiteEngineID string     `json:"white_engine_id"`
-	BlackEngineID string     `json:"black_engine_id"`
-	Ply           int        `json:"ply"`
-	Attempt       int        `json:"attempt"`
-	StartedAt     *time.Time `json:"started_at,omitempty"`
-	FinishedAt    *time.Time `json:"finished_at,omitempty"`
+	ID            string `json:"id"`
+	TournamentID  string `json:"tournament_id"`
+	GameNumber    int    `json:"game_number"`
+	Status        string `json:"status"`
+	Result        string `json:"result,omitempty"`
+	Termination   string `json:"termination,omitempty"`
+	WhiteEngineID string `json:"white_engine_id"`
+	BlackEngineID string `json:"black_engine_id"`
+	Ply           int    `json:"ply"`
+	Attempt       int    `json:"attempt"`
+	// PositionNumber is the starting position's place in its set, from 1.
+	PositionNumber int `json:"position_number"`
+	// Opening names the starting position when the set provides names.
+	Opening    string     `json:"opening,omitempty"`
+	StartedAt  *time.Time `json:"started_at,omitempty"`
+	FinishedAt *time.Time `json:"finished_at,omitempty"`
 }
 
 // MoveDetail is a stored move with its telemetry.
@@ -36,6 +40,8 @@ type MoveDetail struct {
 	EngineID    string   `json:"engine_id"`
 	Info        uci.Info `json:"info"`
 	ThinkTimeMs *int     `json:"think_time_ms,omitempty"`
+	// Analysis is the analysis engine's verdict, once the game is analyzed.
+	Analysis *MoveAnalysis `json:"analysis,omitempty"`
 }
 
 // GameDetail is a game with its moves, result and PGN.
@@ -45,16 +51,20 @@ type GameDetail struct {
 	CurrentFEN string       `json:"current_fen"`
 	Moves      []MoveDetail `json:"moves"`
 	PGN        string       `json:"pgn,omitempty"`
+	// Analysis is set once the game was claimed for analysis.
+	Analysis *GameAnalysis `json:"analysis,omitempty"`
 }
 
+// gameSummaryColumns reads games joined as "g" with positions "p" and game_results "r".
 const gameSummaryColumns = `g.id, g.tournament_id, g.game_number, g.status, COALESCE(g.result, ''),
-	COALESCE(r.termination, ''), g.white_engine_id, g.black_engine_id, g.ply, g.attempt, g.started_at, g.finished_at`
+	COALESCE(r.termination, ''), g.white_engine_id, g.black_engine_id, g.ply, g.attempt, g.started_at, g.finished_at,
+	p.ordinal + 1, COALESCE(p.name, '')`
 
 func scanGameSummary(row pgx.Row, extra ...any) (GameSummary, error) {
 	var game GameSummary
 	targets := []any{&game.ID, &game.TournamentID, &game.GameNumber, &game.Status, &game.Result,
 		&game.Termination, &game.WhiteEngineID, &game.BlackEngineID, &game.Ply, &game.Attempt,
-		&game.StartedAt, &game.FinishedAt}
+		&game.StartedAt, &game.FinishedAt, &game.PositionNumber, &game.Opening}
 	err := row.Scan(append(targets, extra...)...)
 	return game, err
 }
@@ -63,7 +73,9 @@ func scanGameSummary(row pgx.Row, extra ...any) (GameSummary, error) {
 func (store *Store) ListGames(ctx context.Context, tournamentID string) ([]GameSummary, error) {
 	rows, err := store.pool.Query(ctx, `
 		SELECT `+gameSummaryColumns+`
-		FROM games g LEFT JOIN game_results r ON r.game_id = g.id
+		FROM games g
+		JOIN positions p ON p.id = g.position_id
+		LEFT JOIN game_results r ON r.game_id = g.id
 		WHERE g.tournament_id = $1
 		ORDER BY g.game_number
 	`, tournamentID)
@@ -142,7 +154,19 @@ func (store *Store) GetGame(ctx context.Context, id string) (GameDetail, error) 
 		}
 		detail.Moves = append(detail.Moves, move)
 	}
-	return detail, rows.Err()
+	if err := rows.Err(); err != nil {
+		return detail, err
+	}
+
+	analysis, moves, err := store.gameAnalysis(ctx, id)
+	if err != nil {
+		return detail, err
+	}
+	detail.Analysis = analysis
+	for index := range detail.Moves {
+		detail.Moves[index].Analysis = moves[detail.Moves[index].Ply]
+	}
+	return detail, nil
 }
 
 func valueOrZero[T int | int64](value *T) T {

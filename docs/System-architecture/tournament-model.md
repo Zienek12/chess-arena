@@ -49,6 +49,8 @@ created -> queued -> running -> completed
 
 `ImportFEN` accepts one FEN per non-empty, non-comment line. `ImportPGN` takes the final position of every game: a game with only a `[FEN "..."]` tag yields that position, and a game with moves, such as an opening line, yields the position after its moves. Every game in a PGN file needs a tag section, as the PGN standard requires.
 
+Positions can be named, and games show the name of the opening they started from. PGN games are named after their `Opening` and `Variation` tags, or else their `Event` tag (`?` counts as no name); a FEN line is named by the text after a semicolon (`<fen> ; Ruy Lopez`). Names are not part of the fingerprint, so importing the same positions again with names fills in the names an existing set lacks.
+
 The frontend ships a suite of 50 balanced opening lines (`frontend/lib/openings.js`) that it imports as PGN. Importing it again returns the existing set, because identical positions have the same fingerprint.
 
 Every position is normalized and validated before storage, and duplicate positions inside one import are dropped. The position set fingerprint is:

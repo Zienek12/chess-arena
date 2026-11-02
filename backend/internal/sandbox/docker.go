@@ -20,6 +20,8 @@ type DockerLauncher struct {
 	Binary    string // docker executable
 	Network   string // container network; "none" isolates the engine
 	PidsLimit int
+	// Policy, when set, lists the images that may be started.
+	Policy *ImagePolicy
 }
 
 // NewDockerLauncher returns a launcher with isolated defaults.
@@ -31,6 +33,11 @@ func NewDockerLauncher() *DockerLauncher {
 func (launcher *DockerLauncher) Start(ctx context.Context, spec Spec) (*Process, error) {
 	if spec.Image == "" {
 		return nil, errors.New("docker engine requires an image")
+	}
+	if launcher.Policy != nil {
+		if err := launcher.Policy.Check(spec.Image); err != nil {
+			return nil, err
+		}
 	}
 	if err := launcher.EnsureImage(ctx, spec.Image); err != nil {
 		return nil, err

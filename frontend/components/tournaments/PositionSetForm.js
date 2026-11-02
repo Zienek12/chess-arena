@@ -6,7 +6,7 @@ import { apiPost } from '../../lib/api'
 import { OPENINGS, OPENING_SUITE_NAME, openingsPGN } from '../../lib/openings'
 
 const PLACEHOLDERS = {
-  fen: `# One FEN per line\n${DEFAULT_POSITION}`,
+  fen: `# One FEN per line, optionally named after a semicolon\n${DEFAULT_POSITION} ; Starting position`,
   pgn: '[Event "Ruy Lopez"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 *\n\n[Event "Queen\'s Gambit"]\n\n1. d4 d5 2. c4 *',
 }
 
@@ -14,7 +14,7 @@ export async function createStartingPositionSet() {
   const set = await apiPost('/api/position-sets', {
     name: 'Starting position',
     format: 'fen',
-    content: DEFAULT_POSITION,
+    content: `${DEFAULT_POSITION} ; Starting position`,
   })
   await mutate('/api/position-sets')
   return set

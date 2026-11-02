@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"chess-arena/arena/internal/stats"
 )
 
 // ColorOrder decides which engine plays white in each game.
@@ -15,6 +17,16 @@ const (
 	ColorAlternate    ColorOrder = "alternate"
 	ColorEngineAWhite ColorOrder = "engine_a_white"
 	ColorEngineBWhite ColorOrder = "engine_b_white"
+)
+
+// PositionOrder decides in which order a tournament uses its starting positions.
+type PositionOrder string
+
+const (
+	// PositionsRandom shuffles the positions per tournament.
+	PositionsRandom PositionOrder = "random"
+	// PositionsSequential uses the positions in the order of the set.
+	PositionsSequential PositionOrder = "sequential"
 )
 
 // Status is the tournament lifecycle state.
@@ -36,6 +48,8 @@ const (
 	DefaultCPUs      = 1.0
 	DefaultMemoryMB  = 256
 	MinMemoryMB      = 16
+	// DefaultSPRTError is the default false positive and false negative rate.
+	DefaultSPRTError = 0.05
 )
 
 // SearchLimit is how long an engine may think per move. Exactly one field must be set.
@@ -54,8 +68,14 @@ type Config struct {
 	GameCount     int         `json:"game_count"`
 	Limit         SearchLimit `json:"limit"`
 	ColorOrder    ColorOrder  `json:"color_order"`
-	CPUs          float64     `json:"cpus"`
-	MemoryMB      int         `json:"memory_mb"`
+	// PositionOrder defaults to random, so every tournament samples the
+	// whole position set even when it stops early.
+	PositionOrder PositionOrder `json:"position_order"`
+	CPUs          float64       `json:"cpus"`
+	MemoryMB      int           `json:"memory_mb"`
+	// SPRT, when set, tests engine A against engine B and stops the
+	// tournament as soon as the test decides; GameCount is then the maximum.
+	SPRT *stats.SPRT `json:"sprt,omitempty"`
 }
 
 // Normalize fills in defaults for omitted fields.
@@ -67,11 +87,24 @@ func (config Config) Normalize() Config {
 	if config.ColorOrder == "" {
 		config.ColorOrder = ColorAlternate
 	}
+	if config.PositionOrder == "" {
+		config.PositionOrder = PositionsRandom
+	}
 	if config.CPUs == 0 {
 		config.CPUs = DefaultCPUs
 	}
 	if config.MemoryMB == 0 {
 		config.MemoryMB = DefaultMemoryMB
+	}
+	if config.SPRT != nil {
+		test := *config.SPRT
+		if test.Alpha == 0 {
+			test.Alpha = DefaultSPRTError
+		}
+		if test.Beta == 0 {
+			test.Beta = DefaultSPRTError
+		}
+		config.SPRT = &test
 	}
 	return config
 }
@@ -98,11 +131,24 @@ func (config Config) Validate() error {
 	default:
 		return fmt.Errorf("invalid color order %q", config.ColorOrder)
 	}
+	switch config.PositionOrder {
+	case PositionsRandom, PositionsSequential:
+	default:
+		return fmt.Errorf("invalid position order %q", config.PositionOrder)
+	}
 	if config.CPUs <= 0 {
 		return errors.New("cpus must be positive")
 	}
 	if config.MemoryMB < MinMemoryMB {
 		return fmt.Errorf("memory must be at least %d MB", MinMemoryMB)
+	}
+	if test := config.SPRT; test != nil {
+		if test.Elo1 <= test.Elo0 {
+			return errors.New("SPRT elo1 must be greater than elo0")
+		}
+		if test.Alpha <= 0 || test.Alpha >= 0.5 || test.Beta <= 0 || test.Beta >= 0.5 {
+			return errors.New("SPRT alpha and beta must be between 0 and 0.5")
+		}
 	}
 	return nil
 }

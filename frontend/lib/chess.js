@@ -134,6 +134,67 @@ export function summarizeTelemetry(moves, engineIds) {
           .map((move) => move.think_time_ms)
           .filter((value) => value !== undefined && value !== null)
       ),
+      ...summarizeQuality(own.map((move) => move.analysis).filter(Boolean)),
     }
   })
+}
+
+// Move quality in the shape of the API's move_quality fields.
+function summarizeQuality(analyses) {
+  const count = (classification) =>
+    analyses.filter((analysis) => analysis.classification === classification)
+      .length
+  const average = (key) =>
+    analyses.length === 0
+      ? 0
+      : analyses.reduce((sum, analysis) => sum + analysis[key], 0) /
+        analyses.length
+  return {
+    analyzed_moves: analyses.length,
+    average_cp_loss: average('cp_loss'),
+    accuracy: average('accuracy'),
+    best_moves: count('best'),
+    inaccuracies: count('inaccuracy'),
+    mistakes: count('mistake'),
+    blunders: count('blunder'),
+  }
+}
+
+// Formats an analysis evaluation, which is already from White's view.
+export function formatEval(evaluation) {
+  if (!evaluation) {
+    return ''
+  }
+  if (evaluation.mate !== undefined && evaluation.mate !== null) {
+    if (evaluation.mate === 0) {
+      return '#'
+    }
+    return `${evaluation.mate > 0 ? '' : '-'}#${Math.abs(evaluation.mate)}`
+  }
+  const pawns = evaluation.cp / 100
+  return `${pawns > 0 ? '+' : ''}${pawns.toFixed(2)}`
+}
+
+// Analysis evaluation in pawns from White's view, with mates as MATE_PAWNS.
+export function evalPawns(evaluation) {
+  if (!evaluation) {
+    return null
+  }
+  if (evaluation.mate !== undefined && evaluation.mate !== null) {
+    return Math.sign(evaluation.cp) * MATE_PAWNS
+  }
+  return evaluation.cp / 100
+}
+
+// Annotation symbol and colors for a move classification.
+export const CLASSIFICATIONS = {
+  best: { symbol: '★', label: 'Best move', className: 'text-emerald-600' },
+  good: { symbol: '', label: 'Good move', className: 'text-gray-500' },
+  inaccuracy: {
+    symbol: '?!',
+    label: 'Inaccuracy',
+    className: 'text-amber-600',
+  },
+  mistake: { symbol: '?', label: 'Mistake', className: 'text-orange-600' },
+  blunder: { symbol: '??', label: 'Blunder', className: 'text-rose-600' },
 }

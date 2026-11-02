@@ -1,4 +1,10 @@
-import { formatNumber, formatScore, sanMoves } from '../lib/chess'
+import {
+  CLASSIFICATIONS,
+  formatEval,
+  formatNumber,
+  formatScore,
+  sanMoves,
+} from '../lib/chess'
 
 function hasTelemetry(info) {
   return Boolean(
@@ -19,10 +25,64 @@ function Stat({ label, value, hint }) {
   )
 }
 
-// Search telemetry of one engine move.
+// Stockfish's verdict on a played move.
+function AnalysisSection({ move }) {
+  const { analysis } = move
+  const classification = CLASSIFICATIONS[analysis.classification]
+  const [best] = analysis.best_move
+    ? sanMoves(move.fenBefore, [analysis.best_move])
+    : ['']
+  const line = analysis.best_pv?.length
+    ? sanMoves(move.fenBefore, analysis.best_pv).join(' ')
+    : ''
+  return (
+    <div className="mt-4 border-t border-gray-100 pt-3">
+      <p className="mb-3 flex items-center gap-2 text-sm text-gray-600">
+        Stockfish:
+        <span className={`font-semibold ${classification.className}`}>
+          {classification.symbol} {classification.label}
+        </span>
+      </p>
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
+        <Stat
+          label="Best move"
+          value={best || '–'}
+          hint={`Stockfish's choice at depth ${analysis.depth}`}
+        />
+        <Stat
+          label="Eval"
+          value={`${formatEval(analysis.eval_before)} → ${formatEval(
+            analysis.eval_after
+          )}`}
+          hint="Stockfish's evaluation before and after the move, from White's point of view"
+        />
+        <Stat
+          label="Loss"
+          value={`${analysis.cp_loss} cp`}
+          hint="Centipawns lost compared to the best move (capped at 1000)"
+        />
+        <Stat
+          label="Accuracy"
+          value={`${analysis.accuracy.toFixed(0)}%`}
+          hint="Accuracy of the move from the drop in winning chances (Lichess formula)"
+        />
+      </dl>
+      {line && analysis.classification !== 'best' && (
+        <div className="mt-3">
+          <p className="text-xs uppercase tracking-wide text-gray-500">
+            Stockfish line
+          </p>
+          <p className="font-mono text-sm">{line}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Search telemetry of one engine move, and Stockfish's analysis when present.
 //
-// move: { color, san, fenBefore, info, thinkTimeMs }, where info is what the
-// engine reported in its last UCI "info" line before "bestmove".
+// move: { color, san, fenBefore, info, thinkTimeMs, analysis }, where info is
+// what the engine reported in its last UCI "info" line before "bestmove".
 export default function TelemetryPanel({
   move,
   thinking = false,
@@ -98,6 +158,14 @@ export default function TelemetryPanel({
             <p className="font-mono text-sm">{pv}</p>
           </div>
         )}
+      </>
+    )
+  }
+  if (!thinking && move?.analysis) {
+    body = (
+      <>
+        {body}
+        <AnalysisSection move={move} />
       </>
     )
   }

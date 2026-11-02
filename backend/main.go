@@ -12,10 +12,12 @@ import (
 	"syscall"
 	"time"
 
+	"chess-arena/arena/internal/analysis"
 	"chess-arena/arena/internal/api"
 	"chess-arena/arena/internal/arena"
 	"chess-arena/arena/internal/config"
 	"chess-arena/arena/internal/database"
+	"chess-arena/arena/internal/events"
 	"chess-arena/arena/internal/play"
 	"chess-arena/arena/internal/sandbox"
 	"chess-arena/arena/internal/store"
@@ -41,8 +43,14 @@ func run(logger *slog.Logger) error {
 	if err != nil {
 		return err
 	}
+	images := sandbox.NewImagePolicy(cfg.AllowedImages)
 	docker := sandbox.NewDockerLauncher()
 	docker.Network = cfg.EngineNetwork
+	docker.Policy = &images
+	logger.Info("engine images allowed", "patterns", images.Patterns())
+	if cfg.APIToken == "" {
+		logger.Warn("ARENA_API_TOKEN is not set; anyone who can reach the API can change data")
+	}
 
 	mux := http.NewServeMux()
 	// Players can also choose the engines registered for tournaments.
@@ -64,7 +72,9 @@ func run(logger *slog.Logger) error {
 
 		repository := store.New(pool)
 		engines = repository
-		api.NewServer(repository, logger).Register(mux)
+		broker := events.NewBroker(logger)
+		go broker.Listen(ctx, pool)
+		api.NewServer(repository, logger, api.Options{Token: cfg.APIToken, Images: &images, Events: broker}).Register(mux)
 		for index := 1; index <= cfg.Workers; index++ {
 			worker := arena.NewWorker(arena.Config{
 				ID:            fmt.Sprintf("%s-%d", cfg.WorkerID, index),
@@ -78,6 +88,19 @@ func run(logger *slog.Logger) error {
 			}()
 		}
 		logger.Info("arena workers started", "count", cfg.Workers)
+		for index := 1; index <= cfg.AnalysisWorkers; index++ {
+			worker := analysis.NewWorker(analysis.Config{
+				ID:    fmt.Sprintf("%s-analysis-%d", cfg.WorkerID, index),
+				Image: cfg.AnalysisImage,
+				Nodes: cfg.AnalysisNodes,
+			}, repository, docker, logger)
+			workers.Add(1)
+			go func() {
+				defer workers.Done()
+				worker.Run(ctx)
+			}()
+		}
+		logger.Info("analysis workers started", "count", cfg.AnalysisWorkers, "image", cfg.AnalysisImage, "nodes", cfg.AnalysisNodes)
 	}
 	mux.Handle("/ws", play.NewHandler(registry, engines, docker, cfg.CORSOrigins, logger))
 

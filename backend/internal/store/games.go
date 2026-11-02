@@ -142,6 +142,9 @@ func (store *Store) ClaimGame(ctx context.Context, owner string, lease time.Dura
 	`, game.TournamentID); err != nil {
 		return nil, fmt.Errorf("start tournament: %w", err)
 	}
+	if err := notify(ctx, tx, Event{Type: EventGame, TournamentID: game.TournamentID, GameID: game.ID}); err != nil {
+		return nil, err
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return nil, fmt.Errorf("commit claim: %w", err)
 	}
@@ -198,6 +201,9 @@ func (store *Store) RecordMove(ctx context.Context, owner string, lease time.Dur
 			return ErrConflictingMove
 		}
 	}
+	if err := notify(ctx, tx, Event{Type: EventMove, TournamentID: move.TournamentID, GameID: move.GameID}); err != nil {
+		return err
+	}
 	return tx.Commit(ctx)
 }
 
@@ -228,7 +234,13 @@ func (store *Store) FinishGame(ctx context.Context, owner string, result GameRes
 	`, result.GameID, result.Result, result.Termination, result.WinnerEngineID, result.PGN); err != nil {
 		return fmt.Errorf("insert game result: %w", err)
 	}
+	if err := finishTournamentBySPRT(ctx, tx, result.TournamentID); err != nil {
+		return err
+	}
 	if err := completeTournamentIfDone(ctx, tx, result.TournamentID); err != nil {
+		return err
+	}
+	if err := notify(ctx, tx, Event{Type: EventGame, TournamentID: result.TournamentID, GameID: result.GameID}); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)
@@ -262,6 +274,9 @@ func (store *Store) ReleaseGame(ctx context.Context, owner string, game *Claimed
 		return fmt.Errorf("release game: %w", err)
 	}
 	if err := completeTournamentIfDone(ctx, tx, game.TournamentID); err != nil {
+		return err
+	}
+	if err := notify(ctx, tx, Event{Type: EventGame, TournamentID: game.TournamentID, GameID: game.ID}); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)

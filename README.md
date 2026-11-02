@@ -16,7 +16,7 @@ The easiest way to run the whole application. It requires only Docker (Docker De
 docker build -t chess-arena-engine:local engines
 ```
 
-2) Start PostgreSQL, the backend and the frontend:
+2) Start PostgreSQL, the backend and the frontend (this also builds the Stockfish image used for analysis):
 
 ```powershell
 docker compose up -d --build
@@ -25,7 +25,12 @@ docker compose up -d --build
 3) Open http://localhost:3000:
 
 - **Play** — play White against the engine.
-- **Tournaments** — register engine versions (name, version and Docker image, for example `chess-arena-engine:local`), import starting positions (or add the built-in suite of 50 balanced openings with **Add opening suite**) and start a tournament between any two versions. With alternating colors, use twice as many games as positions so every position is played with both colors.
+- **Tournaments** — register engine versions (name, version and Docker image, for example `chess-arena-engine:local`), import starting positions (or add the built-in suite of 50 balanced openings with **Add opening suite**) and start a tournament between any two versions. With alternating colors, use twice as many games as positions so every position is played with both colors. Tick **Stop early with SPRT** to stop as soon as it is clear whether engine A is stronger. Each tournament shows the Elo difference with its error, LOS and the SPRT, and each game can be replayed move by move with the engine's telemetry and Stockfish's verdict on every move.
+- **Leaderboard** — a rating for every engine version across all tournaments, with average accuracy and centipawn loss from Stockfish's analysis.
+
+Pages update live as moves are played (the header shows **Live**). Stockfish (`chess-arena-stockfish:local`) can also be registered as an opponent, for example with UCI options `UCI_LimitStrength=true, UCI_Elo=1500`.
+
+To test a new engine version against the previous one, publish its image and run `./scripts/regress.ps1 -Candidate 1.3.0`. See [Analysis and Statistics](docs/System-architecture/analysis-and-statistics.md).
 
 | Service | Address | Description |
 | --- | --- | --- |
@@ -52,6 +57,10 @@ Settings can be changed with environment variables or a `.env` file next to `doc
 | `CORS_ORIGINS` | `http://localhost:3000` | Frontend addresses allowed to call the backend |
 | `CHESS_ENGINE_IMAGES` | empty | Extra `version=image` engines offered on the Play page, besides the engines registered on the Tournaments page |
 | `CHESS_ENGINE_VERSION` | first engine | Engine selected when the Play page opens, e.g. `Alpha-Beta 1.2.0` |
+| `ARENA_API_TOKEN` | empty | When set, creating engines, position sets and tournaments requires this token (the frontend asks for it) |
+| `ARENA_ALLOWED_IMAGES` | `zienek/chess-arena-engine,chess-arena-engine,chess-arena-stockfish` | Docker image repositories engines may use (`namespace/*` allows a whole namespace) |
+| `ANALYSIS_WORKERS` | `1` | Games analyzed by Stockfish in parallel; `0` disables analysis |
+| `ANALYSIS_NODES` | `200000` | Stockfish nodes per analyzed position (about 1 s and depth 18 on one core) |
 
 Notes:
 

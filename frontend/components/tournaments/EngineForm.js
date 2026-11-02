@@ -80,7 +80,7 @@ export default function EngineForm({ onCreated }) {
       <Field
         label="Docker image"
         htmlFor="engine-image"
-        hint="Pulled automatically when it is not available locally."
+        hint="Pulled automatically when it is not available locally. Stockfish: chess-arena-stockfish:local, weakened with UCI options such as UCI_LimitStrength=true, UCI_Elo=1500."
       >
         <input
           id="engine-image"

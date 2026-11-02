@@ -44,11 +44,34 @@ func (store *Store) SavePositionSet(ctx context.Context, name string, set tourna
 		ON CONFLICT (fingerprint) DO NOTHING
 		RETURNING `+positionSetColumns,
 		set.Fingerprint, string(set.SourceType), name, len(set.Positions)))
+	ordinals := make([]int32, 0, len(set.Positions))
+	fens := make([]string, 0, len(set.Positions))
+	hashes := make([]string, 0, len(set.Positions))
+	names := make([]string, 0, len(set.Positions))
+	for _, position := range set.Positions {
+		ordinals = append(ordinals, int32(position.Ordinal))
+		fens = append(fens, position.FEN)
+		hashes = append(hashes, position.Hash)
+		names = append(names, position.Name)
+	}
+
 	if errors.Is(err, pgx.ErrNoRows) {
 		summary, err = scanPositionSet(tx.QueryRow(ctx,
 			"SELECT "+positionSetColumns+" FROM position_sets WHERE fingerprint = $1", set.Fingerprint))
 		if err != nil {
 			return summary, false, fmt.Errorf("read existing position set: %w", err)
+		}
+		// Importing the same positions again fills in names the set lacks.
+		if _, err := tx.Exec(ctx, `
+			UPDATE positions p SET name = input.name
+			FROM unnest($2::text[], $3::text[]) AS input(fen_hash, name)
+			WHERE p.position_set_id = $1 AND p.fen_hash = input.fen_hash
+			  AND p.name IS NULL AND input.name <> ''
+		`, summary.ID, hashes, names); err != nil {
+			return summary, false, fmt.Errorf("name positions: %w", err)
+		}
+		if err := tx.Commit(ctx); err != nil {
+			return summary, false, fmt.Errorf("commit position names: %w", err)
 		}
 		return summary, false, nil
 	}
@@ -56,19 +79,11 @@ func (store *Store) SavePositionSet(ctx context.Context, name string, set tourna
 		return summary, false, fmt.Errorf("insert position set: %w", err)
 	}
 
-	ordinals := make([]int32, 0, len(set.Positions))
-	fens := make([]string, 0, len(set.Positions))
-	hashes := make([]string, 0, len(set.Positions))
-	for _, position := range set.Positions {
-		ordinals = append(ordinals, int32(position.Ordinal))
-		fens = append(fens, position.FEN)
-		hashes = append(hashes, position.Hash)
-	}
 	if _, err := tx.Exec(ctx, `
-		INSERT INTO positions (position_set_id, ordinal, fen, fen_hash)
-		SELECT $1, ordinal, fen, fen_hash
-		FROM unnest($2::int[], $3::text[], $4::text[]) AS input(ordinal, fen, fen_hash)
-	`, summary.ID, ordinals, fens, hashes); err != nil {
+		INSERT INTO positions (position_set_id, ordinal, fen, fen_hash, name)
+		SELECT $1, ordinal, fen, fen_hash, NULLIF(name, '')
+		FROM unnest($2::int[], $3::text[], $4::text[], $5::text[]) AS input(ordinal, fen, fen_hash, name)
+	`, summary.ID, ordinals, fens, hashes, names); err != nil {
 		return summary, false, fmt.Errorf("insert positions: %w", err)
 	}
 	if err := tx.Commit(ctx); err != nil {
