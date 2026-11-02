@@ -5,6 +5,8 @@ import EvalChart from './EvalChart'
 import { Button } from '../ui'
 import {
   boardHighlights,
+  CLASSIFICATIONS,
+  formatEval,
   formatNumber,
   formatScore,
   parseUci,
@@ -38,7 +40,9 @@ export default function GameReplay({ game }) {
           fenBefore: ply === 1 ? game.start_fen : moves[ply - 2].fen_after,
           info: moves[ply - 1].info,
           thinkTimeMs: moves[ply - 1].think_time_ms,
+          analysis: moves[ply - 1].analysis,
         }
+  const analyzed = moves.some((move) => move.analysis)
 
   function goTo(next) {
     const clamped = Math.max(0, Math.min(moves.length, next))
@@ -131,7 +135,20 @@ export default function GameReplay({ game }) {
           <thead className="sticky top-0 bg-gray-50 text-xs uppercase text-gray-500">
             <tr>
               <th className="px-3 py-2 text-left">Move</th>
-              <th className="px-3 py-2 text-right">Eval</th>
+              <th
+                className="px-3 py-2 text-right"
+                title="Evaluation reported by the engine that moved"
+              >
+                Eval
+              </th>
+              {analyzed && (
+                <th
+                  className="px-3 py-2 text-right"
+                  title="Stockfish's evaluation after the move"
+                >
+                  SF
+                </th>
+              )}
               <th className="px-3 py-2 text-right">Depth</th>
               <th className="px-3 py-2 text-right">Nodes</th>
               <th className="px-3 py-2 text-right">Time</th>
@@ -143,6 +160,9 @@ export default function GameReplay({ game }) {
               const number =
                 Math.floor((index + (startsWithBlack ? 1 : 0)) / 2) + 1
               const selected = index + 1 === ply
+              const classification = move.analysis
+                ? CLASSIFICATIONS[move.analysis.classification]
+                : null
               return (
                 <tr
                   key={move.ply}
@@ -157,10 +177,23 @@ export default function GameReplay({ game }) {
                       {moverIsWhite ? '.' : '...'}
                     </span>
                     {san[index]}
+                    {classification?.symbol && (
+                      <span
+                        className={`ml-1 font-semibold ${classification.className}`}
+                        title={classification.label}
+                      >
+                        {classification.symbol}
+                      </span>
+                    )}
                   </td>
                   <td className="px-3 py-1.5 text-right font-mono">
                     {formatScore(move.info, moverIsWhite)}
                   </td>
+                  {analyzed && (
+                    <td className="px-3 py-1.5 text-right font-mono text-violet-700">
+                      {formatEval(move.analysis?.eval_after)}
+                    </td>
+                  )}
                   <td className="px-3 py-1.5 text-right">
                     {move.info.depth || ''}
                   </td>
@@ -177,7 +210,7 @@ export default function GameReplay({ game }) {
             })}
             {moves.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-3 py-4 text-center text-gray-500">
+                <td colSpan={6} className="px-3 py-4 text-center text-gray-500">
                   No moves yet.
                 </td>
               </tr>

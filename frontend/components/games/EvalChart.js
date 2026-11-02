@@ -1,12 +1,13 @@
-import { MATE_PAWNS, scoreForWhite } from '../../lib/chess'
+import { evalPawns, MATE_PAWNS, scoreForWhite } from '../../lib/chess'
 
 const WIDTH = 600
 const HEIGHT = 140
 const PADDING = 6
 const LIMIT = 5
 
-// Engine evaluation after every move, from White's point of view and clipped
-// to ±LIMIT pawns. Clicking the chart jumps to the nearest move.
+// Evaluation after every move from White's point of view, clipped to ±LIMIT
+// pawns: what the engine that moved reported, and Stockfish's analysis when
+// the game was analyzed. Clicking the chart jumps to the nearest move.
 export default function EvalChart({ moves, startsWithBlack, ply, onSelect }) {
   if (moves.length === 0) {
     return null
@@ -17,21 +18,30 @@ export default function EvalChart({ moves, startsWithBlack, ply, onSelect }) {
     HEIGHT / 2 -
     (Math.max(-LIMIT, Math.min(LIMIT, pawns)) / LIMIT) * (HEIGHT / 2 - PADDING)
 
-  const points = moves
-    .map((move, index) => {
-      const moverIsWhite = (index % 2 === 0) !== startsWithBlack
-      const score = scoreForWhite(move.info, moverIsWhite)
-      return score === null ? null : { index, score }
-    })
-    .filter(Boolean)
-  const line = points
-    .map(({ index, score }) => `${x(index).toFixed(1)},${y(score).toFixed(1)}`)
-    .join(' ')
+  const series = (score) =>
+    moves
+      .map((move, index) => {
+        const value = score(move, index)
+        return value === null ? null : { index, value }
+      })
+      .filter(Boolean)
+  const toLine = (points) =>
+    points
+      .map(
+        ({ index, value }) => `${x(index).toFixed(1)},${y(value).toFixed(1)}`
+      )
+      .join(' ')
+
+  const engine = series((move, index) =>
+    scoreForWhite(move.info, (index % 2 === 0) !== startsWithBlack)
+  )
+  const stockfish = series((move) => evalPawns(move.analysis?.eval_after))
   // White's share of the board fills from the bottom up to the line.
+  const filled = stockfish.length > 0 ? stockfish : engine
   const area =
-    points.length > 0
-      ? `${x(points[0].index)},${HEIGHT} ${line} ${x(
-          points[points.length - 1].index
+    filled.length > 0
+      ? `${x(filled[0].index)},${HEIGHT} ${toLine(filled)} ${x(
+          filled[filled.length - 1].index
         )},${HEIGHT}`
       : ''
 
@@ -44,8 +54,19 @@ export default function EvalChart({ moves, startsWithBlack, ply, onSelect }) {
 
   return (
     <div>
-      <div className="mb-1 flex justify-between text-xs text-gray-500">
-        <span>Evaluation (White)</span>
+      <div className="mb-1 flex flex-wrap justify-between gap-2 text-xs text-gray-500">
+        <span className="flex items-center gap-3">
+          Evaluation (White)
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-0.5 w-4 bg-sky-500" /> engine
+          </span>
+          {stockfish.length > 0 && (
+            <span className="flex items-center gap-1">
+              <span className="inline-block h-0.5 w-4 bg-violet-500" />{' '}
+              Stockfish
+            </span>
+          )}
+        </span>
         <span>
           ±{LIMIT} pawns · mate shown as ±{MATE_PAWNS}
         </span>
@@ -68,12 +89,21 @@ export default function EvalChart({ moves, startsWithBlack, ply, onSelect }) {
           strokeWidth={1}
         />
         <polyline
-          points={line}
+          points={toLine(engine)}
           fill="none"
           className="stroke-sky-500"
-          strokeWidth={2}
+          strokeWidth={stockfish.length > 0 ? 1.5 : 2}
           vectorEffect="non-scaling-stroke"
         />
+        {stockfish.length > 0 && (
+          <polyline
+            points={toLine(stockfish)}
+            fill="none"
+            className="stroke-violet-500"
+            strokeWidth={2}
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
         {ply > 0 && (
           <line
             x1={x(ply - 1)}

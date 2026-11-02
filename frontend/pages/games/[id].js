@@ -7,6 +7,28 @@ import { BackendUnavailable, Card, StatusBadge } from '../../components/ui'
 import { API_URL, useEngineNames, useGame } from '../../lib/api'
 import { summarizeTelemetry } from '../../lib/chess'
 
+// Where Stockfish's review of the game stands.
+function AnalysisStatus({ game }) {
+  const { analysis } = game
+  let text
+  if (game.status !== 'completed') {
+    text = 'Stockfish analyzes the game once it is finished.'
+  } else if (!analysis) {
+    text = 'Waiting for Stockfish analysis...'
+  } else if (analysis.status === 'completed') {
+    text = `Analyzed by ${
+      analysis.engine
+    } with ${analysis.nodes.toLocaleString()} nodes per position.`
+  } else if (analysis.status === 'failed') {
+    text = `Stockfish analysis failed: ${analysis.error}`
+  } else {
+    text = analysis.error
+      ? `Stockfish analysis is waiting to retry: ${analysis.error}`
+      : 'Stockfish is analyzing the game...'
+  }
+  return <p className="mt-1 text-xs text-gray-500">{text}</p>
+}
+
 export default function GamePage() {
   const { query } = useRouter()
   const { data: game, error } = useGame(query.id)
@@ -60,6 +82,7 @@ export default function GamePage() {
               </>
             )}
           </p>
+          <AnalysisStatus game={game} />
         </div>
         {game.pgn && (
           <a

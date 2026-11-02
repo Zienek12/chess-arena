@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useState } from 'react'
 import EngineTelemetryTable from '../../components/EngineTelemetryTable'
 import Layout from '../../components/Layout'
+import StatsCard from '../../components/tournaments/StatsCard'
 import {
   BackendUnavailable,
   Button,
@@ -93,7 +94,7 @@ function GamesTable({ games, names }) {
               <td className="py-2 pr-3">{names[game.black_engine_id]}</td>
               <td className="py-2 pr-3 font-mono">{game.result || '–'}</td>
               <td className="py-2 pr-3 text-gray-600">
-                {game.termination.replaceAll('_', ' ')}
+                {game.termination?.replaceAll('_', ' ') || '–'}
               </td>
               <td className="py-2 pr-3 text-right">
                 {Math.ceil(game.ply / 2)}
@@ -170,6 +171,7 @@ export default function TournamentPage() {
             {tournament.name} <StatusBadge status={tournament.status} />
           </h1>
           <p className="mt-1 text-sm text-gray-600">
+            {tournament.sprt ? 'up to ' : ''}
             {tournament.game_count} games · {describeLimit(tournament.limit)} ·{' '}
             {tournament.cpus} CPU, {tournament.memory_mb} MB per engine
           </p>
@@ -217,6 +219,14 @@ export default function TournamentPage() {
           </div>
         </Card>
       </div>
+
+      {tournament.stats && (
+        <StatsCard
+          tournament={tournament}
+          engineA={engineA}
+          engineB={engineB}
+        />
+      )}
 
       {tournament.telemetry && (
         <Card title="Engine search" className="mt-6">
