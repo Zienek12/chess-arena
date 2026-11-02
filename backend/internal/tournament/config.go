@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"chess-arena/arena/internal/stats"
 )
 
 // ColorOrder decides which engine plays white in each game.
@@ -36,6 +38,8 @@ const (
 	DefaultCPUs      = 1.0
 	DefaultMemoryMB  = 256
 	MinMemoryMB      = 16
+	// DefaultSPRTError is the default false positive and false negative rate.
+	DefaultSPRTError = 0.05
 )
 
 // SearchLimit is how long an engine may think per move. Exactly one field must be set.
@@ -56,6 +60,9 @@ type Config struct {
 	ColorOrder    ColorOrder  `json:"color_order"`
 	CPUs          float64     `json:"cpus"`
 	MemoryMB      int         `json:"memory_mb"`
+	// SPRT, when set, tests engine A against engine B and stops the
+	// tournament as soon as the test decides; GameCount is then the maximum.
+	SPRT *stats.SPRT `json:"sprt,omitempty"`
 }
 
 // Normalize fills in defaults for omitted fields.
@@ -72,6 +79,16 @@ func (config Config) Normalize() Config {
 	}
 	if config.MemoryMB == 0 {
 		config.MemoryMB = DefaultMemoryMB
+	}
+	if config.SPRT != nil {
+		test := *config.SPRT
+		if test.Alpha == 0 {
+			test.Alpha = DefaultSPRTError
+		}
+		if test.Beta == 0 {
+			test.Beta = DefaultSPRTError
+		}
+		config.SPRT = &test
 	}
 	return config
 }
@@ -103,6 +120,14 @@ func (config Config) Validate() error {
 	}
 	if config.MemoryMB < MinMemoryMB {
 		return fmt.Errorf("memory must be at least %d MB", MinMemoryMB)
+	}
+	if test := config.SPRT; test != nil {
+		if test.Elo1 <= test.Elo0 {
+			return errors.New("SPRT elo1 must be greater than elo0")
+		}
+		if test.Alpha <= 0 || test.Alpha >= 0.5 || test.Beta <= 0 || test.Beta >= 0.5 {
+			return errors.New("SPRT alpha and beta must be between 0 and 0.5")
+		}
 	}
 	return nil
 }

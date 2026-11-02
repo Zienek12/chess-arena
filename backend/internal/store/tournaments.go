@@ -9,6 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"chess-arena/arena/internal/stats"
 	"chess-arena/arena/internal/tournament"
 )
 
@@ -16,9 +17,11 @@ import (
 type Tournament struct {
 	ID string `json:"id"`
 	tournament.Config
-	Status    tournament.Status `json:"status"`
-	CreatedAt time.Time         `json:"created_at"`
-	UpdatedAt time.Time         `json:"updated_at"`
+	Status tournament.Status `json:"status"`
+	// SPRTResult is "H0" or "H1" once the SPRT decided.
+	SPRTResult string    `json:"sprt_result,omitempty"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // Progress counts games by status.
@@ -52,26 +55,62 @@ type EngineTelemetry struct {
 	TotalNodes       int64   `json:"total_nodes"`
 	AverageNPS       float64 `json:"average_nps"`
 	AverageThinkTime float64 `json:"average_think_time_ms"`
+	MoveQuality
 }
 
-// TournamentDetail is a tournament with its progress, score and the search
-// telemetry of both engines (engine A first).
+// MoveQuality summarizes the analysis engine's verdicts on an engine's moves.
+type MoveQuality struct {
+	AnalyzedMoves int     `json:"analyzed_moves"`
+	AverageCPLoss float64 `json:"average_cp_loss"`
+	Accuracy      float64 `json:"accuracy"`
+	BestMoves     int     `json:"best_moves"`
+	Inaccuracies  int     `json:"inaccuracies"`
+	Mistakes      int     `json:"mistakes"`
+	Blunders      int     `json:"blunders"`
+}
+
+// moveQualityColumns aggregates move_analyses joined as "ma".
+const moveQualityColumns = `
+	count(ma.ply),
+	coalesce(avg(ma.cp_loss), 0)::float8,
+	coalesce(avg(ma.accuracy), 0)::float8,
+	count(*) FILTER (WHERE ma.classification = 'best'),
+	count(*) FILTER (WHERE ma.classification = 'inaccuracy'),
+	count(*) FILTER (WHERE ma.classification = 'mistake'),
+	count(*) FILTER (WHERE ma.classification = 'blunder')`
+
+func (quality *MoveQuality) targets() []any {
+	return []any{&quality.AnalyzedMoves, &quality.AverageCPLoss, &quality.Accuracy, &quality.BestMoves,
+		&quality.Inaccuracies, &quality.Mistakes, &quality.Blunders}
+}
+
+// TournamentDetail is a tournament with its progress, score, statistics and
+// the search telemetry of both engines (engine A first).
 type TournamentDetail struct {
 	Tournament
-	Progress  Progress          `json:"progress"`
-	Score     Score             `json:"score"`
-	Telemetry []EngineTelemetry `json:"telemetry"`
+	Progress Progress `json:"progress"`
+	Score    Score    `json:"score"`
+	// Stats are engine A's Elo, error and LOS against engine B.
+	Stats      stats.Summary     `json:"stats"`
+	SPRTStatus *stats.SPRTStatus `json:"sprt_status,omitempty"`
+	Telemetry  []EngineTelemetry `json:"telemetry"`
 }
 
 const tournamentColumns = `id, name, engine_a_id, engine_b_id, position_set_id, game_count,
-	movetime_ms, depth, nodes, color_order, cpu_limit, memory_limit_mb, status, created_at, updated_at`
+	movetime_ms, depth, nodes, color_order, cpu_limit, memory_limit_mb, status,
+	sprt_elo0, sprt_elo1, sprt_alpha, sprt_beta, COALESCE(sprt_result, ''), created_at, updated_at`
 
 func scanTournament(row pgx.Row) (Tournament, error) {
 	var t Tournament
 	var depth *int32
 	var movetime *int32
+	var elo0, elo1, alpha, beta *float64
 	err := row.Scan(&t.ID, &t.Name, &t.EngineAID, &t.EngineBID, &t.PositionSetID, &t.GameCount,
-		&movetime, &depth, &t.Limit.Nodes, &t.ColorOrder, &t.CPUs, &t.MemoryMB, &t.Status, &t.CreatedAt, &t.UpdatedAt)
+		&movetime, &depth, &t.Limit.Nodes, &t.ColorOrder, &t.CPUs, &t.MemoryMB, &t.Status,
+		&elo0, &elo1, &alpha, &beta, &t.SPRTResult, &t.CreatedAt, &t.UpdatedAt)
+	if elo0 != nil && elo1 != nil && alpha != nil && beta != nil {
+		t.SPRT = &stats.SPRT{Elo0: *elo0, Elo1: *elo1, Alpha: *alpha, Beta: *beta}
+	}
 	if movetime != nil {
 		value := int(*movetime)
 		t.Limit.MoveTimeMs = &value
@@ -101,14 +140,19 @@ func (store *Store) CreateTournament(ctx context.Context, config tournament.Conf
 		return Tournament{}, err
 	}
 
+	var elo0, elo1, alpha, beta *float64
+	if test := config.SPRT; test != nil {
+		elo0, elo1, alpha, beta = &test.Elo0, &test.Elo1, &test.Alpha, &test.Beta
+	}
 	created, err := scanTournament(tx.QueryRow(ctx, `
 		INSERT INTO tournaments (name, engine_a_id, engine_b_id, position_set_id, game_count,
-			movetime_ms, depth, nodes, color_order, cpu_limit, memory_limit_mb, status)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+			movetime_ms, depth, nodes, color_order, cpu_limit, memory_limit_mb, status,
+			sprt_elo0, sprt_elo1, sprt_alpha, sprt_beta)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 		RETURNING `+tournamentColumns,
 		config.Name, config.EngineAID, config.EngineBID, config.PositionSetID, config.GameCount,
 		config.Limit.MoveTimeMs, config.Limit.Depth, config.Limit.Nodes, string(config.ColorOrder),
-		config.CPUs, config.MemoryMB, string(tournament.StatusQueued)))
+		config.CPUs, config.MemoryMB, string(tournament.StatusQueued), elo0, elo1, alpha, beta))
 	if isForeignKeyViolation(err) || isInvalidUUID(err) {
 		return Tournament{}, ErrInvalidReference
 	}
@@ -146,6 +190,9 @@ func (store *Store) CreateTournament(ctx context.Context, config tournament.Conf
 			AS input(number, position_id, white, black, fen, side, key)
 	`, created.ID, numbers, positions, whites, blacks, fens, sides, keys); err != nil {
 		return Tournament{}, fmt.Errorf("schedule games: %w", err)
+	}
+	if err := notify(ctx, tx, Event{Type: EventTournament, TournamentID: created.ID}); err != nil {
+		return Tournament{}, err
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return Tournament{}, fmt.Errorf("commit tournament: %w", err)
@@ -237,6 +284,15 @@ func (store *Store) GetTournament(ctx context.Context, id string) (TournamentDet
 	}
 	score.EngineAPoints = float64(score.EngineAWins) + float64(score.Draws)/2
 	score.EngineBPoints = float64(score.EngineBWins) + float64(score.Draws)/2
+	detail.Stats = stats.Summarize(score.EngineAWins, score.Draws, score.EngineBWins)
+	if t.SPRT != nil {
+		status := t.SPRT.Evaluate(score.EngineAWins, score.Draws, score.EngineBWins)
+		// The stored outcome is final; games that finished afterwards do not change it.
+		if t.SPRTResult != "" {
+			status.Result = t.SPRTResult
+		}
+		detail.SPRTStatus = &status
+	}
 
 	detail.Telemetry, err = store.engineTelemetry(ctx, t)
 	return detail, err
@@ -255,9 +311,10 @@ func (store *Store) engineTelemetry(ctx context.Context, t Tournament) ([]Engine
 			coalesce(avg(m.nodes), 0)::float8,
 			coalesce(sum(m.nodes), 0)::bigint,
 			coalesce(avg(m.nps), 0)::float8,
-			coalesce(avg(m.think_time_ms), 0)::float8
+			coalesce(avg(m.think_time_ms), 0)::float8,`+moveQualityColumns+`
 		FROM game_moves m
 		JOIN games g ON g.id = m.game_id
+		LEFT JOIN move_analyses ma ON ma.game_id = m.game_id AND ma.ply = m.ply
 		WHERE g.tournament_id = $1
 		GROUP BY m.engine_id
 	`, t.ID)
@@ -267,8 +324,9 @@ func (store *Store) engineTelemetry(ctx context.Context, t Tournament) ([]Engine
 	defer rows.Close()
 	for rows.Next() {
 		var row EngineTelemetry
-		if err := rows.Scan(&row.EngineID, &row.Moves, &row.MovesWithInfo, &row.AverageDepth, &row.MaxDepth,
-			&row.AverageNodes, &row.TotalNodes, &row.AverageNPS, &row.AverageThinkTime); err != nil {
+		targets := []any{&row.EngineID, &row.Moves, &row.MovesWithInfo, &row.AverageDepth, &row.MaxDepth,
+			&row.AverageNodes, &row.TotalNodes, &row.AverageNPS, &row.AverageThinkTime}
+		if err := rows.Scan(append(targets, row.MoveQuality.targets()...)...); err != nil {
 			return nil, fmt.Errorf("scan engine telemetry: %w", err)
 		}
 		// Both engines can be the same version; their moves are then combined.
@@ -310,14 +368,62 @@ func (store *Store) CancelTournament(ctx context.Context, id string) error {
 		}
 		return fmt.Errorf("tournament already finished: %w", ErrConflict)
 	}
+	if err := cancelUnfinishedGames(ctx, tx, id); err != nil {
+		return err
+	}
+	if err := notify(ctx, tx, Event{Type: EventTournament, TournamentID: id}); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+// cancelUnfinishedGames cancels queued games and takes the lease from running
+// ones, so their workers stop at the next move.
+func cancelUnfinishedGames(ctx context.Context, tx pgx.Tx, tournamentID string) error {
 	if _, err := tx.Exec(ctx, `
 		UPDATE games
 		SET status = 'cancelled', lease_owner = NULL, lease_expires_at = NULL, finished_at = now(), updated_at = now()
 		WHERE tournament_id = $1 AND status IN ('queued', 'running')
-	`, id); err != nil {
+	`, tournamentID); err != nil {
 		return fmt.Errorf("cancel games: %w", err)
 	}
-	return tx.Commit(ctx)
+	return nil
+}
+
+// finishTournamentBySPRT stops a tournament whose SPRT accepted a hypothesis
+// and records the outcome. The tournament row is locked, so concurrent game
+// results are counted one at a time.
+func finishTournamentBySPRT(ctx context.Context, tx pgx.Tx, tournamentID string) error {
+	t, err := scanTournament(tx.QueryRow(ctx,
+		"SELECT "+tournamentColumns+" FROM tournaments WHERE id = $1 FOR UPDATE", tournamentID))
+	if err != nil {
+		return fmt.Errorf("read tournament for SPRT: %w", err)
+	}
+	if t.SPRT == nil || t.SPRTResult != "" ||
+		(t.Status != tournament.StatusQueued && t.Status != tournament.StatusRunning) {
+		return nil
+	}
+	var wins, draws, losses int
+	if err := tx.QueryRow(ctx, `
+		SELECT
+			count(*) FILTER (WHERE (result = '1-0' AND white_engine_id = $2) OR (result = '0-1' AND black_engine_id = $2)),
+			count(*) FILTER (WHERE result = '1/2-1/2'),
+			count(*) FILTER (WHERE (result = '1-0' AND white_engine_id = $3) OR (result = '0-1' AND black_engine_id = $3))
+		FROM games
+		WHERE tournament_id = $1 AND status = 'completed'
+	`, tournamentID, t.EngineAID, t.EngineBID).Scan(&wins, &draws, &losses); err != nil {
+		return fmt.Errorf("count SPRT results: %w", err)
+	}
+	result := t.SPRT.Evaluate(wins, draws, losses).Result
+	if result == "" {
+		return nil
+	}
+	if _, err := tx.Exec(ctx, `
+		UPDATE tournaments SET status = 'completed', sprt_result = $2, updated_at = now() WHERE id = $1
+	`, tournamentID, result); err != nil {
+		return fmt.Errorf("store SPRT result: %w", err)
+	}
+	return cancelUnfinishedGames(ctx, tx, tournamentID)
 }
 
 // completeTournamentIfDone marks a tournament completed once no game is left to play.

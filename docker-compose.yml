@@ -25,6 +25,11 @@ services:
       DATABASE_URL: "postgres://chess_arena:chess_arena_dev@postgres:5432/chess_arena?sslmode=disable"
       ARENA_WORKERS: "${ARENA_WORKERS:-2}"
       CORS_ORIGINS: "${CORS_ORIGINS:-http://localhost:3000}"
+      ARENA_API_TOKEN: "${ARENA_API_TOKEN:-}"
+      ARENA_ALLOWED_IMAGES: "${ARENA_ALLOWED_IMAGES:-zienek/chess-arena-engine,chess-arena-engine,chess-arena-stockfish}"
+      ANALYSIS_WORKERS: "${ANALYSIS_WORKERS:-1}"
+      ANALYSIS_ENGINE_IMAGE: "${ANALYSIS_ENGINE_IMAGE:-chess-arena-stockfish:local}"
+      ANALYSIS_NODES: "${ANALYSIS_NODES:-200000}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -32,6 +37,13 @@ services:
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
+  # Builds the Stockfish image for analysis and as an opponent. No container
+  # runs: the backend starts one per engine, like for every other engine.
+  stockfish:
+    build: engines/stockfish
+    image: chess-arena-stockfish:local
+    scale: 0
 
   frontend:
     build:

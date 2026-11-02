@@ -36,6 +36,8 @@ type MoveDetail struct {
 	EngineID    string   `json:"engine_id"`
 	Info        uci.Info `json:"info"`
 	ThinkTimeMs *int     `json:"think_time_ms,omitempty"`
+	// Analysis is the analysis engine's verdict, once the game is analyzed.
+	Analysis *MoveAnalysis `json:"analysis,omitempty"`
 }
 
 // GameDetail is a game with its moves, result and PGN.
@@ -45,6 +47,8 @@ type GameDetail struct {
 	CurrentFEN string       `json:"current_fen"`
 	Moves      []MoveDetail `json:"moves"`
 	PGN        string       `json:"pgn,omitempty"`
+	// Analysis is set once the game was claimed for analysis.
+	Analysis *GameAnalysis `json:"analysis,omitempty"`
 }
 
 const gameSummaryColumns = `g.id, g.tournament_id, g.game_number, g.status, COALESCE(g.result, ''),
@@ -142,7 +146,19 @@ func (store *Store) GetGame(ctx context.Context, id string) (GameDetail, error) 
 		}
 		detail.Moves = append(detail.Moves, move)
 	}
-	return detail, rows.Err()
+	if err := rows.Err(); err != nil {
+		return detail, err
+	}
+
+	analysis, moves, err := store.gameAnalysis(ctx, id)
+	if err != nil {
+		return detail, err
+	}
+	detail.Analysis = analysis
+	for index := range detail.Moves {
+		detail.Moves[index].Analysis = moves[detail.Moves[index].Ply]
+	}
+	return detail, nil
 }
 
 func valueOrZero[T int | int64](value *T) T {

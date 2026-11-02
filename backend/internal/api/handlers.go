@@ -26,6 +26,12 @@ func (server *Server) createEngine(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	if server.options.Images != nil {
+		if err := server.options.Images.Check(input.Image); err != nil {
+			writeError(w, http.StatusUnprocessableEntity, err.Error())
+			return
+		}
+	}
 	engine, err := server.store.CreateEngine(r.Context(), input)
 	if err != nil {
 		server.writeStoreError(w, r, err)
@@ -150,6 +156,15 @@ func (server *Server) getGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, game)
+}
+
+func (server *Server) leaderboard(w http.ResponseWriter, r *http.Request) {
+	entries, err := server.store.Leaderboard(r.Context())
+	if err != nil {
+		server.writeStoreError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, entries)
 }
 
 func (server *Server) getGamePGN(w http.ResponseWriter, r *http.Request) {

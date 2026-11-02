@@ -19,7 +19,16 @@ type Config struct {
 	MoveMargin    time.Duration // ARENA_MOVE_MARGIN_MS; tolerance on top of movetime
 	SearchTimeout time.Duration // ARENA_SEARCH_TIMEOUT_MS; per move for depth and node limits
 	EngineNetwork string        // ARENA_ENGINE_NETWORK; Docker network for engines
+	APIToken      string        // ARENA_API_TOKEN; required for writes when set
+	AllowedImages []string      // ARENA_ALLOWED_IMAGES; image repositories engines may use
+
+	AnalysisWorkers int    // ANALYSIS_WORKERS; games analyzed in parallel, 0 disables
+	AnalysisImage   string // ANALYSIS_ENGINE_IMAGE; Docker image of the analysis engine
+	AnalysisNodes   int64  // ANALYSIS_NODES; search budget per analyzed position
 }
+
+// DefaultAllowedImages are this project's engine and Stockfish images.
+const DefaultAllowedImages = "zienek/chess-arena-engine,chess-arena-engine,chess-arena-stockfish"
 
 // Load reads the configuration, applying defaults for unset variables.
 func Load() (Config, error) {
@@ -30,6 +39,9 @@ func Load() (Config, error) {
 		CORSOrigins:   envList("CORS_ORIGINS", "http://localhost:3000"),
 		WorkerID:      envString("ARENA_WORKER_ID", hostname),
 		EngineNetwork: envString("ARENA_ENGINE_NETWORK", "none"),
+		APIToken:      strings.TrimSpace(os.Getenv("ARENA_API_TOKEN")),
+		AllowedImages: envList("ARENA_ALLOWED_IMAGES", DefaultAllowedImages),
+		AnalysisImage: envString("ANALYSIS_ENGINE_IMAGE", "chess-arena-stockfish:local"),
 	}
 	var err error
 	if config.Workers, err = envInt("ARENA_WORKERS", 1); err != nil {
@@ -47,6 +59,17 @@ func Load() (Config, error) {
 	config.SearchTimeout = time.Duration(timeout) * time.Millisecond
 	if config.Workers < 0 || margin < 0 || timeout <= 0 {
 		return config, fmt.Errorf("ARENA_WORKERS and ARENA_MOVE_MARGIN_MS must not be negative, ARENA_SEARCH_TIMEOUT_MS must be positive")
+	}
+	if config.AnalysisWorkers, err = envInt("ANALYSIS_WORKERS", 1); err != nil {
+		return config, err
+	}
+	nodes, err := envInt("ANALYSIS_NODES", 200_000)
+	if err != nil {
+		return config, err
+	}
+	config.AnalysisNodes = int64(nodes)
+	if config.AnalysisWorkers < 0 || config.AnalysisNodes <= 0 {
+		return config, fmt.Errorf("ANALYSIS_WORKERS must not be negative and ANALYSIS_NODES must be positive")
 	}
 	return config, nil
 }
