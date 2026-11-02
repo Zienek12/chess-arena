@@ -153,6 +153,12 @@ export function useEngineNames() {
   return names
 }
 
+// Names a game's starting position: its opening when the position set names
+// it, otherwise its number in the set.
+export function openingLabel(game) {
+  return game.opening || `Position ${game.position_number}`
+}
+
 export function engineLabel(engine) {
   return `${engine.name} ${engine.version}`
 }

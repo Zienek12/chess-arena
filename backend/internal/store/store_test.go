@@ -63,6 +63,8 @@ func (f fixture) createTournament(t *testing.T, games int) Tournament {
 		PositionSetID: f.set.ID,
 		GameCount:     games,
 		Limit:         tournament.SearchLimit{MoveTimeMs: &movetime},
+		// Games start from the set's first position, which the tests rely on.
+		PositionOrder: tournament.PositionsSequential,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -108,6 +110,19 @@ func TestCreateTournamentSchedulesGames(t *testing.T) {
 	})
 	if !errors.Is(err, ErrInvalidReference) {
 		t.Fatalf("expected invalid reference, got %v", err)
+	}
+
+	// Without a position order, positions are shuffled per tournament and stored as such.
+	shuffled, err := f.store.CreateTournament(ctx, tournament.Config{
+		Name: "shuffled", EngineAID: f.engineA.ID, EngineBID: f.engineB.ID,
+		PositionSetID: f.set.ID, GameCount: 4, Limit: created.Limit,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	listed, err := f.store.GetTournament(ctx, shuffled.ID)
+	if err != nil || listed.PositionOrder != tournament.PositionsRandom {
+		t.Fatalf("position order not stored: %+v, %v", listed.Tournament, err)
 	}
 }
 
@@ -363,5 +378,46 @@ func TestAnalysisAndLeaderboard(t *testing.T) {
 	if len(leaderboard) != 2 || leaderboard[0].ID != game.White.ID || leaderboard[0].Wins != 1 ||
 		leaderboard[0].Rating <= 0 || leaderboard[1].Losses != 1 || leaderboard[0].Accuracy != 99 {
 		t.Fatalf("unexpected leaderboard %+v", leaderboard)
+	}
+}
+
+func TestPositionNamesAreStoredAndFilledIn(t *testing.T) {
+	f := newFixture(t)
+	ctx := context.Background()
+	unnamed, err := tournament.ImportPGN("[Event \"?\"]\n\n1. e4 e5 *\n\n[Event \"?\"]\n\n1. d4 d5 *\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	set, created, err := f.store.SavePositionSet(ctx, "openings", unnamed)
+	if err != nil || !created {
+		t.Fatalf("save: %v %v", created, err)
+	}
+	named, err := tournament.ImportPGN("[Event \"Open Game\"]\n\n1. e4 e5 *\n\n[Event \"Closed Game\"]\n\n1. d4 d5 *\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	again, created, err := f.store.SavePositionSet(ctx, "openings", named)
+	if err != nil || created || again.ID != set.ID {
+		t.Fatalf("re-import must return the existing set: %+v %v %v", again, created, err)
+	}
+
+	movetime := 100
+	created2, err := f.store.CreateTournament(ctx, tournament.Config{
+		Name: "named", EngineAID: f.engineA.ID, EngineBID: f.engineB.ID, PositionSetID: set.ID,
+		GameCount: 4, Limit: tournament.SearchLimit{MoveTimeMs: &movetime}, PositionOrder: tournament.PositionsSequential,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	games, err := f.store.ListGames(ctx, created2.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if games[0].Opening != "Open Game" || games[0].PositionNumber != 1 || games[2].Opening != "Closed Game" || games[2].PositionNumber != 2 {
+		t.Fatalf("unexpected openings %+v", games)
+	}
+	detail, err := f.store.GetGame(ctx, games[3].ID)
+	if err != nil || detail.Opening != "Closed Game" {
+		t.Fatalf("game detail opening: %q %v", detail.Opening, err)
 	}
 }

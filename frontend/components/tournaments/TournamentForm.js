@@ -16,6 +16,11 @@ const LIMITS = {
   nodes: { label: 'Nodes', defaultValue: 100000 },
 }
 
+const POSITION_ORDERS = {
+  random: 'Random (a different sample for every tournament)',
+  sequential: 'In the order of the set',
+}
+
 const COLOR_ORDERS = {
   alternate: 'Alternate (each position played with both colors)',
   engine_a_white: 'Engine A always White',
@@ -36,6 +41,7 @@ export default function TournamentForm() {
     limitType: 'movetime_ms',
     limitValue: LIMITS.movetime_ms.defaultValue,
     colorOrder: 'alternate',
+    positionOrder: 'random',
     cpus: 1,
     memoryMb: 256,
     sprt: false,
@@ -87,6 +93,7 @@ export default function TournamentForm() {
         game_count: form.gameCount,
         limit: { [form.limitType]: form.limitValue },
         color_order: form.colorOrder,
+        position_order: form.positionOrder,
         cpus: form.cpus,
         memory_mb: form.memoryMb,
         sprt: form.sprt
@@ -307,6 +314,24 @@ export default function TournamentForm() {
               onChange={update('colorOrder')}
             >
               {Object.entries(COLOR_ORDERS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field
+            label="Order of starting positions"
+            htmlFor="position-order"
+            hint="Random order keeps short tournaments, and ones stopped early by SPRT, from only playing the first openings of a set."
+          >
+            <select
+              id="position-order"
+              className={inputClass}
+              value={form.positionOrder}
+              onChange={update('positionOrder')}
+            >
+              {Object.entries(POSITION_ORDERS).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>

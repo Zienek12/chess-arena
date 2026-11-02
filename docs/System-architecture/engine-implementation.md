@@ -244,6 +244,8 @@ The time budget for one move is:
 | nothing (bare `go`) | none; the search stops at depth 5 |
 | `infinite` | none; the search ends on `stop` |
 
+For a step-by-step explanation of move generation, evaluation and search, with real search output and the engine's known weaknesses, see [Engine internals (v1.2.0)](engine-internals-v.1.2.0.md).
+
 ### Evaluation
 
 `eval.rs` scores a position in centipawns from the side to move:

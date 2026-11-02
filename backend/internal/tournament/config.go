@@ -19,6 +19,16 @@ const (
 	ColorEngineBWhite ColorOrder = "engine_b_white"
 )
 
+// PositionOrder decides in which order a tournament uses its starting positions.
+type PositionOrder string
+
+const (
+	// PositionsRandom shuffles the positions per tournament.
+	PositionsRandom PositionOrder = "random"
+	// PositionsSequential uses the positions in the order of the set.
+	PositionsSequential PositionOrder = "sequential"
+)
+
 // Status is the tournament lifecycle state.
 type Status string
 
@@ -58,8 +68,11 @@ type Config struct {
 	GameCount     int         `json:"game_count"`
 	Limit         SearchLimit `json:"limit"`
 	ColorOrder    ColorOrder  `json:"color_order"`
-	CPUs          float64     `json:"cpus"`
-	MemoryMB      int         `json:"memory_mb"`
+	// PositionOrder defaults to random, so every tournament samples the
+	// whole position set even when it stops early.
+	PositionOrder PositionOrder `json:"position_order"`
+	CPUs          float64       `json:"cpus"`
+	MemoryMB      int           `json:"memory_mb"`
 	// SPRT, when set, tests engine A against engine B and stops the
 	// tournament as soon as the test decides; GameCount is then the maximum.
 	SPRT *stats.SPRT `json:"sprt,omitempty"`
@@ -73,6 +86,9 @@ func (config Config) Normalize() Config {
 	}
 	if config.ColorOrder == "" {
 		config.ColorOrder = ColorAlternate
+	}
+	if config.PositionOrder == "" {
+		config.PositionOrder = PositionsRandom
 	}
 	if config.CPUs == 0 {
 		config.CPUs = DefaultCPUs
@@ -114,6 +130,11 @@ func (config Config) Validate() error {
 	case ColorAlternate, ColorEngineAWhite, ColorEngineBWhite:
 	default:
 		return fmt.Errorf("invalid color order %q", config.ColorOrder)
+	}
+	switch config.PositionOrder {
+	case PositionsRandom, PositionsSequential:
+	default:
+		return fmt.Errorf("invalid position order %q", config.PositionOrder)
 	}
 	if config.CPUs <= 0 {
 		return errors.New("cpus must be positive")

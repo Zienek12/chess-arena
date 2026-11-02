@@ -4,7 +4,7 @@ import Layout from '../../components/Layout'
 import EngineTelemetryTable from '../../components/EngineTelemetryTable'
 import GameReplay from '../../components/games/GameReplay'
 import { BackendUnavailable, Card, StatusBadge } from '../../components/ui'
-import { API_URL, useEngineNames, useGame } from '../../lib/api'
+import { API_URL, openingLabel, useEngineNames, useGame } from '../../lib/api'
 import { summarizeTelemetry } from '../../lib/chess'
 
 // Where Stockfish's review of the game stands.
@@ -69,6 +69,13 @@ export default function GamePage() {
           <h1 className="flex items-center gap-3 text-2xl font-semibold">
             Game {game.game_number} <StatusBadge status={game.status} />
           </h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Opening:{' '}
+            <span className="font-medium text-gray-900">
+              {openingLabel(game)}
+            </span>
+            {game.opening && ` (position ${game.position_number})`}
+          </p>
           <p className="mt-1 text-sm text-gray-600">
             <span className="font-medium text-gray-900">{white}</span> (White)
             vs <span className="font-medium text-gray-900">{black}</span>{' '}

@@ -97,7 +97,7 @@ type TournamentDetail struct {
 }
 
 const tournamentColumns = `id, name, engine_a_id, engine_b_id, position_set_id, game_count,
-	movetime_ms, depth, nodes, color_order, cpu_limit, memory_limit_mb, status,
+	movetime_ms, depth, nodes, color_order, position_order, cpu_limit, memory_limit_mb, status,
 	sprt_elo0, sprt_elo1, sprt_alpha, sprt_beta, COALESCE(sprt_result, ''), created_at, updated_at`
 
 func scanTournament(row pgx.Row) (Tournament, error) {
@@ -106,7 +106,7 @@ func scanTournament(row pgx.Row) (Tournament, error) {
 	var movetime *int32
 	var elo0, elo1, alpha, beta *float64
 	err := row.Scan(&t.ID, &t.Name, &t.EngineAID, &t.EngineBID, &t.PositionSetID, &t.GameCount,
-		&movetime, &depth, &t.Limit.Nodes, &t.ColorOrder, &t.CPUs, &t.MemoryMB, &t.Status,
+		&movetime, &depth, &t.Limit.Nodes, &t.ColorOrder, &t.PositionOrder, &t.CPUs, &t.MemoryMB, &t.Status,
 		&elo0, &elo1, &alpha, &beta, &t.SPRTResult, &t.CreatedAt, &t.UpdatedAt)
 	if elo0 != nil && elo1 != nil && alpha != nil && beta != nil {
 		t.SPRT = &stats.SPRT{Elo0: *elo0, Elo1: *elo1, Alpha: *alpha, Beta: *beta}
@@ -146,13 +146,14 @@ func (store *Store) CreateTournament(ctx context.Context, config tournament.Conf
 	}
 	created, err := scanTournament(tx.QueryRow(ctx, `
 		INSERT INTO tournaments (name, engine_a_id, engine_b_id, position_set_id, game_count,
-			movetime_ms, depth, nodes, color_order, cpu_limit, memory_limit_mb, status,
+			movetime_ms, depth, nodes, color_order, position_order, cpu_limit, memory_limit_mb, status,
 			sprt_elo0, sprt_elo1, sprt_alpha, sprt_beta)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 		RETURNING `+tournamentColumns,
 		config.Name, config.EngineAID, config.EngineBID, config.PositionSetID, config.GameCount,
 		config.Limit.MoveTimeMs, config.Limit.Depth, config.Limit.Nodes, string(config.ColorOrder),
-		config.CPUs, config.MemoryMB, string(tournament.StatusQueued), elo0, elo1, alpha, beta))
+		string(config.PositionOrder), config.CPUs, config.MemoryMB, string(tournament.StatusQueued),
+		elo0, elo1, alpha, beta))
 	if isForeignKeyViolation(err) || isInvalidUUID(err) {
 		return Tournament{}, ErrInvalidReference
 	}
@@ -160,7 +161,7 @@ func (store *Store) CreateTournament(ctx context.Context, config tournament.Conf
 		return Tournament{}, fmt.Errorf("insert tournament: %w", err)
 	}
 
-	schedule := tournament.Schedule(config, len(positionIDs))
+	schedule := tournament.Schedule(config, len(positionIDs), tournament.ScheduleSeed(created.ID))
 	numbers := make([]int32, 0, len(schedule))
 	positions := make([]string, 0, len(schedule))
 	whites := make([]string, 0, len(schedule))

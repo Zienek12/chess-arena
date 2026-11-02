@@ -38,7 +38,7 @@ tournament ──► rules, stats
 ## How a Tournament Runs
 
 1. A client registers engines (`POST /api/engines`) and imports a position set (`POST /api/position-sets`).
-2. `POST /api/tournaments` validates the configuration and, in one transaction, stores the tournament as `queued` and schedules every game. With `alternate` colors, games 1–2 share position 1 with colors swapped, games 3–4 share position 2, and so on.
+2. `POST /api/tournaments` validates the configuration and, in one transaction, stores the tournament as `queued` and schedules every game. With `alternate` colors, games 1–2 share a position with colors swapped, games 3–4 share the next one, and so on. By default (`position_order: random`) the positions are shuffled with a seed derived from the tournament ID: the schedule is reproducible, and a short tournament, or one stopped early by an SPRT, samples the whole set instead of only its first positions. `sequential` uses the set's order.
 3. Each worker claims the next game with `SELECT … FOR UPDATE SKIP LOCKED`, so several workers or backend instances never play the same game. The claim is a lease that expires after 5 minutes unless renewed.
 4. The worker starts both engines as containers, performs the UCI handshake and plays the game:
    - every move must arrive within `movetime + ARENA_MOVE_MARGIN_MS`, or within `ARENA_SEARCH_TIMEOUT_MS` for `depth` and `nodes` limits;
@@ -103,7 +103,7 @@ All endpoints are under `/api` and use JSON. Errors have the form `{"error": "..
 | `POST /api/tournaments` | Create and queue a tournament (body below). |
 | `GET /api/tournaments/{id}` | Tournament with `progress` (games by status), `score` (wins, draws, points), `stats` (Elo ± error, LOS), `sprt_status` (LLR and bounds, when an SPRT is configured) and `telemetry` (per engine: moves, average and max depth, average and total nodes, average NPS and think time, and the move quality from analysis). |
 | `POST /api/tournaments/{id}/cancel` | Cancel a tournament. 409 when it already finished. |
-| `GET /api/tournaments/{id}/games` | Games in schedule order. |
+| `GET /api/tournaments/{id}/games` | Games in schedule order, each with its starting position's number in the set and opening name (`position_number`, `opening`). |
 | `GET /api/games/{id}` | Game with moves, per-move telemetry and analysis, the analysis status, and PGN. |
 | `GET /api/games/{id}/pgn` | PGN file of a finished game. |
 | `GET /api/leaderboard` | Every engine with finished games: rating, results, average depth and NPS, and move quality. |
@@ -123,13 +123,14 @@ Tournament body:
   "game_count": 100,
   "limit": { "movetime_ms": 1000 },
   "color_order": "alternate",
+  "position_order": "random",
   "cpus": 1.0,
   "memory_mb": 256,
   "sprt": { "elo0": 0, "elo1": 10, "alpha": 0.05, "beta": 0.05 }
 }
 ```
 
-`limit` takes exactly one of `movetime_ms`, `depth` or `nodes`. `game_count` defaults to 1000, `color_order` to `alternate` (`engine_a_white` and `engine_b_white` are also accepted). `sprt` is optional; `alpha` and `beta` default to 0.05.
+`limit` takes exactly one of `movetime_ms`, `depth` or `nodes`. `game_count` defaults to 1000, `color_order` to `alternate` (`engine_a_white` and `engine_b_white` are also accepted). `position_order` is `random` (default) or `sequential`. `sprt` is optional; `alpha` and `beta` default to 0.05.
 
 ## Configuration
 

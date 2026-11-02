@@ -27,6 +27,15 @@ type Position struct {
 	Ordinal int
 	FEN     string
 	Hash    string
+	// Name describes the position, for example its opening; it may be empty.
+	// Names are not part of the fingerprint.
+	Name string
+}
+
+// namedFEN is a position read from a source, before deduplication.
+type namedFEN struct {
+	fen  string
+	name string
 }
 
 // PositionSet is an ordered list of starting positions. Its fingerprint is
@@ -37,9 +46,11 @@ type PositionSet struct {
 	Positions   []Position
 }
 
-// ImportFEN reads one FEN per non-empty line; lines starting with # are comments.
+// ImportFEN reads one FEN per non-empty line; lines starting with # are
+// comments. Text after a semicolon names the position:
+// "<fen> ; Ruy Lopez".
 func ImportFEN(source string) (PositionSet, error) {
-	fens := make([]string, 0)
+	fens := make([]namedFEN, 0)
 	scanner := bufio.NewScanner(strings.NewReader(source))
 	line := 0
 	for scanner.Scan() {
@@ -48,6 +59,7 @@ func ImportFEN(source string) (PositionSet, error) {
 		if text == "" || strings.HasPrefix(text, "#") {
 			continue
 		}
+		text, name, _ := strings.Cut(text, ";")
 		fen, err := CanonicalFEN(text)
 		if err != nil {
 			return PositionSet{}, fmt.Errorf("invalid FEN on line %d: %w", line, err)
@@ -55,7 +67,7 @@ func ImportFEN(source string) (PositionSet, error) {
 		if _, err := rules.NewGame(fen); err != nil {
 			return PositionSet{}, fmt.Errorf("invalid FEN on line %d: %w", line, err)
 		}
-		fens = append(fens, fen)
+		fens = append(fens, namedFEN{fen: fen, name: strings.TrimSpace(name)})
 	}
 	if err := scanner.Err(); err != nil {
 		return PositionSet{}, err
@@ -65,9 +77,10 @@ func ImportFEN(source string) (PositionSet, error) {
 
 // ImportPGN takes the final position of every game in source. A game with only
 // a FEN tag yields that FEN; a game with moves (an opening line) yields the
-// position after the moves.
+// position after the moves. The position is named after the Opening and
+// Variation tags, or else the Event tag.
 func ImportPGN(source string) (PositionSet, error) {
-	fens := make([]string, 0)
+	fens := make([]namedFEN, 0)
 	scanner := chess.NewScanner(strings.NewReader(source))
 	for scanner.HasNext() {
 		game, err := scanner.ParseNext()
@@ -78,24 +91,43 @@ func ImportPGN(source string) (PositionSet, error) {
 		if err != nil {
 			return PositionSet{}, fmt.Errorf("invalid PGN game %d: %w", len(fens)+1, err)
 		}
-		fens = append(fens, fen)
+		fens = append(fens, namedFEN{fen: fen, name: pgnPositionName(game)})
 	}
 	return newPositionSet(PositionSourcePGN, fens)
 }
 
-func newPositionSet(sourceType PositionSourceType, fens []string) (PositionSet, error) {
+// pgnPositionName names a PGN game's position from its tags. "?" is the PGN
+// placeholder for an unknown value.
+func pgnPositionName(game *chess.Game) string {
+	known := func(tag string) string {
+		value := strings.TrimSpace(game.GetTagPair(tag))
+		if value == "?" {
+			return ""
+		}
+		return value
+	}
+	if opening := known("Opening"); opening != "" {
+		if variation := known("Variation"); variation != "" {
+			return opening + ", " + variation
+		}
+		return opening
+	}
+	return known("Event")
+}
+
+func newPositionSet(sourceType PositionSourceType, fens []namedFEN) (PositionSet, error) {
 	if len(fens) == 0 {
 		return PositionSet{}, errors.New("position source contains no positions")
 	}
 	positions := make([]Position, 0, len(fens))
 	seen := make(map[string]bool, len(fens))
-	for _, fen := range fens {
-		hash := hashText(fen)
+	for _, entry := range fens {
+		hash := hashText(entry.fen)
 		if seen[hash] {
 			continue
 		}
 		seen[hash] = true
-		positions = append(positions, Position{Ordinal: len(positions), FEN: fen, Hash: hash})
+		positions = append(positions, Position{Ordinal: len(positions), FEN: entry.fen, Hash: hash, Name: entry.name})
 	}
 	canonical := make([]string, 0, len(positions))
 	for _, position := range positions {
