@@ -16,16 +16,21 @@ Each package under `backend/internal/` has one responsibility. Arrows show impor
 | `sandbox` | Starts engines: Docker containers with limits, or local processes for development. |
 | `store` | PostgreSQL repository: engines, position sets, tournaments, game lifecycle, read models. |
 | `arena` | Plays a game between two engines (`Match`) and runs the queue (`Worker`). |
-| `api` | REST API for the frontend. |
+| `analysis` | Reviews finished games with Stockfish and judges every move. |
+| `stats` | Elo, error bars, LOS, SPRT and leaderboard ratings. |
+| `events` | Delivers PostgreSQL `NOTIFY` change events to `/api/events` subscribers. |
+| `api` | REST API and event stream for the frontend. |
 | `play` | Human-versus-engine WebSocket at `/ws`, used by the current frontend. |
 
 ```text
-main ──► config, database, api, arena, play
-api ──► store, tournament
+main ──► config, database, api, arena, analysis, events, play
+api ──► store, tournament, sandbox, events
 arena ──► store, sandbox, uci, rules, tournament
-store ──► tournament, uci
-play ──► sandbox, uci, rules
-tournament ──► rules
+analysis ──► store, sandbox, uci, rules
+events ──► store
+store ──► tournament, stats, uci
+play ──► store, sandbox, uci, rules
+tournament ──► rules, stats
 ```
 
 `rules`, `uci` and `sandbox` do not depend on the database, so they can be tested and reused on their own.
@@ -39,7 +44,10 @@ tournament ──► rules
    - every move must arrive within `movetime + ARENA_MOVE_MARGIN_MS`, or within `ARENA_SEARCH_TIMEOUT_MS` for `depth` and `nodes` limits;
    - every move is validated by `rules`; checkmate, stalemate, threefold repetition, the fifty-move rule and insufficient material end the game;
    - each move is stored with its telemetry in the same transaction that renews the lease.
-5. When the game ends, the result, termination and PGN are stored. After the last game the tournament becomes `completed`.
+5. When the game ends, the result, termination and PGN are stored. With an SPRT, the test is evaluated in the same transaction and, once it decides, the tournament completes and its remaining games are cancelled. Otherwise the tournament becomes `completed` after its last game.
+6. An analysis worker then reviews the game with Stockfish; see [Analysis and Statistics](analysis-and-statistics.md).
+
+Every change (claim, move, result, analysis, tournament status) is announced with `pg_notify('arena_events', …)` inside its transaction, so it is delivered only when committed. Each backend instance listens on that channel and forwards the events to the browsers connected to `/api/events`.
 
 ### Engine Faults and Infrastructure Faults
 
@@ -65,6 +73,13 @@ docker run --rm --interactive --init --network none --read-only --cap-drop ALL
 
 The image is pulled first when it is missing. `cpus` and `memory_mb` come from the tournament (defaults 1.0 and 256 MB). The swap limit equals the memory limit, so memory is a hard limit.
 
+## Security
+
+The backend controls the host's Docker daemon, so it only starts trusted images and, optionally, only accepts changes from holders of a token.
+
+- **Image allowlist.** `ARENA_ALLOWED_IMAGES` lists the image repositories engines may use: exact repositories (`zienek/chess-arena-engine`), namespaces (`zienek/*`) or `*` for any image. Tags and digests are ignored. It is checked when an engine is registered (422 otherwise) and again by the Docker launcher before every container start, which also covers engines stored earlier and the Play page's configured images.
+- **API token.** When `ARENA_API_TOKEN` is set, every `POST` requires `Authorization: Bearer <token>` (401 otherwise); reads stay public. `GET /api/auth` tells the frontend whether a token is required and whether the one it sent is valid. The frontend asks for the token and keeps it in the browser's local storage. Without a token the backend logs a warning at startup.
+
 The backend drives containers through the Docker CLI. On Docker Desktop for Windows, starting a container takes about 9 seconds, and the CLI adds latency spikes of up to about 1.5 seconds per message while other containers start. Short `movetime` limits then cause time forfeits that are not the engine's fault. Use a larger `ARENA_MOVE_MARGIN_MS` there, and measure on the target Linux host before relying on tight time controls.
 
 ## Database Migrations
@@ -86,11 +101,16 @@ All endpoints are under `/api` and use JSON. Errors have the form `{"error": "..
 | `POST /api/position-sets` | Import positions: `{"name", "format": "fen" \| "pgn", "content"}`. Returns 200 with the existing set when the same positions were imported before. |
 | `GET /api/tournaments` | List tournaments. |
 | `POST /api/tournaments` | Create and queue a tournament (body below). |
-| `GET /api/tournaments/{id}` | Tournament with `progress` (games by status), `score` (wins, draws, points) and `telemetry` (per engine: moves, average and max depth, average and total nodes, average NPS and think time). |
+| `GET /api/tournaments/{id}` | Tournament with `progress` (games by status), `score` (wins, draws, points), `stats` (Elo ± error, LOS), `sprt_status` (LLR and bounds, when an SPRT is configured) and `telemetry` (per engine: moves, average and max depth, average and total nodes, average NPS and think time, and the move quality from analysis). |
 | `POST /api/tournaments/{id}/cancel` | Cancel a tournament. 409 when it already finished. |
 | `GET /api/tournaments/{id}/games` | Games in schedule order. |
-| `GET /api/games/{id}` | Game with moves, per-move telemetry and PGN. |
+| `GET /api/games/{id}` | Game with moves, per-move telemetry and analysis, the analysis status, and PGN. |
 | `GET /api/games/{id}/pgn` | PGN file of a finished game. |
+| `GET /api/leaderboard` | Every engine with finished games: rating, results, average depth and NPS, and move quality. |
+| `GET /api/auth` | Whether writes need the API token, and whether the request's token is valid. |
+| `GET /api/events` | Server-sent events `{"type", "tournament_id", "game_id"}` for every change; `?tournament_id=` and `?game_id=` narrow the stream. `resync` asks clients to reload everything. |
+
+Every `POST` needs the API token when `ARENA_API_TOKEN` is set.
 
 Tournament body:
 
@@ -104,11 +124,12 @@ Tournament body:
   "limit": { "movetime_ms": 1000 },
   "color_order": "alternate",
   "cpus": 1.0,
-  "memory_mb": 256
+  "memory_mb": 256,
+  "sprt": { "elo0": 0, "elo1": 10, "alpha": 0.05, "beta": 0.05 }
 }
 ```
 
-`limit` takes exactly one of `movetime_ms`, `depth` or `nodes`. `game_count` defaults to 1000, `color_order` to `alternate` (`engine_a_white` and `engine_b_white` are also accepted).
+`limit` takes exactly one of `movetime_ms`, `depth` or `nodes`. `game_count` defaults to 1000, `color_order` to `alternate` (`engine_a_white` and `engine_b_white` are also accepted). `sprt` is optional; `alpha` and `beta` default to 0.05.
 
 ## Configuration
 
@@ -122,6 +143,11 @@ Tournament body:
 | `ARENA_MOVE_MARGIN_MS` | `1000` | Tolerance on top of `movetime` before a time forfeit. |
 | `ARENA_SEARCH_TIMEOUT_MS` | `60000` | Per-move deadline for `depth` and `nodes` limits. |
 | `ARENA_ENGINE_NETWORK` | `none` | Docker network for engine containers. |
+| `ARENA_ALLOWED_IMAGES` | `zienek/chess-arena-engine,chess-arena-engine,chess-arena-stockfish` | Image repositories engines may use; see [Security](#security). |
+| `ARENA_API_TOKEN` | — | Token required for every `POST`; unset means no authentication. |
+| `ANALYSIS_WORKERS` | `1` | Games analyzed in parallel; `0` disables analysis. |
+| `ANALYSIS_ENGINE_IMAGE` | `chess-arena-stockfish:local` | Docker image of the analysis engine. |
+| `ANALYSIS_NODES` | `200000` | Search budget per analyzed position. |
 | `CHESS_ENGINE_VERSION`, `CHESS_ENGINE_IMAGES`, `CHESS_ENGINE_PATH` | | Engines offered on `/ws` besides the registered ones; see [index-architecture.md](index-architecture.md). |
 
 ## Testing
@@ -145,5 +171,4 @@ CI runs the same tests against a PostgreSQL service container.
 
 - Engines are started through the Docker CLI rather than the Docker SDK for Go.
 - Only per-move limits exist; there is no game clock (`wtime`/`btime`/`winc`/`binc`) yet.
-- The `/ws` engine list comes from environment variables, separate from the `engines` table.
 - The backend container runs as root to reach the Docker socket.

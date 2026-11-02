@@ -9,6 +9,7 @@ Select a topic to explore the implementation details:
 - [Engine implementation](engine-implementation.md)
 - [Tournament model](tournament-model.md)
 - [Arena backend](arena-backend.md)
+- [Analysis and statistics](analysis-and-statistics.md)
 
 ## Versioned engine runtime
 
