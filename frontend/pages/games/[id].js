@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
+import EngineTelemetryTable from '../../components/EngineTelemetryTable'
 import GameReplay from '../../components/games/GameReplay'
 import { BackendUnavailable, Card, StatusBadge } from '../../components/ui'
 import { API_URL, useEngineNames, useGame } from '../../lib/api'
+import { summarizeTelemetry } from '../../lib/chess'
 
 export default function GamePage() {
   const { query } = useRouter()
@@ -70,6 +72,15 @@ export default function GamePage() {
       </div>
       <Card>
         <GameReplay game={game} />
+      </Card>
+      <Card title="Engine search in this game" className="mt-6">
+        <EngineTelemetryTable
+          rows={summarizeTelemetry(game.moves, [
+            game.white_engine_id,
+            game.black_engine_id,
+          ])}
+          names={names}
+        />
       </Card>
     </Layout>
   )

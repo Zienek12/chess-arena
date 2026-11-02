@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ResponsiveBoard from '../ResponsiveBoard'
 import TelemetryPanel from '../TelemetryPanel'
+import EvalChart from './EvalChart'
 import { Button } from '../ui'
 import {
   boardHighlights,
@@ -113,6 +114,12 @@ export default function GameReplay({ game }) {
         <p className="text-xs text-gray-500">
           Use ← and → to step through the moves.
         </p>
+        <EvalChart
+          moves={moves}
+          startsWithBlack={startsWithBlack}
+          ply={ply}
+          onSelect={goTo}
+        />
         <TelemetryPanel
           move={shownMove}
           title={ply === 0 ? 'Engine search' : `Engine search (move ${ply})`}

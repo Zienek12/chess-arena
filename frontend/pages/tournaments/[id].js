@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
+import EngineTelemetryTable from '../../components/EngineTelemetryTable'
 import Layout from '../../components/Layout'
 import {
   BackendUnavailable,
@@ -55,6 +56,7 @@ function ProgressBar({ progress }) {
 }
 
 function GamesTable({ games, names }) {
+  const router = useRouter()
   if (!games) {
     return <p className="text-sm text-gray-500">Loading games...</p>
   }
@@ -74,7 +76,11 @@ function GamesTable({ games, names }) {
         </thead>
         <tbody className="divide-y divide-gray-100">
           {games.map((game) => (
-            <tr key={game.id} className="hover:bg-gray-50">
+            <tr
+              key={game.id}
+              className="cursor-pointer hover:bg-gray-50"
+              onClick={() => router.push(`/games/${game.id}`)}
+            >
               <td className="py-2 pr-3">
                 <Link
                   href={`/games/${game.id}`}
@@ -212,7 +218,16 @@ export default function TournamentPage() {
         </Card>
       </div>
 
+      {tournament.telemetry && (
+        <Card title="Engine search" className="mt-6">
+          <EngineTelemetryTable rows={tournament.telemetry} names={names} />
+        </Card>
+      )}
+
       <Card title="Games" className="mt-6">
+        <p className="mb-3 text-sm text-gray-500">
+          Open a game to replay it move by move with the engine telemetry.
+        </p>
         <GamesTable games={games} names={names} />
       </Card>
     </Layout>

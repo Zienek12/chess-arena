@@ -86,7 +86,7 @@ All endpoints are under `/api` and use JSON. Errors have the form `{"error": "..
 | `POST /api/position-sets` | Import positions: `{"name", "format": "fen" \| "pgn", "content"}`. Returns 200 with the existing set when the same positions were imported before. |
 | `GET /api/tournaments` | List tournaments. |
 | `POST /api/tournaments` | Create and queue a tournament (body below). |
-| `GET /api/tournaments/{id}` | Tournament with `progress` (games by status) and `score` (wins, draws, points). |
+| `GET /api/tournaments/{id}` | Tournament with `progress` (games by status), `score` (wins, draws, points) and `telemetry` (per engine: moves, average and max depth, average and total nodes, average NPS and think time). |
 | `POST /api/tournaments/{id}/cancel` | Cancel a tournament. 409 when it already finished. |
 | `GET /api/tournaments/{id}/games` | Games in schedule order. |
 | `GET /api/games/{id}` | Game with moves, per-move telemetry and PGN. |

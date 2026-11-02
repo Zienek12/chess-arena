@@ -163,6 +163,14 @@ func TestGameLifecycle(t *testing.T) {
 		detail.Score.EngineAWins != 1 || detail.Score.EngineAPoints != 1 {
 		t.Fatalf("unexpected tournament detail %+v", detail)
 	}
+	if engine := detail.Telemetry[0]; engine.EngineID != f.engineA.ID || engine.Moves != 1 ||
+		engine.MovesWithInfo != 1 || engine.MaxDepth != 3 || engine.TotalNodes != 5_000_000_000 ||
+		engine.AverageThinkTime != 120 {
+		t.Fatalf("unexpected engine A telemetry %+v", engine)
+	}
+	if engine := detail.Telemetry[1]; engine.EngineID != f.engineB.ID || engine.Moves != 0 {
+		t.Fatalf("unexpected engine B telemetry %+v", engine)
+	}
 	gameDetail, err := f.store.GetGame(ctx, game.ID)
 	if err != nil {
 		t.Fatal(err)

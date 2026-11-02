@@ -40,11 +40,27 @@ type Score struct {
 	EngineBPoints float64 `json:"engine_b_points"`
 }
 
-// TournamentDetail is a tournament with its progress and score.
+// EngineTelemetry summarizes the searches of one engine across a tournament.
+// Averages cover only the moves that reported the value.
+type EngineTelemetry struct {
+	EngineID         string  `json:"engine_id"`
+	Moves            int     `json:"moves"`
+	MovesWithInfo    int     `json:"moves_with_info"`
+	AverageDepth     float64 `json:"average_depth"`
+	MaxDepth         int     `json:"max_depth"`
+	AverageNodes     float64 `json:"average_nodes"`
+	TotalNodes       int64   `json:"total_nodes"`
+	AverageNPS       float64 `json:"average_nps"`
+	AverageThinkTime float64 `json:"average_think_time_ms"`
+}
+
+// TournamentDetail is a tournament with its progress, score and the search
+// telemetry of both engines (engine A first).
 type TournamentDetail struct {
 	Tournament
-	Progress Progress `json:"progress"`
-	Score    Score    `json:"score"`
+	Progress  Progress          `json:"progress"`
+	Score     Score             `json:"score"`
+	Telemetry []EngineTelemetry `json:"telemetry"`
 }
 
 const tournamentColumns = `id, name, engine_a_id, engine_b_id, position_set_id, game_count,
@@ -221,7 +237,48 @@ func (store *Store) GetTournament(ctx context.Context, id string) (TournamentDet
 	}
 	score.EngineAPoints = float64(score.EngineAWins) + float64(score.Draws)/2
 	score.EngineBPoints = float64(score.EngineBWins) + float64(score.Draws)/2
-	return detail, nil
+
+	detail.Telemetry, err = store.engineTelemetry(ctx, t)
+	return detail, err
+}
+
+// engineTelemetry aggregates the stored move telemetry of both engines.
+func (store *Store) engineTelemetry(ctx context.Context, t Tournament) ([]EngineTelemetry, error) {
+	telemetry := []EngineTelemetry{{EngineID: t.EngineAID}, {EngineID: t.EngineBID}}
+	rows, err := store.pool.Query(ctx, `
+		SELECT
+			m.engine_id,
+			count(*),
+			count(m.depth),
+			coalesce(avg(m.depth), 0)::float8,
+			coalesce(max(m.depth), 0),
+			coalesce(avg(m.nodes), 0)::float8,
+			coalesce(sum(m.nodes), 0)::bigint,
+			coalesce(avg(m.nps), 0)::float8,
+			coalesce(avg(m.think_time_ms), 0)::float8
+		FROM game_moves m
+		JOIN games g ON g.id = m.game_id
+		WHERE g.tournament_id = $1
+		GROUP BY m.engine_id
+	`, t.ID)
+	if err != nil {
+		return nil, fmt.Errorf("read engine telemetry: %w", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var row EngineTelemetry
+		if err := rows.Scan(&row.EngineID, &row.Moves, &row.MovesWithInfo, &row.AverageDepth, &row.MaxDepth,
+			&row.AverageNodes, &row.TotalNodes, &row.AverageNPS, &row.AverageThinkTime); err != nil {
+			return nil, fmt.Errorf("scan engine telemetry: %w", err)
+		}
+		// Both engines can be the same version; their moves are then combined.
+		for index := range telemetry {
+			if telemetry[index].EngineID == row.EngineID {
+				telemetry[index] = row
+			}
+		}
+	}
+	return telemetry, rows.Err()
 }
 
 // CancelTournament stops a tournament. Queued games are cancelled, and running

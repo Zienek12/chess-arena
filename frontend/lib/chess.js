@@ -90,3 +90,50 @@ export function formatNumber(value) {
   }
   return String(value)
 }
+
+// Score in pawns as seen from White, or null without a score. Mates count as
+// MATE_PAWNS so they stay on a chart.
+export const MATE_PAWNS = 10
+
+export function scoreForWhite(info, moverIsWhite) {
+  const sign = moverIsWhite ? 1 : -1
+  if (info?.score_mate !== undefined && info?.score_mate !== null) {
+    const mate = info.score_mate * sign
+    // "mate 0" means the mover is checkmated.
+    return (mate > 0 ? 1 : mate < 0 ? -1 : -sign) * MATE_PAWNS
+  }
+  if (info?.score_cp !== undefined && info?.score_cp !== null) {
+    return (info.score_cp * sign) / 100
+  }
+  return null
+}
+
+// Summarizes the searches of each engine in the same shape as the
+// tournament telemetry returned by the API.
+export function summarizeTelemetry(moves, engineIds) {
+  return engineIds.map((engineId) => {
+    const own = moves.filter((move) => move.engine_id === engineId)
+    const withDepth = own.filter((move) => move.info?.depth)
+    const average = (values) =>
+      values.length === 0
+        ? 0
+        : values.reduce((sum, value) => sum + value, 0) / values.length
+    const reported = (key) =>
+      own.map((move) => move.info?.[key]).filter((value) => value)
+    return {
+      engine_id: engineId,
+      moves: own.length,
+      moves_with_info: withDepth.length,
+      average_depth: average(withDepth.map((move) => move.info.depth)),
+      max_depth: Math.max(0, ...withDepth.map((move) => move.info.depth)),
+      average_nodes: average(reported('nodes')),
+      total_nodes: reported('nodes').reduce((sum, value) => sum + value, 0),
+      average_nps: average(reported('nps')),
+      average_think_time_ms: average(
+        own
+          .map((move) => move.think_time_ms)
+          .filter((value) => value !== undefined && value !== null)
+      ),
+    }
+  })
+}
