@@ -5,6 +5,7 @@ use std::sync::Arc;
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
+use crate::bench;
 use crate::board::Board;
 use crate::fen::parse_fen;
 use crate::hash::position_hash;
@@ -89,6 +90,17 @@ impl UciEngine {
             },
             "stop" => self.stop_search(),
             "d" => self.send(format!("{}", self.board)),
+            // Not part of UCI: runs the benchmark, as `chess-arena-engine bench` does.
+            "bench" => {
+                self.stop_search();
+                match bench::parse_depth(parts.next()) {
+                    Ok(depth) => bench::run(depth)
+                        .lines()
+                        .into_iter()
+                        .for_each(|line| self.send(line)),
+                    Err(error) => self.send(format!("info string error {}", error)),
+                }
+            }
             "quit" => {
                 self.stop_search();
                 return Flow::Quit;

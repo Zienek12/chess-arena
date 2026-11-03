@@ -335,6 +335,33 @@ The test suite covers:
 - Evaluation, move ordering and alpha-beta search: mates in one and two, winning material, avoiding stalemate and repetition draws, limits and `stop`.
 - UCI command handling and `info` telemetry.
 
+### Bench
+
+`bench.rs` searches 18 fixed positions (the six perft positions, openings, tactical middlegames and endgames) to depth 5, each as a fresh game, and prints the totals:
+
+```powershell
+cargo run --release -- bench        # or bench <depth>; also available as the UCI command "bench"
+```
+
+```text
+Positions searched: 18
+Depth: 5
+Nodes searched: 1390581
+Time (ms): 2395
+Nodes/second: 580425
+```
+
+The node count is the engine's **bench signature**. It depends only on what the search does, not on how fast the computer is, so it is the same on every platform. It changes when a change alters the search or the evaluation, and stays the same for a change that only makes the engine faster. CI runs the benchmark and fails when the count differs from `engines/bench-signature.txt`:
+
+- a refactoring or speed optimization must keep the signature, which proves it did not change behavior;
+- a change that is meant to alter the search (a new evaluation term, pruning, move ordering) updates the file in the same commit, and its strength is then measured with an SPRT tournament.
+
+`Nodes/second` measures speed. It varies between runs and machines, so compare it on the same computer only.
+
+| Version | Bench signature (depth 5) |
+| --- | --- |
+| 1.2.0 | 1,390,581 |
+
 ## Versioning and Releases
 
 An engine version is defined in one place, `engines/Cargo.toml`, and appears identically everywhere else:
@@ -373,6 +400,8 @@ The `Publish engine image` workflow then:
 Publishing an older version again never moves `X.Y` or `latest` back to it, and prereleases never move them.
 
 To publish an existing tag again, for example after a failed run, start the workflow manually under **Actions → Publish engine image → Run workflow** and enter the tag, such as `engine-v1.1.0`. The workflow builds that tag, whichever branch it is started from.
+
+Each new version should come with: its bench signature (table above), an SPRT tournament against the previous version (`./scripts/regress.ps1 -Candidate X.Y.Z`), and the version's Elo on the leaderboard.
 
 In tournaments, register engines by their exact version tag (`zienek/chess-arena-engine:1.1.0`) rather than `latest` or `X.Y`. These two tags move to newer versions, so results would no longer show which version played. The arena pulls an image the first time a game needs it.
 
