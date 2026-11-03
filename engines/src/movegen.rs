@@ -1,22 +1,26 @@
 #![allow(dead_code)]
 
-use crate::attacks::{is_square_attacked, piece_attacks};
-use crate::board::{Board, CastlingRights, Color, PieceKind, Square};
-use crate::moves::{Move, MoveKind};
+use crate::attacks::{
+    bishop_attacks, is_square_attacked, is_square_attacked_through, piece_attacks, rook_attacks,
+};
+use crate::board::{Bitboard, Board, CastlingRights, Color, PieceKind, Square};
+use crate::moves::{Move, MoveKind, MoveList};
 
-pub fn pseudo_legal_moves(board: &Board) -> Vec<Move> {
+pub fn pseudo_legal_moves(board: &Board) -> MoveList {
     let side = board.side_to_move;
     let own = board.color_bb(side);
+    let enemy = board.color_bb(side.opposite());
     let occupancy = board.occupancy();
-    let mut moves = Vec::new();
+    let mut moves = MoveList::new();
 
-    for square in Square::ALL {
-        let Some((piece, color)) = board.piece_at(square) else {
+    // Pieces are visited from a1 to h8 and targets in the same order, so the
+    // moves come out in a fixed order that move ordering then keeps for
+    // equally scored moves.
+    let mut pieces = own;
+    while let Some(square) = pieces.pop_lsb() {
+        let Some((piece, _)) = board.piece_at(square) else {
             continue;
         };
-        if color != side {
-            continue;
-        }
 
         if piece == PieceKind::Pawn {
             generate_pawn_moves(board, square, side, &mut moves);
@@ -26,7 +30,7 @@ pub fn pseudo_legal_moves(board: &Board) -> Vec<Move> {
         let attacks = piece_attacks(piece, square, side, occupancy);
         let mut targets = Bitboard(attacks.0 & !own.0);
         while let Some(target) = targets.pop_lsb() {
-            let kind = if board.piece_at(target).is_some() {
+            let kind = if enemy.test_bit(target) {
                 MoveKind::Capture
             } else {
                 MoveKind::Quiet
@@ -42,27 +46,82 @@ pub fn pseudo_legal_moves(board: &Board) -> Vec<Move> {
     moves
 }
 
-pub fn legal_moves(board: &mut Board) -> Vec<Move> {
+/// Keeps the pseudo-legal moves that do not leave the own king attacked.
+///
+/// Playing every move and testing the king is always right but slow, so it is
+/// only done for the moves where the answer is not obvious. When the king is
+/// not in check, a move of a piece that is not pinned to the king cannot
+/// expose it, and a king move is legal when its target is not attacked.
+/// Checks, pins, en passant (which removes two pieces from a rank) and
+/// castling are rare and still decided by playing the move.
+pub fn legal_moves(board: &mut Board) -> MoveList {
     let side = board.side_to_move;
     let enemy = side.opposite();
-    let mut legal = Vec::new();
+    let mut moves = pseudo_legal_moves(board);
+    let Some(king) = find_king(board, side) else {
+        moves.clear();
+        return moves;
+    };
 
-    for chess_move in pseudo_legal_moves(board) {
-        if is_castle_through_check(board, chess_move, enemy) {
-            continue;
+    let king_in_check = is_square_attacked(board, king, enemy);
+    let pinned = pinned_pieces(board, king, side);
+    let without_king = Bitboard(board.occupancy().0 & !Bitboard::from_square(king).0);
+
+    moves.retain(|&chess_move| match chess_move.kind {
+        MoveKind::KingCastle | MoveKind::QueenCastle => {
+            !is_castle_through_check(board, chess_move, enemy)
+                && leaves_king_safe(board, chess_move, side)
         }
-        let undo = board.make_move(chess_move);
-        let king_square = find_king(board, side);
-        let remains_in_check = king_square
-            .map(|square| is_square_attacked(board, square, enemy))
-            .unwrap_or(true);
-        board.unmake_move(chess_move, undo);
-        if !remains_in_check {
-            legal.push(chess_move);
+        _ if chess_move.from == king => {
+            !is_square_attacked_through(board, chess_move.to, enemy, without_king)
+        }
+        MoveKind::EnPassant => leaves_king_safe(board, chess_move, side),
+        _ if king_in_check || pinned.test_bit(chess_move.from) => {
+            leaves_king_safe(board, chess_move, side)
+        }
+        _ => true,
+    });
+    moves
+}
+
+fn leaves_king_safe(board: &mut Board, chess_move: Move, side: Color) -> bool {
+    let undo = board.make_move(chess_move);
+    let safe = !in_check(board, side);
+    board.unmake_move(chess_move, undo);
+    safe
+}
+
+/// Own pieces standing between the king and an enemy bishop, rook or queen
+/// on the same line, with nothing else between them. Moving one of them may
+/// expose the king.
+fn pinned_pieces(board: &Board, king: Square, side: Color) -> Bitboard {
+    let own = board.color_bb(side).0;
+    let enemy = board.color_bb(side.opposite()).0;
+    let occupancy = board.occupancy();
+    let queens = board.piece_bb(PieceKind::Queen).0;
+    let rook_sliders = (board.piece_bb(PieceKind::Rook).0 | queens) & enemy;
+    let bishop_sliders = (board.piece_bb(PieceKind::Bishop).0 | queens) & enemy;
+
+    let mut pinned = 0;
+    for (attacks, sliders) in [
+        (
+            rook_attacks as fn(Square, Bitboard) -> Bitboard,
+            rook_sliders,
+        ),
+        (bishop_attacks, bishop_sliders),
+    ] {
+        // The own pieces the king sees first on each ray...
+        let visible = attacks(king, occupancy).0;
+        let blockers = visible & own;
+        // ...and the enemy sliders right behind them.
+        let behind = attacks(king, Bitboard(occupancy.0 & !blockers)).0 & !visible;
+        let mut pinners = Bitboard(behind & sliders);
+        while let Some(pinner) = pinners.pop_lsb() {
+            // The king and the pinner both see the pinned piece between them.
+            pinned |= attacks(pinner, occupancy).0 & blockers;
         }
     }
-
-    legal
+    Bitboard(pinned)
 }
 
 pub fn in_check(board: &Board, color: Color) -> bool {
@@ -72,9 +131,8 @@ pub fn in_check(board: &Board, color: Color) -> bool {
 }
 
 fn find_king(board: &Board, color: Color) -> Option<Square> {
-    Square::ALL
-        .into_iter()
-        .find(|square| board.piece_at(*square) == Some((PieceKind::King, color)))
+    let mut kings = Bitboard(board.piece_bb(PieceKind::King).0 & board.color_bb(color).0);
+    kings.pop_lsb()
 }
 
 fn is_castle_through_check(board: &Board, chess_move: Move, enemy: Color) -> bool {
@@ -93,9 +151,7 @@ fn is_castle_through_check(board: &Board, chess_move: Move, enemy: Color) -> boo
         .any(|square| is_square_attacked(board, square, enemy))
 }
 
-use crate::board::Bitboard;
-
-fn generate_pawn_moves(board: &Board, from: Square, color: Color, moves: &mut Vec<Move>) {
+fn generate_pawn_moves(board: &Board, from: Square, color: Color, moves: &mut MoveList) {
     let direction: i8 = if color == Color::White { 1 } else { -1 };
     let start_rank = if color == Color::White { 1 } else { 6 };
     let promotion_rank = if color == Color::White { 7 } else { 0 };
@@ -139,7 +195,7 @@ fn generate_pawn_moves(board: &Board, from: Square, color: Color, moves: &mut Ve
 }
 
 fn add_pawn_move(
-    moves: &mut Vec<Move>,
+    moves: &mut MoveList,
     from: Square,
     to: Square,
     promotion_rank: i8,
@@ -167,7 +223,7 @@ fn add_pawn_move(
     }
 }
 
-fn generate_castling_moves(board: &Board, color: Color, moves: &mut Vec<Move>) {
+fn generate_castling_moves(board: &Board, color: Color, moves: &mut MoveList) {
     let (king_square, king_side, queen_side) = match color {
         Color::White => (
             Square::E1,

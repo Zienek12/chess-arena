@@ -10,12 +10,35 @@ use crate::moves::{Move, MoveKind};
 const HINT_SCORE: i32 = 1_000_000;
 const CAPTURE_SCORE: i32 = 100_000;
 const PROMOTION_SCORE: i32 = 90_000;
+const MAX_MOVES: usize = 256;
 
 /// Orders `moves` best first: the `hint` (the principal variation move from
 /// the previous iteration), then captures by MVV-LVA (most valuable victim,
 /// least valuable attacker), then promotions, then quiet moves.
+///
+/// The sort is stable: equally scored moves, such as all quiet moves, keep
+/// the order of the move generator.
 pub fn order_moves(board: &Board, moves: &mut [Move], hint: Option<Move>) {
-    moves.sort_by_cached_key(|&chess_move| Reverse(move_score(board, chess_move, hint)));
+    // A position has at most 218 legal moves; longer lists are only sorted
+    // in tests and take the allocating path.
+    if moves.len() > MAX_MOVES {
+        moves.sort_by_cached_key(|&chess_move| Reverse(move_score(board, chess_move, hint)));
+        return;
+    }
+    // Insertion sort with the scores kept beside the moves: no allocation,
+    // and fast for the few dozen moves of a position.
+    let mut scores = [0; MAX_MOVES];
+    for i in 0..moves.len() {
+        let (chess_move, score) = (moves[i], move_score(board, moves[i], hint));
+        let mut j = i;
+        while j > 0 && scores[j - 1] < score {
+            moves[j] = moves[j - 1];
+            scores[j] = scores[j - 1];
+            j -= 1;
+        }
+        moves[j] = chess_move;
+        scores[j] = score;
+    }
 }
 
 fn move_score(board: &Board, chess_move: Move, hint: Option<Move>) -> i32 {

@@ -4,6 +4,8 @@ This document explains how the Rust engine in `engines/` turns a `go` command in
 
 For the module list, UCI commands, building and releasing, see [Engine implementation](engine-implementation.md).
 
+Version 1.3.0 replaced the attack generation, the legality test and the position hashing described in sections 4–6 with faster versions that give identical results, and fixed the slow move generation listed in section 12. See [Engine performance (v1.3.0)](engine-performance-v1.3.0.md).
+
 ## Contents
 
 1. [From `go` to `bestmove`](#1-from-go-to-bestmove)
