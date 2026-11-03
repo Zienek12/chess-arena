@@ -58,6 +58,20 @@ jobs:
       - name: Run deep perft tests
         run: cargo test --locked --release perft -- --ignored
 
+      # The node count of the fixed benchmark changes only when the engine
+      # searches differently; a speed-only change must keep it.
+      - name: Check bench signature
+        run: |
+          expected=$(tr -d '[:space:]' < bench-signature.txt)
+          output=$(cargo run --release --locked --quiet -- bench)
+          echo "$output"
+          actual=$(echo "$output" | awk '/^Nodes searched/ {print $3}')
+          if [ "$actual" != "$expected" ]; then
+            echo "::error file=engines/bench-signature.txt::Bench signature changed from $expected to $actual. If the change in search behaviour is intended, write $actual to engines/bench-signature.txt."
+            exit 1
+          fi
+          echo "### Bench: $actual nodes" >> "$GITHUB_STEP_SUMMARY"
+
   arena:
     name: Arena (Go)
     runs-on: ubuntu-latest
