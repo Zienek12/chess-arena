@@ -53,6 +53,13 @@ type GameResult struct {
 	PGN            string
 }
 
+// EngineBuild identifies the code an engine ran in one game: the Docker image
+// ID and the name the engine reported with "id name".
+type EngineBuild struct {
+	ImageID string `json:"image_id,omitempty"`
+	UCIName string `json:"uci_name,omitempty"`
+}
+
 // GameFailure describes why a worker could not finish a game.
 type GameFailure struct {
 	Stage     string
@@ -149,6 +156,24 @@ func (store *Store) ClaimGame(ctx context.Context, owner string, lease time.Dura
 		return nil, fmt.Errorf("commit claim: %w", err)
 	}
 	return &game, nil
+}
+
+// RecordBuilds stores which builds play a game. A resumed game records the
+// builds of its latest attempt.
+func (store *Store) RecordBuilds(ctx context.Context, owner, gameID string, white, black EngineBuild) error {
+	result, err := store.pool.Exec(ctx, `
+		UPDATE games
+		SET white_image_id = NULLIF($3, ''), white_uci_name = NULLIF($4, ''),
+		    black_image_id = NULLIF($5, ''), black_uci_name = NULLIF($6, ''), updated_at = now()
+		WHERE id = $1 AND status = 'running' AND lease_owner = $2
+	`, gameID, owner, white.ImageID, white.UCIName, black.ImageID, black.UCIName)
+	if err != nil {
+		return fmt.Errorf("record engine builds: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return ErrLeaseLost
+	}
+	return nil
 }
 
 // RecordMove stores a move with its telemetry, advances the game state and

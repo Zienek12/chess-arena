@@ -74,8 +74,8 @@ func (s *recordingStore) ClaimAnalysis(context.Context, string, time.Duration) (
 	return job, nil
 }
 
-func (s *recordingStore) SaveAnalysis(_ context.Context, _ string, _ *store.AnalysisJob, engine string, _ int64, moves []store.MoveAnalysis) error {
-	s.engine, s.saved = engine, moves
+func (s *recordingStore) SaveAnalysis(_ context.Context, _ string, _ *store.AnalysisJob, engine store.EngineBuild, _ int64, moves []store.MoveAnalysis) error {
+	s.engine, s.saved = engine.UCIName, moves
 	return nil
 }
 

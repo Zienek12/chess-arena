@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strconv"
+	"strings"
 
 	"chess-arena/arena/internal/stats"
 )
@@ -13,11 +15,17 @@ type LeaderboardEntry struct {
 	Engine
 	// Rating is relative Elo from all completed games; ratings average to 0.
 	Rating float64 `json:"rating"`
-	Games  int     `json:"games"`
-	Wins   int     `json:"wins"`
-	Draws  int     `json:"draws"`
-	Losses int     `json:"losses"`
-	Points float64 `json:"points"`
+	// Elo is the rating shifted onto the scale of the anchors: engines that
+	// declare their strength (Stockfish with UCI_LimitStrength and UCI_Elo).
+	// It is omitted when no anchor has played.
+	Elo *float64 `json:"elo,omitempty"`
+	// AnchorElo is the declared strength of an anchor.
+	AnchorElo *int    `json:"anchor_elo,omitempty"`
+	Games     int     `json:"games"`
+	Wins      int     `json:"wins"`
+	Draws     int     `json:"draws"`
+	Losses    int     `json:"losses"`
+	Points    float64 `json:"points"`
 	// AverageDepth and AverageNPS cover moves that reported them.
 	AverageDepth float64 `json:"average_depth"`
 	AverageNPS   float64 `json:"average_nps"`
@@ -118,6 +126,7 @@ func (store *Store) Leaderboard(ctx context.Context) ([]LeaderboardEntry, error)
 	for _, record := range entries {
 		leaderboard = append(leaderboard, *record)
 	}
+	anchorRatings(leaderboard)
 	sort.Slice(leaderboard, func(i, j int) bool {
 		if leaderboard[i].Rating != leaderboard[j].Rating {
 			return leaderboard[i].Rating > leaderboard[j].Rating
@@ -125,4 +134,44 @@ func (store *Store) Leaderboard(ctx context.Context) ([]LeaderboardEntry, error)
 		return leaderboard[i].DisplayName() < leaderboard[j].DisplayName()
 	})
 	return leaderboard, nil
+}
+
+// DeclaredElo returns the strength an engine is limited to, from the UCI
+// options UCI_LimitStrength=true and UCI_Elo=N. Option names are not case
+// sensitive in UCI.
+func DeclaredElo(options map[string]string) (int, bool) {
+	var limited bool
+	elo := -1
+	for name, value := range options {
+		switch {
+		case strings.EqualFold(name, "UCI_LimitStrength"):
+			limited = strings.EqualFold(strings.TrimSpace(value), "true")
+		case strings.EqualFold(name, "UCI_Elo"):
+			if parsed, err := strconv.Atoi(strings.TrimSpace(value)); err == nil {
+				elo = parsed
+			}
+		}
+	}
+	return elo, limited && elo > 0
+}
+
+// anchorRatings marks the anchors and shifts every rating by the average
+// difference between the anchors' declared and fitted ratings.
+func anchorRatings(leaderboard []LeaderboardEntry) {
+	offset, anchors := 0.0, 0
+	for index := range leaderboard {
+		if elo, ok := DeclaredElo(leaderboard[index].UCIOptions); ok {
+			leaderboard[index].AnchorElo = &elo
+			offset += float64(elo) - leaderboard[index].Rating
+			anchors++
+		}
+	}
+	if anchors == 0 {
+		return
+	}
+	offset /= float64(anchors)
+	for index := range leaderboard {
+		elo := leaderboard[index].Rating + offset
+		leaderboard[index].Elo = &elo
+	}
 }

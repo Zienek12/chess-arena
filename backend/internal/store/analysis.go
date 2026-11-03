@@ -42,8 +42,10 @@ type MoveAnalysis struct {
 type GameAnalysis struct {
 	Status string `json:"status"` // running, completed or failed
 	Engine string `json:"engine,omitempty"`
-	Nodes  int64  `json:"nodes,omitempty"`
-	Error  string `json:"error,omitempty"`
+	// ImageID is the Docker image ID of the analysis engine.
+	ImageID string `json:"image_id,omitempty"`
+	Nodes   int64  `json:"nodes,omitempty"`
+	Error   string `json:"error,omitempty"`
 }
 
 // AnalysisJob is a finished game leased for analysis.
@@ -111,7 +113,7 @@ func (store *Store) ClaimAnalysis(ctx context.Context, owner string, lease time.
 }
 
 // SaveAnalysis stores the analysis of every move and completes the job.
-func (store *Store) SaveAnalysis(ctx context.Context, owner string, job *AnalysisJob, engine string, nodes int64, moves []MoveAnalysis) error {
+func (store *Store) SaveAnalysis(ctx context.Context, owner string, job *AnalysisJob, engine EngineBuild, nodes int64, moves []MoveAnalysis) error {
 	tx, err := store.pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("begin analysis save: %w", err)
@@ -120,10 +122,10 @@ func (store *Store) SaveAnalysis(ctx context.Context, owner string, job *Analysi
 
 	updated, err := tx.Exec(ctx, `
 		UPDATE game_analyses
-		SET status = 'completed', engine = $3, nodes = $4, error = NULL,
+		SET status = 'completed', engine = $3, image_id = NULLIF($5, ''), nodes = $4, error = NULL,
 		    lease_owner = NULL, lease_expires_at = NULL, updated_at = now()
 		WHERE game_id = $1 AND status = 'running' AND lease_owner = $2
-	`, job.GameID, owner, engine, nodes)
+	`, job.GameID, owner, engine.UCIName, nodes, engine.ImageID)
 	if err != nil {
 		return fmt.Errorf("complete analysis: %w", err)
 	}
@@ -196,10 +198,10 @@ func (store *Store) ReleaseAnalysis(ctx context.Context, owner string, job *Anal
 // gameAnalysis reads the analysis of a game; both results are nil before it starts.
 func (store *Store) gameAnalysis(ctx context.Context, gameID string) (*GameAnalysis, map[int]*MoveAnalysis, error) {
 	var analysis GameAnalysis
-	var engine, message *string
+	var engine, imageID, message *string
 	var nodes *int64
-	err := store.pool.QueryRow(ctx, "SELECT status, engine, nodes, error FROM game_analyses WHERE game_id = $1", gameID).
-		Scan(&analysis.Status, &engine, &nodes, &message)
+	err := store.pool.QueryRow(ctx, "SELECT status, engine, image_id, nodes, error FROM game_analyses WHERE game_id = $1", gameID).
+		Scan(&analysis.Status, &engine, &imageID, &nodes, &message)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil, nil
 	}
@@ -208,6 +210,9 @@ func (store *Store) gameAnalysis(ctx context.Context, gameID string) (*GameAnaly
 	}
 	if engine != nil {
 		analysis.Engine = *engine
+	}
+	if imageID != nil {
+		analysis.ImageID = *imageID
 	}
 	if nodes != nil {
 		analysis.Nodes = *nodes

@@ -17,7 +17,7 @@ import (
 // Store is the persistence the worker needs.
 type Store interface {
 	ClaimAnalysis(ctx context.Context, owner string, lease time.Duration) (*store.AnalysisJob, error)
-	SaveAnalysis(ctx context.Context, owner string, job *store.AnalysisJob, engine string, nodes int64, moves []store.MoveAnalysis) error
+	SaveAnalysis(ctx context.Context, owner string, job *store.AnalysisJob, engine store.EngineBuild, nodes int64, moves []store.MoveAnalysis) error
 	FailAnalysis(ctx context.Context, owner string, job *store.AnalysisJob, message string, retry bool, retryAfter time.Duration) error
 	ReleaseAnalysis(ctx context.Context, owner string, job *store.AnalysisJob, message string, retryAfter time.Duration) error
 }
@@ -80,7 +80,7 @@ type Worker struct {
 	launcher sandbox.Launcher
 	logger   *slog.Logger
 	engine   *uci.Client
-	name     string
+	build    store.EngineBuild
 }
 
 // NewWorker returns an analysis worker.
@@ -135,7 +135,7 @@ func (worker *Worker) RunOnce(ctx context.Context) (bool, error) {
 	started := time.Now()
 	moves, err := worker.analyze(ctx, engine, job)
 	if err == nil {
-		err = worker.store.SaveAnalysis(ctx, worker.config.ID, job, worker.name, worker.config.Nodes, moves)
+		err = worker.store.SaveAnalysis(ctx, worker.config.ID, job, worker.build, worker.config.Nodes, moves)
 		if err == nil {
 			logger.Info("game analyzed", "moves", len(moves), "elapsed", time.Since(started).Round(time.Second))
 		}
@@ -220,7 +220,8 @@ func (worker *Worker) ensureEngine(ctx context.Context) (*uci.Client, error) {
 		_ = client.Close()
 		return nil, fmt.Errorf("analysis engine handshake: %w", err)
 	}
-	worker.engine, worker.name = client, identity.Name
+	worker.engine = client
+	worker.build = store.EngineBuild{ImageID: process.ImageID, UCIName: identity.Name}
 	worker.logger.Info("analysis engine started", "engine", identity.Name)
 	return client, nil
 }

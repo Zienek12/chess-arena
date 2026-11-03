@@ -53,7 +53,9 @@ func (launcher *fakeLauncher) Start(_ context.Context, spec sandbox.Spec) (*sand
 			}
 		}
 	}()
-	return sandbox.NewProcess(commandWriter, outputReader, func() error { return commandReader.Close() }), nil
+	process := sandbox.NewProcess(commandWriter, outputReader, func() error { return commandReader.Close() })
+	process.ImageID = "sha256:" + spec.Image
+	return process, nil
 }
 
 type fakeStore struct {
@@ -63,6 +65,12 @@ type fakeStore struct {
 	result   *store.GameResult
 	failure  *store.GameFailure
 	requeued bool
+	builds   [2]store.EngineBuild
+}
+
+func (fake *fakeStore) RecordBuilds(_ context.Context, _, _ string, white, black store.EngineBuild) error {
+	fake.builds = [2]store.EngineBuild{white, black}
+	return nil
 }
 
 func (fake *fakeStore) ClaimGame(context.Context, string, time.Duration) (*store.ClaimedGame, error) {
@@ -127,6 +135,9 @@ func TestWorkerPlaysAndStoresGame(t *testing.T) {
 	}
 	if spec := launcher.specs[0]; spec.CPUs != 1 || spec.MemoryMB != 128 {
 		t.Fatalf("resource limits not passed to the sandbox: %+v", spec)
+	}
+	if fake.builds[0] != (store.EngineBuild{ImageID: "sha256:white:v1", UCIName: "fake"}) || fake.builds[1].ImageID != "sha256:black:v1" {
+		t.Fatalf("builds not recorded: %+v", fake.builds)
 	}
 }
 

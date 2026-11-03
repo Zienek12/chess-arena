@@ -173,3 +173,20 @@ func TestEventStreamFiltersByTournament(t *testing.T) {
 		t.Fatalf("unexpected events: %q", body)
 	}
 }
+
+func (fake *fakeStore) ExportGames(context.Context, string) (store.Table, error) {
+	return store.Table{Header: []string{"game", "opening"}, Rows: [][]string{{"1", "Ruy Lopez, Morphy Defence"}}}, nil
+}
+
+func TestExportGamesAsCSV(t *testing.T) {
+	response := request(newTestHandler(&fakeStore{}), "GET", "/api/tournaments/t1/export/games.csv", "")
+	if response.Code != http.StatusOK || response.Header().Get("Content-Type") != "text/csv; charset=utf-8" {
+		t.Fatalf("status %d, type %q", response.Code, response.Header().Get("Content-Type"))
+	}
+	if body := response.Body.String(); body != "game,opening\n1,\"Ruy Lopez, Morphy Defence\"\n" {
+		t.Fatalf("unexpected CSV %q", body)
+	}
+	if missing := request(newTestHandler(&fakeStore{tournamentErr: store.ErrNotFound}), "GET", "/api/tournaments/x/export/games.csv", ""); missing.Code != http.StatusNotFound {
+		t.Fatalf("missing tournament: status %d", missing.Code)
+	}
+}

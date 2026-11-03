@@ -21,6 +21,7 @@ type Store interface {
 	RecordMove(ctx context.Context, owner string, lease time.Duration, move store.MoveRecord) error
 	FinishGame(ctx context.Context, owner string, result store.GameResult) error
 	ReleaseGame(ctx context.Context, owner string, game *store.ClaimedGame, failure store.GameFailure, requeue bool) error
+	RecordBuilds(ctx context.Context, owner, gameID string, white, black store.EngineBuild) error
 }
 
 // Config tunes a worker. Zero values are replaced by defaults.
@@ -140,16 +141,19 @@ func (worker *Worker) RunOnce(ctx context.Context) (bool, error) {
 }
 
 func (worker *Worker) play(ctx context.Context, game *store.ClaimedGame, logger *slog.Logger) error {
-	white, err := worker.startEngine(ctx, game, game.White)
+	white, whiteBuild, err := worker.startEngine(ctx, game, game.White)
 	if err != nil {
 		return &stageError{stage: "start", code: "white_engine", err: err}
 	}
 	defer white.Close()
-	black, err := worker.startEngine(ctx, game, game.Black)
+	black, blackBuild, err := worker.startEngine(ctx, game, game.Black)
 	if err != nil {
 		return &stageError{stage: "start", code: "black_engine", err: err}
 	}
 	defer black.Close()
+	if err := worker.store.RecordBuilds(ctx, worker.config.ID, game.ID, whiteBuild, blackBuild); err != nil {
+		return err
+	}
 
 	limit, timeout := worker.searchLimit(game.Limit)
 	match := Match{
@@ -229,19 +233,24 @@ func (worker *Worker) searchLimit(limit tournament.SearchLimit) (uci.Limit, time
 	return uci.Limit{}, worker.config.SearchTimeout
 }
 
-func (worker *Worker) startEngine(ctx context.Context, game *store.ClaimedGame, engine store.Engine) (*uci.Client, error) {
+// startEngine starts engine and returns its client and the build that runs.
+func (worker *Worker) startEngine(ctx context.Context, game *store.ClaimedGame, engine store.Engine) (*uci.Client, store.EngineBuild, error) {
+	var build store.EngineBuild
 	process, err := worker.launcher.Start(ctx, sandbox.Spec{Image: engine.Image, CPUs: game.CPUs, MemoryMB: game.MemoryMB})
 	if err != nil {
-		return nil, err
+		return nil, build, err
 	}
+	build.ImageID = process.ImageID
 	client := uci.NewClient(process.Stdin, process.Stdout, process.Stop)
-	if _, err := client.Handshake(ctx, engine.UCIOptions, worker.config.StartTimeout); err != nil {
+	identity, err := client.Handshake(ctx, engine.UCIOptions, worker.config.StartTimeout)
+	if err != nil {
 		_ = client.Close()
-		return nil, fmt.Errorf("%s: %w", engine.DisplayName(), err)
+		return nil, build, fmt.Errorf("%s: %w", engine.DisplayName(), err)
 	}
+	build.UCIName = identity.Name
 	if err := client.NewGame(ctx, worker.config.StartTimeout); err != nil {
 		_ = client.Close()
-		return nil, fmt.Errorf("%s: %w", engine.DisplayName(), err)
+		return nil, build, fmt.Errorf("%s: %w", engine.DisplayName(), err)
 	}
-	return client, nil
+	return client, build, nil
 }

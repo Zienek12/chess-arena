@@ -30,6 +30,9 @@ type Store interface {
 	ListGames(ctx context.Context, tournamentID string) ([]store.GameSummary, error)
 	GetGame(ctx context.Context, id string) (store.GameDetail, error)
 	Leaderboard(ctx context.Context) ([]store.LeaderboardEntry, error)
+	ExportGames(ctx context.Context, tournamentID string) (store.Table, error)
+	ExportMoves(ctx context.Context, tournamentID string) (store.Table, error)
+	TournamentPGN(ctx context.Context, tournamentID string) (string, error)
 }
 
 // Options configure optional API features.
@@ -70,6 +73,9 @@ func (server *Server) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/tournaments/{id}", server.getTournament)
 	mux.HandleFunc("POST /api/tournaments/{id}/cancel", server.requireToken(server.cancelTournament))
 	mux.HandleFunc("GET /api/tournaments/{id}/games", server.listGames)
+	mux.HandleFunc("GET /api/tournaments/{id}/export/games.csv", server.exportTable("games", server.store.ExportGames))
+	mux.HandleFunc("GET /api/tournaments/{id}/export/moves.csv", server.exportTable("moves", server.store.ExportMoves))
+	mux.HandleFunc("GET /api/tournaments/{id}/export/games.pgn", server.exportPGN)
 	mux.HandleFunc("GET /api/games/{id}", server.getGame)
 	mux.HandleFunc("GET /api/games/{id}/pgn", server.getGamePGN)
 	mux.HandleFunc("GET /api/leaderboard", server.leaderboard)

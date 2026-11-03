@@ -142,6 +142,14 @@ func TestGameLifecycle(t *testing.T) {
 	if other, err := f.store.ClaimGame(ctx, "worker-2", lease); err != nil || other != nil {
 		t.Fatalf("a leased game must not be claimed twice: %+v, %v", other, err)
 	}
+	whiteBuild := EngineBuild{ImageID: "sha256:aaa", UCIName: "engine 1.0"}
+	blackBuild := EngineBuild{ImageID: "sha256:bbb", UCIName: "engine 2.0"}
+	if err := f.store.RecordBuilds(ctx, "worker-2", game.ID, whiteBuild, blackBuild); !errors.Is(err, ErrLeaseLost) {
+		t.Fatalf("only the lease owner may record builds: %v", err)
+	}
+	if err := f.store.RecordBuilds(ctx, "worker-1", game.ID, whiteBuild, blackBuild); err != nil {
+		t.Fatal(err)
+	}
 
 	score := 25
 	move := MoveRecord{
@@ -190,6 +198,15 @@ func TestGameLifecycle(t *testing.T) {
 	gameDetail, err := f.store.GetGame(ctx, game.ID)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if pgn, err := f.store.TournamentPGN(ctx, created.ID); err != nil || pgn != "1. e4 1-0\n" {
+		t.Fatalf("tournament PGN = %q, %v", pgn, err)
+	}
+	if gameDetail.WhiteBuild != whiteBuild || gameDetail.BlackBuild != blackBuild {
+		t.Fatalf("builds not stored: %+v %+v", gameDetail.WhiteBuild, gameDetail.BlackBuild)
+	}
+	if builds := detail.Telemetry[0].Builds; len(builds) != 1 || builds[0].EngineBuild != whiteBuild || builds[0].Games != 1 {
+		t.Fatalf("unexpected engine A builds %+v", builds)
 	}
 	if gameDetail.PGN != "1. e4 1-0" || gameDetail.Termination != "time_forfeit" || len(gameDetail.Moves) != 1 {
 		t.Fatalf("unexpected game detail %+v", gameDetail)
@@ -344,10 +361,10 @@ func TestAnalysisAndLeaderboard(t *testing.T) {
 		{Ply: 2, BestMove: "c7c5", Depth: 18, EvalBefore: Eval{CP: 25}, EvalAfter: Eval{CP: MateCP - 3, Mate: &mate},
 			CPLoss: 1000, Accuracy: 1, Classification: "blunder"},
 	}
-	if err := f.store.SaveAnalysis(ctx, "analysis-2", job, "Stockfish", 1000, moves); !errors.Is(err, ErrLeaseLost) {
+	if err := f.store.SaveAnalysis(ctx, "analysis-2", job, EngineBuild{UCIName: "Stockfish"}, 1000, moves); !errors.Is(err, ErrLeaseLost) {
 		t.Fatalf("only the lease owner may save: %v", err)
 	}
-	if err := f.store.SaveAnalysis(ctx, "analysis-1", job, "Stockfish 17.1", 1000, moves); err != nil {
+	if err := f.store.SaveAnalysis(ctx, "analysis-1", job, EngineBuild{ImageID: "sha256:sf", UCIName: "Stockfish 17.1"}, 1000, moves); err != nil {
 		t.Fatal(err)
 	}
 
@@ -355,7 +372,8 @@ func TestAnalysisAndLeaderboard(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if detail.Analysis == nil || detail.Analysis.Status != "completed" || detail.Analysis.Engine != "Stockfish 17.1" {
+	if detail.Analysis == nil || detail.Analysis.Status != "completed" || detail.Analysis.Engine != "Stockfish 17.1" ||
+		detail.Analysis.ImageID != "sha256:sf" {
 		t.Fatalf("unexpected game analysis %+v", detail.Analysis)
 	}
 	second := detail.Moves[1].Analysis
@@ -369,6 +387,30 @@ func TestAnalysisAndLeaderboard(t *testing.T) {
 	}
 	if black := tournamentDetail.Telemetry[1]; black.AnalyzedMoves != 1 || black.Blunders != 1 || black.AverageCPLoss != 1000 {
 		t.Fatalf("unexpected move quality %+v", black.MoveQuality)
+	}
+
+	games, err := f.store.ExportGames(ctx, created.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(games.Rows) != 1 || len(games.Rows[0]) != len(games.Header) {
+		t.Fatalf("unexpected games export %+v", games)
+	}
+	row := map[string]string{}
+	for index, column := range games.Header {
+		row[column] = games.Rows[0][index]
+	}
+	if row["result"] != "1-0" || row["plies"] != "2" || row["black_blunders"] != "1" || row["white_accuracy"] != "99.00" ||
+		row["black_acpl"] != "1000.0" || row["start_fen"] != rules.StartingFEN {
+		t.Fatalf("unexpected exported game %v", row)
+	}
+	moveTable, err := f.store.ExportMoves(ctx, created.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(moveTable.Rows) != 2 || moveTable.Rows[1][2] != "b" || moveTable.Rows[1][4] != "e7e5" ||
+		moveTable.Rows[1][len(moveTable.Header)-1] != "blunder" {
+		t.Fatalf("unexpected moves export %+v", moveTable.Rows)
 	}
 
 	leaderboard, err := f.store.Leaderboard(ctx)

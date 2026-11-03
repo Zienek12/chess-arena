@@ -56,6 +56,15 @@ type EngineTelemetry struct {
 	AverageNPS       float64 `json:"average_nps"`
 	AverageThinkTime float64 `json:"average_think_time_ms"`
 	MoveQuality
+	// Builds lists the distinct builds the engine played with, most games
+	// first. More than one means the image changed during the tournament.
+	Builds []BuildUsage `json:"builds"`
+}
+
+// BuildUsage is a build and the number of games it played.
+type BuildUsage struct {
+	EngineBuild
+	Games int `json:"games"`
 }
 
 // MoveQuality summarizes the analysis engine's verdicts on an engine's moves.
@@ -337,7 +346,46 @@ func (store *Store) engineTelemetry(ctx context.Context, t Tournament) ([]Engine
 			}
 		}
 	}
-	return telemetry, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	rows.Close()
+	return telemetry, store.addBuilds(ctx, t.ID, telemetry)
+}
+
+// addBuilds fills in the builds each engine played with.
+func (store *Store) addBuilds(ctx context.Context, tournamentID string, telemetry []EngineTelemetry) error {
+	rows, err := store.pool.Query(ctx, `
+		SELECT engine_id, image_id, uci_name, count(*) FROM (
+			SELECT white_engine_id AS engine_id, COALESCE(white_image_id, '') AS image_id, COALESCE(white_uci_name, '') AS uci_name
+			FROM games WHERE tournament_id = $1 AND (white_image_id IS NOT NULL OR white_uci_name IS NOT NULL)
+			UNION ALL
+			SELECT black_engine_id, COALESCE(black_image_id, ''), COALESCE(black_uci_name, '')
+			FROM games WHERE tournament_id = $1 AND (black_image_id IS NOT NULL OR black_uci_name IS NOT NULL)
+		) builds
+		GROUP BY engine_id, image_id, uci_name
+		ORDER BY count(*) DESC, image_id
+	`, tournamentID)
+	if err != nil {
+		return fmt.Errorf("read engine builds: %w", err)
+	}
+	defer rows.Close()
+	for index := range telemetry {
+		telemetry[index].Builds = []BuildUsage{}
+	}
+	for rows.Next() {
+		var engineID string
+		var usage BuildUsage
+		if err := rows.Scan(&engineID, &usage.ImageID, &usage.UCIName, &usage.Games); err != nil {
+			return fmt.Errorf("scan engine build: %w", err)
+		}
+		for index := range telemetry {
+			if telemetry[index].EngineID == engineID {
+				telemetry[index].Builds = append(telemetry[index].Builds, usage)
+			}
+		}
+	}
+	return rows.Err()
 }
 
 // CancelTournament stops a tournament. Queued games are cancelled, and running

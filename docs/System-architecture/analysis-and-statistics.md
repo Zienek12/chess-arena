@@ -33,6 +33,21 @@ Typical settings: `elo0 = 0`, `elo1 = 10`, α = β = 0.05 to detect small improv
 
 `GET /api/leaderboard` rates every engine that finished a game, across all tournaments. Ratings come from the Bradley-Terry model (draws count as half a win), fitted with minorization-maximization iterations. Each engine also plays two virtual draws against an average player. This keeps ratings finite for engines that won or lost every game and pulls engines with few games towards the average. Ratings are relative: they average to 0. Engines that never met are compared through common opponents.
 
+### Absolute Elo from anchors
+
+Relative ratings show how far apart engines are, not how strong they are. Stockfish limited with the UCI options `UCI_LimitStrength=true` and `UCI_Elo=N` declares its strength, so it can serve as an **anchor**. When anchors have played, the leaderboard shifts every rating by the average difference between the anchors' declared Elo and their fitted ratings:
+
+```text
+offset = mean over anchors (declared_elo − rating)
+elo    = rating + offset
+```
+
+The anchors therefore average their declared Elo, and every other engine is placed on that scale. Several anchors around the engine's strength (for example 1500, 1800 and 2100) make the estimate robust; with one anchor it is only as good as the games against it.
+
+Treat the result as an estimate. Stockfish calibrates `UCI_Elo` against other engines at longer time controls (around two minutes per game) and in its own playing style. Its limited mode chooses moves from a shallow search with random noise. At one second per move, and against a different engine, the scale can be off by about 100 Elo. It is consistent between versions of our engine, which is what the comparison needs.
+
+To calibrate a version, register Stockfish at several levels (name `stockfish`, version `17.1-elo1800`, image `chess-arena-stockfish:local`, UCI options `UCI_LimitStrength=true, UCI_Elo=1800`) and play about 50 games against each on the opening suite.
+
 ## Move quality
 
 Package `analysis` reviews every finished game with a reference engine, Stockfish by default.
