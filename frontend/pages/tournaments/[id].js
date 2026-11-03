@@ -12,6 +12,7 @@ import {
   StatusBadge,
 } from '../../components/ui'
 import {
+  API_URL,
   apiPost,
   isActive,
   openingLabel,
@@ -187,11 +188,27 @@ export default function TournamentPage() {
             · {tournament.cpus} CPU, {tournament.memory_mb} MB per engine
           </p>
         </div>
-        {isActive(tournament.status) && (
-          <Button variant="danger" onClick={cancel}>
-            Cancel tournament
-          </Button>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {[
+            ['games.pgn', 'PGN'],
+            ['games.csv', 'Games CSV'],
+            ['moves.csv', 'Moves CSV'],
+          ].map(([file, label]) => (
+            <a
+              key={file}
+              href={`${API_URL}/api/tournaments/${tournament.id}/export/${file}`}
+              className="rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
+              title="Download for analysis outside the arena"
+            >
+              {label}
+            </a>
+          ))}
+          {isActive(tournament.status) && (
+            <Button variant="danger" onClick={cancel}>
+              Cancel tournament
+            </Button>
+          )}
+        </div>
       </div>
       <ErrorMessage error={cancelError} />
 

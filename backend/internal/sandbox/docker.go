@@ -29,7 +29,9 @@ func NewDockerLauncher() *DockerLauncher {
 	return &DockerLauncher{Binary: "docker", Network: "none", PidsLimit: 64}
 }
 
-// Start pulls the image when it is missing and starts a container.
+// Start pulls the image when it is missing and starts a container. The
+// container runs the image by its ID, so the tag cannot be moved to another
+// build in between, and the ID is reported in Process.ImageID.
 func (launcher *DockerLauncher) Start(ctx context.Context, spec Spec) (*Process, error) {
 	if spec.Image == "" {
 		return nil, errors.New("docker engine requires an image")
@@ -39,35 +41,55 @@ func (launcher *DockerLauncher) Start(ctx context.Context, spec Spec) (*Process,
 			return nil, err
 		}
 	}
-	if err := launcher.EnsureImage(ctx, spec.Image); err != nil {
+	imageID, err := launcher.ImageID(ctx, spec.Image)
+	if err != nil {
 		return nil, err
 	}
 	name, err := containerName()
 	if err != nil {
 		return nil, err
 	}
-	command := exec.Command(launcher.Binary, launcher.runArgs(name, spec)...)
+	pinned := spec
+	pinned.Image = imageID
+	command := exec.Command(launcher.Binary, launcher.runArgs(name, pinned)...)
 	kill := func() error {
 		killCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		return exec.CommandContext(killCtx, launcher.Binary, "kill", name).Run()
 	}
-	return startCommand(command, kill)
+	process, err := startCommand(command, kill)
+	if err != nil {
+		return nil, err
+	}
+	process.ImageID = imageID
+	return process, nil
 }
 
-// EnsureImage pulls image unless it is already present locally.
-func (launcher *DockerLauncher) EnsureImage(ctx context.Context, image string) error {
-	if exec.CommandContext(ctx, launcher.Binary, "image", "inspect", "--format", "{{.Id}}", image).Run() == nil {
-		return nil
+// ImageID returns the ID of image, pulling it first when it is not present.
+func (launcher *DockerLauncher) ImageID(ctx context.Context, image string) (string, error) {
+	if id, err := launcher.inspectImage(ctx, image); err == nil {
+		return id, nil
 	}
 	var output bytes.Buffer
 	pull := exec.CommandContext(ctx, launcher.Binary, "pull", image)
 	pull.Stdout = &output
 	pull.Stderr = &output
 	if err := pull.Run(); err != nil {
-		return fmt.Errorf("pull image %s: %w: %s", image, err, strings.TrimSpace(output.String()))
+		return "", fmt.Errorf("pull image %s: %w: %s", image, err, strings.TrimSpace(output.String()))
 	}
-	return nil
+	return launcher.inspectImage(ctx, image)
+}
+
+func (launcher *DockerLauncher) inspectImage(ctx context.Context, image string) (string, error) {
+	output, err := exec.CommandContext(ctx, launcher.Binary, "image", "inspect", "--format", "{{.Id}}", image).Output()
+	if err != nil {
+		return "", fmt.Errorf("inspect image %s: %w", image, err)
+	}
+	id := strings.TrimSpace(string(output))
+	if id == "" {
+		return "", fmt.Errorf("inspect image %s: empty ID", image)
+	}
+	return id, nil
 }
 
 func (launcher *DockerLauncher) runArgs(name string, spec Spec) []string {

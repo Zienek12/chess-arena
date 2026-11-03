@@ -1,3 +1,4 @@
+import { shortImageId } from '../lib/api'
 import { CLASSIFICATIONS, formatNumber } from '../lib/chess'
 
 const cell = 'py-2 pr-3 text-right'
@@ -43,8 +44,26 @@ export default function EngineTelemetryTable({ rows, names }) {
         <tbody className="divide-y divide-gray-100">
           {rows.map((row, index) => (
             <tr key={`${row.engine_id}-${index}`}>
-              <td className="py-2 pr-3 font-medium">
-                {names[row.engine_id] || 'Engine'}
+              <td className="py-2 pr-3">
+                <p className="font-medium">
+                  {names[row.engine_id] || 'Engine'}
+                </p>
+                {row.builds?.map((build) => (
+                  <p
+                    key={`${build.image_id}-${build.uci_name}`}
+                    className="font-mono text-xs text-gray-500"
+                    title={build.image_id}
+                  >
+                    {build.uci_name}
+                    {build.image_id && ` · ${shortImageId(build.image_id)}`}
+                    {row.builds.length > 1 && ` · ${build.games} games`}
+                  </p>
+                ))}
+                {row.builds?.length > 1 && (
+                  <p className="text-xs font-medium text-amber-700">
+                    The image changed during the tournament
+                  </p>
+                )}
               </td>
               <td className={cell}>{row.moves}</td>
               {row.moves_with_info === 0 ? (

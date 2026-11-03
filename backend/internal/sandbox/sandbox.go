@@ -29,7 +29,10 @@ type Spec struct {
 type Process struct {
 	Stdin  io.WriteCloser
 	Stdout io.Reader
-	stop   func() error
+	// ImageID is the content-addressed ID ("sha256:…") of the Docker image
+	// that runs, or empty for a local process.
+	ImageID string
+	stop    func() error
 }
 
 // NewProcess wraps existing pipes, for example an in-memory engine in tests.

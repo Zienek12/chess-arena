@@ -30,7 +30,9 @@ docker compose up -d --build
 
 Pages update live as moves are played (the header shows **Live**). Stockfish (`chess-arena-stockfish:local`) can also be registered as an opponent, for example with UCI options `UCI_LimitStrength=true, UCI_Elo=1500`.
 
-To test a new engine version against the previous one, publish its image and run `./scripts/regress.ps1 -Candidate 1.3.0`. See [Analysis and Statistics](docs/System-architecture/analysis-and-statistics.md).
+To test a new engine version against the previous one, publish its image and run `./scripts/regress.ps1 -Candidate 1.3.0`. Every tournament can be downloaded as PGN, games CSV or moves CSV, and the leaderboard estimates absolute Elo once Stockfish anchors (`UCI_LimitStrength=true, UCI_Elo=N`) have played. See [Analysis and Statistics](docs/System-architecture/analysis-and-statistics.md).
+
+The engine has a fixed benchmark, `cargo run --release -- bench`. Its node count is checked by CI against `engines/bench-signature.txt`; see [Engine implementation](docs/System-architecture/engine-implementation.md#bench).
 
 | Service | Address | Description |
 | --- | --- | --- |

@@ -51,6 +51,9 @@ type GameDetail struct {
 	CurrentFEN string       `json:"current_fen"`
 	Moves      []MoveDetail `json:"moves"`
 	PGN        string       `json:"pgn,omitempty"`
+	// WhiteBuild and BlackBuild identify the code that played.
+	WhiteBuild EngineBuild `json:"white_build"`
+	BlackBuild EngineBuild `json:"black_build"`
 	// Analysis is set once the game was claimed for analysis.
 	Analysis *GameAnalysis `json:"analysis,omitempty"`
 }
@@ -108,12 +111,15 @@ func (store *Store) GetGame(ctx context.Context, id string) (GameDetail, error) 
 	var detail GameDetail
 	var pgn *string
 	summary, err := scanGameSummary(store.pool.QueryRow(ctx, `
-		SELECT `+gameSummaryColumns+`, p.fen, g.current_fen, r.pgn
+		SELECT `+gameSummaryColumns+`, p.fen, g.current_fen, r.pgn,
+			COALESCE(g.white_image_id, ''), COALESCE(g.white_uci_name, ''),
+			COALESCE(g.black_image_id, ''), COALESCE(g.black_uci_name, '')
 		FROM games g
 		JOIN positions p ON p.id = g.position_id
 		LEFT JOIN game_results r ON r.game_id = g.id
 		WHERE g.id = $1
-	`, id), &detail.StartFEN, &detail.CurrentFEN, &pgn)
+	`, id), &detail.StartFEN, &detail.CurrentFEN, &pgn,
+		&detail.WhiteBuild.ImageID, &detail.WhiteBuild.UCIName, &detail.BlackBuild.ImageID, &detail.BlackBuild.UCIName)
 	if errors.Is(err, pgx.ErrNoRows) || isInvalidUUID(err) {
 		return detail, ErrNotFound
 	}

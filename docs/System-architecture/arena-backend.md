@@ -73,6 +73,8 @@ docker run --rm --interactive --init --network none --read-only --cap-drop ALL
 
 The image is pulled first when it is missing. `cpus` and `memory_mb` come from the tournament (defaults 1.0 and 256 MB). The swap limit equals the memory limit, so memory is a hard limit.
 
+The launcher resolves the image to its content-addressed ID (`docker image inspect`) and starts the container from that ID, not from the tag. Rebuilding or re-pulling a tag such as `chess-arena-engine:local` therefore cannot swap the engine between the check and the start. Every game stores the image ID and the name each engine reported with `id name` (`white_build`, `black_build` in `GET /api/games/{id}`, `builds` per engine in the tournament telemetry). If an engine played with more than one build in a tournament, the tournament page warns that its image changed. The analysis records the Stockfish image ID the same way.
+
 ## Security
 
 The backend controls the host's Docker daemon, so it only starts trusted images and, optionally, only accepts changes from holders of a token.
@@ -104,9 +106,12 @@ All endpoints are under `/api` and use JSON. Errors have the form `{"error": "..
 | `GET /api/tournaments/{id}` | Tournament with `progress` (games by status), `score` (wins, draws, points), `stats` (Elo ± error, LOS), `sprt_status` (LLR and bounds, when an SPRT is configured) and `telemetry` (per engine: moves, average and max depth, average and total nodes, average NPS and think time, and the move quality from analysis). |
 | `POST /api/tournaments/{id}/cancel` | Cancel a tournament. 409 when it already finished. |
 | `GET /api/tournaments/{id}/games` | Games in schedule order, each with its starting position's number in the set and opening name (`position_number`, `opening`). |
-| `GET /api/games/{id}` | Game with moves, per-move telemetry and analysis, the analysis status, and PGN. |
+| `GET /api/tournaments/{id}/export/games.pgn` | PGN of every finished game. |
+| `GET /api/tournaments/{id}/export/games.csv` | One row per game: players, builds, opening, start FEN, result, termination, timestamps, and each side's average depth, nodes, NPS, think time, accuracy, ACPL and blunders. |
+| `GET /api/tournaments/{id}/export/moves.csv` | One row per move: engine telemetry (depth, score, nodes, NPS, times, PV) and Stockfish's verdict (best move, evaluations, centipawn loss, accuracy, classification). |
+| `GET /api/games/{id}` | Game with moves, per-move telemetry and analysis, the analysis status, the builds that played, and PGN. |
 | `GET /api/games/{id}/pgn` | PGN file of a finished game. |
-| `GET /api/leaderboard` | Every engine with finished games: rating, results, average depth and NPS, and move quality. |
+| `GET /api/leaderboard` | Every engine with finished games: rating, approximate Elo when anchors have played, results, average depth and NPS, and move quality. |
 | `GET /api/auth` | Whether writes need the API token, and whether the request's token is valid. |
 | `GET /api/events` | Server-sent events `{"type", "tournament_id", "game_id"}` for every change; `?tournament_id=` and `?game_id=` narrow the stream. `resync` asks clients to reload everything. |
 

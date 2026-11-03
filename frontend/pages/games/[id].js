@@ -4,7 +4,13 @@ import Layout from '../../components/Layout'
 import EngineTelemetryTable from '../../components/EngineTelemetryTable'
 import GameReplay from '../../components/games/GameReplay'
 import { BackendUnavailable, Card, StatusBadge } from '../../components/ui'
-import { API_URL, openingLabel, useEngineNames, useGame } from '../../lib/api'
+import {
+  API_URL,
+  openingLabel,
+  shortImageId,
+  useEngineNames,
+  useGame,
+} from '../../lib/api'
 import { summarizeTelemetry } from '../../lib/chess'
 
 // Where Stockfish's review of the game stands.
@@ -89,6 +95,18 @@ export default function GamePage() {
               </>
             )}
           </p>
+          {(game.white_build?.uci_name || game.white_build?.image_id) && (
+            <p className="mt-1 font-mono text-xs text-gray-500">
+              {[game.white_build, game.black_build]
+                .map(
+                  (build) =>
+                    `${build.uci_name || '?'} (${
+                      shortImageId(build.image_id) || 'local'
+                    })`
+                )
+                .join(' vs ')}
+            </p>
+          )}
           <AnalysisStatus game={game} />
         </div>
         {game.pgn && (

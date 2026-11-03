@@ -25,6 +25,7 @@ export default function LeaderboardPage() {
       </p>
     )
   } else {
+    const anchored = entries.some((entry) => entry.elo !== undefined)
     body = (
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -32,6 +33,14 @@ export default function LeaderboardPage() {
             <tr>
               <th className="py-2 pr-3 text-left">#</th>
               <th className="py-2 pr-3 text-left">Engine</th>
+              {anchored && (
+                <th
+                  className={cell}
+                  title="Rating on the scale of the anchors' declared Elo"
+                >
+                  Elo (approx.)
+                </th>
+              )}
               <th className={cell} title="Relative Elo; ratings average to 0">
                 Rating
               </th>
@@ -66,10 +75,18 @@ export default function LeaderboardPage() {
                   <p className="font-mono text-xs text-gray-500">
                     {entry.image}
                   </p>
+                  {entry.anchor_elo && (
+                    <p className="text-xs text-violet-700">
+                      Anchor: declared {entry.anchor_elo} Elo
+                    </p>
+                  )}
                 </td>
-                <td className={`${cell} font-mono font-semibold`}>
-                  {signed(entry.rating)}
-                </td>
+                {anchored && (
+                  <td className={`${cell} font-mono font-semibold`}>
+                    {Math.round(entry.elo)}
+                  </td>
+                )}
+                <td className={`${cell} font-mono`}>{signed(entry.rating)}</td>
                 <td className={cell}>{entry.games}</td>
                 <td className={`${cell} font-mono text-xs`}>
                   {entry.wins} / {entry.draws} / {entry.losses}
@@ -119,7 +136,12 @@ export default function LeaderboardPage() {
       <p className="mb-6 text-sm text-gray-600">
         Ratings are fitted to every finished game across all tournaments
         (Bradley-Terry model), so engines that never met are compared through
-        common opponents. Move quality comes from Stockfish&apos;s analysis.
+        common opponents. Move quality comes from Stockfish&apos;s analysis. The
+        approximate Elo appears once an anchor has played: a Stockfish
+        registered with UCI options{' '}
+        <code>UCI_LimitStrength=true, UCI_Elo=N</code>. Ratings are then shifted
+        so the anchors average their declared Elo. Stockfish calibrates that
+        scale at longer time controls, so treat it as an estimate.
       </p>
       <Card>{body}</Card>
     </Layout>

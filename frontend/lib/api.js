@@ -159,6 +159,11 @@ export function openingLabel(game) {
   return game.opening || `Position ${game.position_number}`
 }
 
+// Short form of a Docker image ID ("sha256:…").
+export function shortImageId(imageId) {
+  return imageId ? imageId.replace(/^sha256:/, '').slice(0, 12) : ''
+}
+
 export function engineLabel(engine) {
   return `${engine.name} ${engine.version}`
 }
