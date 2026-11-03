@@ -8,6 +8,7 @@ Select a topic to explore the implementation details:
 
 - [Engine implementation](engine-implementation.md)
 - [Engine internals (v1.2.0): move generation, evaluation and search](engine-internals-v.1.2.0.md)
+- [Engine performance (v1.3.0): attack tables, magic bitboards and faster legality checks](engine-performance-v1.3.0.md)
 - [Tournament model](tournament-model.md)
 - [Arena backend](arena-backend.md)
 - [Analysis and statistics](analysis-and-statistics.md)

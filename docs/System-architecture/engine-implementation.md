@@ -2,7 +2,7 @@
 
 ## Scope
 
-The Rust engine currently provides a functional chess rules core and a basic UCI process interface. It does not implement a search algorithm or a positional evaluation yet.
+The Rust engine provides a complete chess rules core, an alpha-beta search with a material and piece-square evaluation, and a UCI process interface.
 
 The current implementation includes:
 
@@ -10,14 +10,15 @@ The current implementation includes:
 - Piece, color, and square enumerations.
 - Board state management.
 - Move execution and undo.
-- Attack generation.
+- Attack generation with precomputed tables and magic bitboards.
 - Pseudo-legal and legal move generation.
 - FEN parsing and serialization.
-- Deterministic position hashing and threefold-repetition tracking.
+- Incremental Zobrist position hashing and threefold-repetition tracking.
 - Perft validation.
 - Basic game-status detection.
-- Basic UCI command handling.
-- Random selection of a legal move for `go`.
+- UCI command handling.
+- Iterative-deepening alpha-beta search with search telemetry.
+- A fixed benchmark whose node count verifies that the search is unchanged.
 
 ## Source Layout
 
@@ -109,19 +110,15 @@ Supported move kinds are:
 
 ## Attack Generation
 
-`attacks.rs` currently uses a simple ray-tracing implementation for sliding pieces. This approach is intentionally straightforward and serves as the correctness baseline before future optimizations.
+Since version 1.3.0, `attacks.rs` reads every attack set from a table:
 
-Implemented attacks:
+- **Pawns, knights and kings** attack fixed squares, so their attacks for all 64 squares are computed by a `const fn` at compile time (one pawn table per color).
+- **Bishops, rooks and queens** use magic bitboards. The occupied squares on a slider's rays are multiplied by a per-square magic number, and the top bits of the product index a table of precomputed attacks. The magic numbers are constants found by the `find_magics` test, and `attacks::init()` fills the tables (about 840 KiB) when the engine starts. A queen combines a rook's and a bishop's attacks.
+- **`is_square_attacked`** works backwards from the target square: it computes each kind of attack once from that square and checks whether it hits an enemy piece of that kind.
 
-- White and black pawn attacks.
-- Knight attacks.
-- King attacks.
-- Bishop rays.
-- Rook rays.
-- Queen rays.
-- Board-aware `is_square_attacked`.
+Sliding attacks include the first occupied square and stop immediately after it. This allows the first occupied square to be captured while preventing attacks beyond a blocker. The original ray walk is kept to fill the magic tables and to check them in tests.
 
-Sliding attacks include the first occupied square and stop immediately after it. This allows the first occupied square to be captured while preventing attacks beyond a blocker.
+See [Engine performance (v1.3.0)](engine-performance-v1.3.0.md) for how magic bitboards work and how much they gained.
 
 ## Move Generation
 
@@ -140,17 +137,17 @@ The move generator works in two stages.
 
 ### Legal moves
 
-`legal_moves` filters pseudo-legal moves by:
+`legal_moves` filters the pseudo-legal moves. It first finds whether the king is in check and which own pieces are pinned to it, then decides each move:
 
-1. Executing each move.
-2. Locating the moving side's king.
-3. Checking whether the king is attacked.
-4. Undoing the move.
-5. Keeping the move only when the king is safe.
+- A king move is legal when its target square is not attacked; the king is removed from the occupancy for this test so that it cannot block a slider's ray to its own target.
+- When the king is not in check, a move of a piece that is not pinned is always legal.
+- Castling, en passant, moves of pinned pieces and all moves while in check are decided by executing the move, checking whether the own king is attacked, and undoing it.
 
 Castling has an additional check for the starting, transit, and destination squares. A castle is rejected if any of those squares is attacked by the opponent.
 
-This implementation prioritizes correctness and readability. It does not yet use pinned-piece masks, check evasion masks, or specialized legal move generation.
+The filter never reorders the list, so legal moves keep the generation order: pieces from a1 to h8, and each piece's targets in the same order.
+
+Move lists are `MoveList` values, a fixed array of 256 moves on the stack that is used like a slice, so generating moves does not allocate memory.
 
 ## FEN Support
 
@@ -202,7 +199,7 @@ cargo test --release perft -- --ignored
 
 Status detection first checks for checkmate or stalemate, then applies draw conditions. The UCI engine stores the position hash after the initial position and after every applied move, allowing threefold repetition to be detected.
 
-The hash includes piece placement, side to move, castling rights, and relevant en passant state. Halfmove and fullmove counters are intentionally excluded because they do not define positional identity for repetition.
+The hash includes piece placement, side to move, castling rights, and relevant en passant state. Halfmove and fullmove counters are intentionally excluded because they do not define positional identity for repetition. The board keeps the pieces' part of the hash up to date as pieces are placed and removed, so computing the hash at a search node does not scan the board.
 
 ## UCI Interface
 
@@ -313,7 +310,7 @@ A simple UCI session can be sent through standard input:
 @('uci', 'isready', 'position startpos moves e2e4', 'go', 'quit') | cargo run --quiet
 ```
 
-With `go movetime 1000`, the release build typically reaches depth 5 from the starting position (about 100,000 nodes).
+With `go movetime 1000`, the release build of version 1.3.0 typically reaches depth 6 from the starting position and in quiet middlegames (version 1.2.0 reached depth 4–5).
 
 ## Verification
 
@@ -358,9 +355,12 @@ The node count is the engine's **bench signature**. It depends only on what the 
 
 `Nodes/second` measures speed. It varies between runs and machines, so compare it on the same computer only.
 
-| Version | Bench signature (depth 5) |
-| --- | --- |
-| 1.2.0 | 1,390,581 |
+| Version | Bench signature (depth 5) | Nodes/second (same computer) |
+| --- | --- | ---: |
+| 1.2.0 | 1,390,581 | 275,861 |
+| 1.3.0 | 1,390,581 | 2,750,515 |
+
+Version 1.3.0 only made the engine faster, so its signature is the same as 1.2.0's (see [Engine performance (v1.3.0)](engine-performance-v1.3.0.md)).
 
 ## Versioning and Releases
 
@@ -416,7 +416,7 @@ The following features are not implemented yet:
 - Killer moves and history heuristics for ordering quiet moves.
 - Evaluation terms beyond material and piece-square tables (pawn structure, mobility, king safety).
 - A broader repetition-history API outside the UCI engine.
-- Optimized magic bitboards or generated lookup tables.
+- Incremental evaluation and staged move generation (see [what is still slow](engine-performance-v1.3.0.md#what-is-still-slow)).
 - Library crate exports; the current project is primarily a binary crate.
 
 ## Recommended Next Steps
@@ -424,4 +424,4 @@ The following features are not implemented yet:
 1. Add quiescence search over captures.
 2. Add a transposition table keyed by the position hash.
 3. Add killer moves and history heuristics.
-4. Introduce benchmarks before optimizing slider attacks or board mutation.
+4. Measure each version against the previous one with `./scripts/regress.ps1`.

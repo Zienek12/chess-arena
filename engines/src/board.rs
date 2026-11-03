@@ -2,6 +2,7 @@
 
 use std::fmt;
 
+use crate::hash::piece_key;
 use crate::moves::{Move, MoveKind, Undo};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -311,6 +312,9 @@ pub struct Board {
     pub halfmove_clock: u16,
     pub fullmove_number: u16,
     squares: [Option<(PieceKind, Color)>; 64],
+    /// XOR of the Zobrist keys of all pieces on their squares, updated
+    /// whenever a piece is placed or removed.
+    piece_hash: u64,
 }
 
 impl Board {
@@ -324,6 +328,7 @@ impl Board {
             halfmove_clock: 0,
             fullmove_number: 1,
             squares: [None; 64],
+            piece_hash: 0,
         }
     }
 
@@ -523,6 +528,7 @@ impl Board {
             self.piece_bitboards[piece.index()].clear_bit(square);
             self.color_bitboards[color.index()].clear_bit(square);
             self.squares[square.index() as usize] = None;
+            self.piece_hash ^= piece_key(piece, color, square);
         }
     }
 
@@ -531,6 +537,12 @@ impl Board {
         self.piece_bitboards[piece.index()].set_bit(square);
         self.color_bitboards[color.index()].set_bit(square);
         self.squares[square.index() as usize] = Some((piece, color));
+        self.piece_hash ^= piece_key(piece, color, square);
+    }
+
+    /// The pieces' part of the position hash; see `hash::position_hash`.
+    pub fn piece_hash(&self) -> u64 {
+        self.piece_hash
     }
 
     pub fn remove_piece(&mut self, square: Square) {

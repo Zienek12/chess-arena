@@ -17,6 +17,8 @@ use std::sync::Arc;
 use uci::{Flow, Output, UciEngine};
 
 fn main() {
+    attacks::init();
+
     // `chess-arena-engine bench [depth]` runs the benchmark and exits.
     let arguments: Vec<String> = std::env::args().skip(1).collect();
     if arguments.first().map(String::as_str) == Some("bench") {
