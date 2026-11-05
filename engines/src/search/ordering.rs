@@ -7,38 +7,44 @@ use crate::board::{Board, PieceKind};
 use crate::eval::PIECE_VALUES;
 use crate::moves::{Move, MoveKind};
 
+use super::heuristics::Heuristics;
+
 const HINT_SCORE: i32 = 1_000_000;
 const TABLE_MOVE_SCORE: i32 = 500_000;
 const CAPTURE_SCORE: i32 = 100_000;
 const PROMOTION_SCORE: i32 = 90_000;
 const MAX_MOVES: usize = 256;
 
-/// Orders `moves` best first: the `hint` (the principal variation move from
-/// the previous iteration), the `table_move` (the best move stored in the
-/// transposition table), then captures by MVV-LVA (most valuable victim,
-/// least valuable attacker), then promotions, then quiet moves.
+/// What the search knows about the moves of a position, beyond the moves
+/// themselves.
+#[derive(Clone, Copy, Default)]
+pub struct Priorities<'h> {
+    /// The principal variation move from the previous iteration.
+    pub hint: Option<Move>,
+    /// The best move stored in the transposition table.
+    pub table_move: Option<Move>,
+    /// What was learned about quiet moves, and the ply of this position.
+    pub quiet: Option<(&'h Heuristics, u32)>,
+}
+
+/// Orders `moves` best first: the hint, the table move, then captures by
+/// MVV-LVA (most valuable victim, least valuable attacker), then promotions,
+/// then killer moves, then the other quiet moves by their history score.
 ///
-/// The sort is stable: equally scored moves, such as all quiet moves, keep
-/// the order of the move generator.
-pub fn order_moves(
-    board: &Board,
-    moves: &mut [Move],
-    hint: Option<Move>,
-    table_move: Option<Move>,
-) {
+/// The sort is stable: equally scored moves, such as all quiet moves without
+/// a history, keep the order of the move generator.
+pub fn order_moves(board: &Board, moves: &mut [Move], priorities: Priorities) {
     // A position has at most 218 legal moves; longer lists are only sorted
     // in tests and take the allocating path.
     if moves.len() > MAX_MOVES {
-        moves.sort_by_cached_key(|&chess_move| {
-            Reverse(move_score(board, chess_move, hint, table_move))
-        });
+        moves.sort_by_cached_key(|&chess_move| Reverse(move_score(board, chess_move, priorities)));
         return;
     }
     // Insertion sort with the scores kept beside the moves: no allocation,
     // and fast for the few dozen moves of a position.
     let mut scores = [0; MAX_MOVES];
     for i in 0..moves.len() {
-        let (chess_move, score) = (moves[i], move_score(board, moves[i], hint, table_move));
+        let (chess_move, score) = (moves[i], move_score(board, moves[i], priorities));
         let mut j = i;
         while j > 0 && scores[j - 1] < score {
             moves[j] = moves[j - 1];
@@ -50,17 +56,17 @@ pub fn order_moves(
     }
 }
 
-fn move_score(
-    board: &Board,
-    chess_move: Move,
-    hint: Option<Move>,
-    table_move: Option<Move>,
-) -> i32 {
-    if hint == Some(chess_move) {
+fn move_score(board: &Board, chess_move: Move, priorities: Priorities) -> i32 {
+    if priorities.hint == Some(chess_move) {
         return HINT_SCORE;
     }
-    if table_move == Some(chess_move) {
+    if priorities.table_move == Some(chess_move) {
         return TABLE_MOVE_SCORE;
+    }
+    if chess_move.is_quiet() {
+        return priorities.quiet.map_or(0, |(heuristics, ply)| {
+            heuristics.quiet_score(board.side_to_move, chess_move, ply)
+        });
     }
     let mut score = 0;
     if let Some(victim) = captured_piece(board, chess_move) {
@@ -95,7 +101,11 @@ mod tests {
         let mut board = parse_fen(fen).unwrap();
         let mut moves = legal_moves(&mut board);
         let hint = hint.and_then(|uci| moves.iter().copied().find(|m| m.to_uci() == uci));
-        order_moves(&board, &mut moves, hint, None);
+        let priorities = Priorities {
+            hint,
+            ..Priorities::default()
+        };
+        order_moves(&board, &mut moves, priorities);
         moves
             .into_iter()
             .map(|chess_move| chess_move.to_uci())
@@ -122,10 +132,45 @@ mod tests {
         let mut moves = legal_moves(&mut board);
         let find = |uci: &str| moves.iter().copied().find(|m| m.to_uci() == uci);
         let (hint, table_move) = (find("e1f2"), find("e1e2"));
-        order_moves(&board, &mut moves, hint, table_move);
+        let priorities = Priorities {
+            hint,
+            table_move,
+            ..Priorities::default()
+        };
+        order_moves(&board, &mut moves, priorities);
         assert_eq!(moves[0].to_uci(), "e1f2");
         assert_eq!(moves[1].to_uci(), "e1e2");
         assert_eq!(moves[2].to_uci(), "e4d5");
+    }
+
+    #[test]
+    fn learned_quiet_moves_come_after_captures_and_promotions() {
+        // Ke2 is the killer, Kf2 has a history; the pawn on e4 can capture and
+        // the pawn on a7 can promote.
+        let mut board = parse_fen("4k3/P7/8/3n4/4P3/8/8/4K3 w - - 0 1").unwrap();
+        let mut moves = legal_moves(&mut board);
+        let find = |uci: &str| moves.iter().copied().find(|m| m.to_uci() == uci);
+        let (killer, liked, disliked) = (
+            find("e1e2").unwrap(),
+            find("e1f2").unwrap(),
+            find("e1d2").unwrap(),
+        );
+        let mut heuristics = Heuristics::new();
+        heuristics.record_cutoff(board.side_to_move, 5, 3, liked, &[disliked]);
+        heuristics.record_cutoff(board.side_to_move, 2, 1, killer, &[]);
+        let priorities = Priorities {
+            quiet: Some((&heuristics, 2)),
+            ..Priorities::default()
+        };
+        order_moves(&board, &mut moves, priorities);
+
+        let names: Vec<String> = moves.iter().map(|m| m.to_uci()).collect();
+        assert_eq!(names[0], "e4d5");
+        assert_eq!(&names[1..5], ["a7a8q", "a7a8r", "a7a8b", "a7a8n"]);
+        // At ply 2 the move with a history at ply 5 is not a killer, but keeps
+        // its score from the shared history.
+        assert_eq!(&names[5..7], ["e1e2", "e1f2"]);
+        assert_eq!(names.last().unwrap(), "e1d2");
     }
 
     #[test]
