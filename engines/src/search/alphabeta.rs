@@ -11,7 +11,8 @@ use crate::movegen::{in_check, legal_moves};
 use crate::moves::Move;
 use crate::status::insufficient_material;
 
-use super::ordering::{captured_piece, order_moves};
+use super::heuristics::Heuristics;
+use super::ordering::{captured_piece, order_moves, Priorities};
 use super::tt::{Bound, TranspositionTable};
 use super::{Score, SearchContext};
 
@@ -36,6 +37,7 @@ pub struct Search<'b, 'c, 'a> {
     pub board: &'b mut Board,
     pub context: &'c mut SearchContext<'a>,
     pub table: &'c mut TranspositionTable,
+    pub heuristics: &'c mut Heuristics,
     /// Hashes of the game so far followed by the current search path; the
     /// last entry is the current position.
     pub path: Vec<u64>,
@@ -84,13 +86,18 @@ impl Search<'_, '_, '_> {
         }
         let hint_move = hint.and_then(|line| line.first().copied());
         let table_move = entry.and_then(|entry| entry.best_move(&moves));
-        order_moves(self.board, &mut moves, hint_move, table_move);
+        let priorities = Priorities {
+            hint: hint_move,
+            table_move,
+            quiet: Some((&*self.heuristics, ply)),
+        };
+        order_moves(self.board, &mut moves, priorities);
 
         let original_alpha = alpha;
         let mut best = -INFINITY;
         let mut best_move = moves[0];
         let mut child_pv = Vec::new();
-        for chess_move in moves {
+        for (index, &chess_move) in moves.iter().enumerate() {
             let child_hint = match hint {
                 Some(line) if Some(chess_move) == hint_move => Some(&line[1..]),
                 _ => None,
@@ -116,6 +123,11 @@ impl Search<'_, '_, '_> {
                 }
             }
             if alpha >= beta {
+                if chess_move.is_quiet() {
+                    let side = self.board.side_to_move;
+                    self.heuristics
+                        .record_cutoff(side, ply, depth, chess_move, &moves[..index]);
+                }
                 break;
             }
         }
@@ -170,7 +182,7 @@ impl Search<'_, '_, '_> {
             let board = &*self.board;
             moves.retain(|&chess_move| is_tactical(board, chess_move));
         }
-        order_moves(self.board, &mut moves, None, None);
+        order_moves(self.board, &mut moves, Priorities::default());
 
         for chess_move in moves {
             let undo = self.board.make_move(chess_move);
@@ -240,14 +252,65 @@ mod tests {
             &mut on_report,
         );
         let mut table = TranspositionTable::new(1);
+        let mut heuristics = Heuristics::new();
         let mut search = Search {
             board: &mut board,
             context: &mut context,
             table: &mut table,
+            heuristics: &mut heuristics,
             path,
         };
         let score = search.quiescence(0, -INFINITY, INFINITY);
         (score, context.nodes())
+    }
+
+    /// What one search of `fen` at depth 1 with the window `-INFINITY..beta`
+    /// learned: the ordering score of `uci` at ply 0.
+    fn learned_score(fen: &str, beta: i32, uci: &str) -> i32 {
+        let mut board = parse_fen(fen).unwrap();
+        let path = vec![position_hash(&board)];
+        let mut on_report = |_: &crate::search::SearchReport| {};
+        let mut context = SearchContext::new(
+            &board,
+            SearchLimits::default(),
+            Arc::new(AtomicBool::new(false)),
+            &mut on_report,
+        );
+        let mut table = TranspositionTable::new(1);
+        let mut heuristics = Heuristics::new();
+        let mut search = Search {
+            board: &mut board,
+            context: &mut context,
+            table: &mut table,
+            heuristics: &mut heuristics,
+            path,
+        };
+        search.negamax(1, 0, -INFINITY, beta, None, &mut Vec::new());
+        let chess_move = legal_moves(&mut board)
+            .into_iter()
+            .find(|chess_move| chess_move.to_uci() == uci)
+            .unwrap();
+        heuristics.quiet_score(board.side_to_move, chess_move, 0)
+    }
+
+    #[test]
+    fn quiet_cutoff_move_is_remembered() {
+        // Ra8# is quiet and refutes any window.
+        let fen = "7k/5ppp/8/8/8/8/8/R5K1 w - - 0 1";
+        assert!(learned_score(fen, 1_000, "a1a8") > 0);
+    }
+
+    #[test]
+    fn capture_cutoff_move_is_not_remembered() {
+        // Rxd5 wins the queen, which is found without any learning.
+        let fen = "4k3/8/8/3q4/8/8/8/3RK3 w - - 0 1";
+        assert_eq!(learned_score(fen, 100, "d1d5"), 0);
+    }
+
+    #[test]
+    fn no_cutoff_teaches_nothing() {
+        let fen = "7k/5ppp/8/8/8/8/8/R5K1 w - - 0 1";
+        assert_eq!(learned_score(fen, INFINITY, "a1a8"), 0);
     }
 
     fn static_eval(fen: &str) -> i32 {

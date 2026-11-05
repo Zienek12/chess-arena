@@ -11,6 +11,7 @@ Select a topic to explore the implementation details:
 - [Engine performance (v1.3.0): attack tables, magic bitboards and faster legality checks](engine-performance-v1.3.0.md)
 - [Quiescence search (v1.4.0): removing the horizon effect](engine-quiescence-v1.4.0.md)
 - [Transposition table (v1.5.0): remembering searched positions](engine-transposition-table-v1.5.0.md)
+- [Killer moves and history heuristic (v1.6.0): ordering quiet moves](engine-move-ordering-v1.6.0.md)
 - [Tournament model](tournament-model.md)
 - [Arena backend](arena-backend.md)
 - [Analysis and statistics](analysis-and-statistics.md)

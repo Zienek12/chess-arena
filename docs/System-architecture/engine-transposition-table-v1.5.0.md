@@ -106,7 +106,7 @@ The node counts below are deterministic and can be repeated on any computer. For
 
 Fine #70 (`8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - - 0 1`) is a classic test for transposition tables: only the kings can move for many plies, so nearly every position can be reached in many ways.
 
-Nodes per second appear lower than in 1.4.0, probably because each node also reads and writes a table in memory that does not fit in the processor's cache. This has not yet been measured on an otherwise idle computer, so no speed figures are given here. The strength result is the SPRT tournament:
+Nodes per second are lower than in 1.4.0: the bench reached 2.65 million in 1.4.0 and 2.21 million in 1.5.0 (best of 7 runs each, on one otherwise idle computer). The likely cause is that each node also reads and writes a table in memory that does not fit in the processor's cache. Speed alone falls by about 17%, but the node reductions above far outweigh it. The strength result is the SPRT tournament:
 
 ```powershell
 ./scripts/regress.ps1 -Candidate 1.5.0 -Baseline 1.4.0

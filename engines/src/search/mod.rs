@@ -6,6 +6,7 @@
 //! and turns reports into the `info` lines the arena stores with each move.
 
 mod alphabeta;
+mod heuristics;
 mod limits;
 mod ordering;
 mod report;
@@ -23,7 +24,8 @@ use crate::movegen::{in_check, legal_moves};
 use crate::moves::Move;
 
 use alphabeta::{to_uci_score, Search, INFINITY, MATE, MAX_PLY};
-use ordering::order_moves;
+use heuristics::Heuristics;
+use ordering::{order_moves, Priorities};
 use tt::TranspositionTable;
 
 /// Depth searched by a bare `go`, which sets no time, depth or node limit.
@@ -143,6 +145,9 @@ pub struct SearchResult {
 /// Searches `board` within `limits`, calling `on_report` after every
 /// completed depth. `history` holds the position hashes of the game so far,
 /// ending with the current position, so repetitions are recognized as draws.
+///
+/// Killer moves and the history start empty and last for this search only,
+/// so a search depends on nothing but its position and the `table`.
 pub fn search(
     board: &mut Board,
     history: &[u64],
@@ -178,30 +183,38 @@ pub fn search(
         };
     }
 
+    let mut path = history.to_vec();
+    if path.is_empty() {
+        path.push(crate::hash::position_hash(board));
+    }
+    let mut heuristics = Heuristics::new();
+    let mut searcher = Search {
+        board,
+        context: &mut context,
+        table,
+        heuristics: &mut heuristics,
+        path,
+    };
+
     let mut best_line: Vec<Move> = Vec::new();
     for depth in 1..=max_depth {
-        if depth > 1 && !context.can_start_iteration() {
+        if depth > 1 && !searcher.context.can_start_iteration() {
             break;
         }
-        let Some((score, line)) = search_root(
-            board,
-            history,
-            &mut root_moves,
-            depth,
-            &best_line,
-            &mut context,
-            table,
-        ) else {
+        let Some((score, line)) = search_root(&mut searcher, &mut root_moves, depth, &best_line)
+        else {
             break;
         };
         best_line = line;
-        context.report(depth, to_uci_score(score), best_line.clone());
+        searcher
+            .context
+            .report(depth, to_uci_score(score), best_line.clone());
         // A forced mate within the horizon will not change with more depth.
         if score.abs() >= MATE - depth as i32 {
             break;
         }
         // With a single legal move there is nothing to decide.
-        if root_moves.len() == 1 && context.budget.is_some() {
+        if root_moves.len() == 1 && searcher.context.budget.is_some() {
             break;
         }
     }
@@ -220,25 +233,16 @@ pub fn search(
 /// variation, or `None` when the iteration was aborted. The best move is
 /// moved to the front of `root_moves` for the next iteration.
 fn search_root(
-    board: &mut Board,
-    history: &[u64],
+    searcher: &mut Search,
     root_moves: &mut [Move],
     depth: u32,
     previous_line: &[Move],
-    context: &mut SearchContext,
-    table: &mut TranspositionTable,
 ) -> Option<(i32, Vec<Move>)> {
-    order_moves(board, root_moves, previous_line.first().copied(), None);
-    let mut path = history.to_vec();
-    if path.is_empty() {
-        path.push(crate::hash::position_hash(board));
-    }
-    let mut searcher = Search {
-        board,
-        context,
-        table,
-        path,
+    let priorities = Priorities {
+        hint: previous_line.first().copied(),
+        ..Priorities::default()
     };
+    order_moves(searcher.board, root_moves, priorities);
 
     let mut alpha = -INFINITY;
     let mut best_index = 0;

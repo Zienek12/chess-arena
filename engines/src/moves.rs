@@ -47,6 +47,17 @@ impl Move {
         }
     }
 
+    /// Neither a capture nor a promotion: the material stays the same.
+    pub const fn is_quiet(self) -> bool {
+        !matches!(
+            self.kind,
+            MoveKind::Capture
+                | MoveKind::EnPassant
+                | MoveKind::Promotion
+                | MoveKind::PromotionCapture
+        )
+    }
+
     pub fn to_uci(self) -> String {
         let mut value = String::with_capacity(5);
         value.push(char::from(b'a' + self.from.file()));
