@@ -11,6 +11,7 @@ use std::time::{Duration, Instant};
 
 use crate::fen::parse_fen;
 use crate::hash::position_hash;
+use crate::search::tt::{TranspositionTable, DEFAULT_SIZE_MIB};
 use crate::search::{search, SearchLimits};
 
 /// Depth searched when `bench` gets no depth argument.
@@ -83,6 +84,9 @@ pub fn run(depth: u32) -> BenchResult {
             &history,
             limits,
             Arc::new(AtomicBool::new(false)),
+            // A new table of a fixed size for every position, so that the node
+            // count depends on nothing but the search.
+            &mut TranspositionTable::new(DEFAULT_SIZE_MIB),
             &mut |_| {},
         );
         nodes += result.report.nodes;

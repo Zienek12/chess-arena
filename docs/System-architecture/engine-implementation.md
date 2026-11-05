@@ -17,7 +17,7 @@ The current implementation includes:
 - Perft validation.
 - Basic game-status detection.
 - UCI command handling.
-- Iterative-deepening alpha-beta search with quiescence search and search telemetry.
+- Iterative-deepening alpha-beta search with quiescence search, a transposition table and search telemetry.
 - A fixed benchmark whose node count verifies that the search is unchanged.
 
 ## Source Layout
@@ -39,7 +39,8 @@ The engine is located in `engines/`.
 | `src/eval.rs` | Static evaluation: material and piece-square tables. |
 | `src/search/mod.rs` | Iterative deepening and `SearchContext`: node and seldepth counters, time and node limits, `stop`, iteration reports. |
 | `src/search/alphabeta.rs` | Negamax with alpha-beta pruning, quiescence search, mate scores, draw detection, principal variation. |
-| `src/search/ordering.rs` | Move ordering: previous best move, then MVV-LVA captures, then promotions. |
+| `src/search/ordering.rs` | Move ordering: previous best move, transposition table move, then MVV-LVA captures, then promotions. |
+| `src/search/tt.rs` | Transposition table: stored scores, bounds and best moves by position hash. |
 | `src/search/limits.rs` | Parsing of `go` arguments and the time budget per move. |
 | `src/search/report.rs` | `Score` (centipawns or mate) and the `info` line of an iteration. |
 | `Cargo.toml` | Rust package metadata; the engine has no dependencies. |
@@ -214,6 +215,7 @@ Currently handled commands:
 - `position startpos moves ...`
 - `position fen <six FEN fields>`
 - `position fen <six FEN fields> moves ...`
+- `setoption name Hash value <MiB>` (1 to 1024, default 64; the table is cleared)
 - `go` with `movetime`, `depth`, `nodes`, `wtime`, `btime`, `winc`, `binc`, `movestogo`, `infinite` and `ponder`
 - `stop`
 - `d`
@@ -260,7 +262,9 @@ For a step-by-step explanation of move generation, evaluation and search, with r
 - Stalemate, the fifty-move rule, insufficient material and repetitions score 0. A position that already occurred in the game or on the search path counts as a draw, so the engine both avoids repetitions when winning and seeks them when losing; for this the UCI layer passes the game's position history to the search.
 - The principal variation is collected while searching and reported as `pv`.
 
-**Move ordering** (`ordering.rs`) makes the pruning effective: the best move of the previous depth (and the rest of its line) is searched first, then captures ordered by MVV-LVA (most valuable victim, least valuable attacker), then promotions, then quiet moves.
+A **transposition table** (`tt.rs`) remembers searched positions, so a position searched deeply enough is answered at once when its stored score falls outside the window. See [Transposition table (v1.5.0)](engine-transposition-table-v1.5.0.md).
+
+**Move ordering** (`ordering.rs`) makes the pruning effective: the best move of the previous depth (and the rest of its line) is searched first, then the best move stored in the transposition table, then captures ordered by MVV-LVA (most valuable victim, least valuable attacker), then promotions, then quiet moves.
 
 **Stopping:**
 
@@ -343,9 +347,9 @@ cargo run --release -- bench        # or bench <depth>; also available as the UC
 ```text
 Positions searched: 18
 Depth: 5
-Nodes searched: 2492336
-Time (ms): 959
-Nodes/second: 2599112
+Nodes searched: 1405750
+Time (ms): 1132
+Nodes/second: 1241436
 ```
 
 The node count is the engine's **bench signature**. It depends only on what the search does, not on how fast the computer is, so it is the same on every platform. It changes when a change alters the search or the evaluation, and stays the same for a change that only makes the engine faster. CI runs the benchmark and fails when the count differs from `engines/bench-signature.txt`:
@@ -360,6 +364,7 @@ The node count is the engine's **bench signature**. It depends only on what the 
 | 1.2.0 | 1,390,581 | Alpha-beta search and piece-square evaluation |
 | 1.3.0 | 1,390,581 | Speed only, so the signature is the same ([Engine performance](engine-performance-v1.3.0.md)) |
 | 1.4.0 | 2,492,336 | Quiescence search ([Quiescence search](engine-quiescence-v1.4.0.md)) |
+| 1.5.0 | 1,405,750 | Transposition table ([Transposition table](engine-transposition-table-v1.5.0.md)) |
 
 ## Versioning and Releases
 
@@ -411,7 +416,6 @@ The image `chess-arena-engine:engine-v1.0` was published before this scheme exis
 The following features are not implemented yet:
 
 - Pruning inside the quiescence search (delta pruning, static exchange evaluation).
-- Transposition tables.
 - Killer moves and history heuristics for ordering quiet moves.
 - Evaluation terms beyond material and piece-square tables (pawn structure, mobility, king safety).
 - A broader repetition-history API outside the UCI engine.
@@ -420,7 +424,7 @@ The following features are not implemented yet:
 
 ## Recommended Next Steps
 
-1. Add a transposition table keyed by the position hash.
-2. Add killer moves and history heuristics.
-3. Add principal variation search, null-move pruning and late move reductions.
+1. Add killer moves and history heuristics.
+2. Add principal variation search, null-move pruning and late move reductions.
+3. Add evaluation terms beyond material and piece-square tables.
 4. Measure each version against the previous one with `./scripts/regress.ps1`.
