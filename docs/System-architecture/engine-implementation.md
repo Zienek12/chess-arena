@@ -17,7 +17,7 @@ The current implementation includes:
 - Perft validation.
 - Basic game-status detection.
 - UCI command handling.
-- Iterative-deepening alpha-beta search with quiescence search, a transposition table, killer moves, a history heuristic and search telemetry.
+- Iterative-deepening alpha-beta search with quiescence search, a transposition table, killer moves, a history heuristic, null move pruning, late move reductions and search telemetry.
 - A fixed benchmark whose node count verifies that the search is unchanged.
 
 ## Source Layout
@@ -267,6 +267,8 @@ A **transposition table** (`tt.rs`) remembers searched positions, so a position 
 
 **Move ordering** (`ordering.rs`) makes the pruning effective: the best move of the previous depth (and the rest of its line) is searched first, then the best move stored in the transposition table, then captures ordered by MVV-LVA (most valuable victim, least valuable attacker), then promotions, then killer moves, then the other quiet moves by their history score. See [Killer moves and history heuristic (v1.6.0)](engine-move-ordering-v1.6.0.md).
 
+**Selective search** searches unpromising lines less deeply: null move pruning cuts off a position that stays above beta even after passing, and late move reductions search late quiet moves less deeply unless they prove good. See [Null move pruning and late move reductions (v1.7.0)](engine-selective-search-v1.7.0.md).
+
 **Stopping:**
 
 - Depth 1 always completes, so a legal move is always returned, even with `nodes 1` or `movetime 1`.
@@ -348,9 +350,9 @@ cargo run --release -- bench        # or bench <depth>; also available as the UC
 ```text
 Positions searched: 18
 Depth: 5
-Nodes searched: 1008987
-Time (ms): 475
-Nodes/second: 2123525
+Nodes searched: 385276
+Time (ms): 339
+Nodes/second: 1135248
 ```
 
 The node count is the engine's **bench signature**. It depends only on what the search does, not on how fast the computer is, so it is the same on every platform. It changes when a change alters the search or the evaluation, and stays the same for a change that only makes the engine faster. CI runs the benchmark and fails when the count differs from `engines/bench-signature.txt`:
@@ -367,6 +369,7 @@ The node count is the engine's **bench signature**. It depends only on what the 
 | 1.4.0 | 2,492,336 | Quiescence search ([Quiescence search](engine-quiescence-v1.4.0.md)) |
 | 1.5.0 | 1,405,750 | Transposition table ([Transposition table](engine-transposition-table-v1.5.0.md)) |
 | 1.6.0 | 1,008,987 | Killer moves and history heuristic ([Killer moves and history heuristic](engine-move-ordering-v1.6.0.md)) |
+| 1.7.0 | 385,276 | Null move pruning and late move reductions ([Selective search](engine-selective-search-v1.7.0.md)) |
 
 ## Versioning and Releases
 
@@ -425,6 +428,6 @@ The following features are not implemented yet:
 
 ## Recommended Next Steps
 
-1. Add principal variation search, null-move pruning and late move reductions.
+1. Add principal variation search and aspiration windows.
 2. Add evaluation terms beyond material and piece-square tables.
 3. Measure each version against the previous one with `./scripts/regress.ps1`.

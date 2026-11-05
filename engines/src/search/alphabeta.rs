@@ -1,5 +1,8 @@
 //! Negamax search with alpha-beta pruning, followed by a quiescence search.
 //!
+//! Two selective techniques search unpromising lines less deeply, at a small
+//! risk of missing something: null move pruning and late move reductions.
+//!
 //! Scores are in centipawns from the side to move. Mate scores encode the
 //! distance to mate, so the search prefers the fastest mate and the slowest
 //! defeat: being mated `ply` half-moves below the root scores `-(MATE - ply)`.
@@ -20,6 +23,14 @@ pub const MATE: i32 = 32_000;
 pub const INFINITY: i32 = MATE + 1;
 /// Deepest ply a search can reach; mate scores stay above `MATE - MAX_PLY`.
 pub const MAX_PLY: u32 = 128;
+
+/// Null move pruning needs enough depth left for its reduced search to mean
+/// anything.
+const NULL_MOVE_MIN_DEPTH: u32 = 3;
+/// Moves are reduced only with this much depth left.
+const LMR_MIN_DEPTH: u32 = 3;
+/// The moves before this index are searched fully; they are the likely best.
+const LMR_FIRST_MOVE: usize = 3;
 
 /// Converts an internal score to the UCI form.
 pub fn to_uci_score(score: i32) -> Score {
@@ -76,13 +87,16 @@ impl Search<'_, '_, '_> {
             return score;
         }
 
+        let checked = in_check(self.board, self.board.side_to_move);
+        if ply > 0 && hint.is_none() && !checked && self.null_move_may_cut(depth, beta) {
+            if let Some(score) = self.null_move_search(depth, ply, beta) {
+                return score;
+            }
+        }
+
         let mut moves = legal_moves(self.board);
         if moves.is_empty() {
-            return if in_check(self.board, self.board.side_to_move) {
-                -(MATE - ply as i32)
-            } else {
-                0
-            };
+            return if checked { -(MATE - ply as i32) } else { 0 };
         }
         let hint_move = hint.and_then(|line| line.first().copied());
         let table_move = entry.and_then(|entry| entry.best_move(&moves));
@@ -105,7 +119,33 @@ impl Search<'_, '_, '_> {
             let undo = self.board.make_move(chess_move);
             self.context.visit(ply + 1);
             self.path.push(position_hash(self.board));
-            let score = -self.negamax(depth - 1, ply + 1, -beta, -alpha, child_hint, &mut child_pv);
+            // A late quiet move is first searched less deeply, only to see
+            // whether it beats alpha. If it does, the reduction was wrong and
+            // the move gets the full search.
+            let reduction = if depth >= LMR_MIN_DEPTH
+                && index >= LMR_FIRST_MOVE
+                && !checked
+                && chess_move.is_quiet()
+                && !in_check(self.board, self.board.side_to_move)
+            {
+                late_move_reduction(depth, index)
+            } else {
+                0
+            };
+            let refuted = reduction > 0
+                && -self.negamax(
+                    depth - 1 - reduction,
+                    ply + 1,
+                    -alpha - 1,
+                    -alpha,
+                    None,
+                    &mut child_pv,
+                ) <= alpha;
+            let score = if refuted {
+                alpha
+            } else {
+                -self.negamax(depth - 1, ply + 1, -beta, -alpha, child_hint, &mut child_pv)
+            };
             self.path.pop();
             self.board.unmake_move(chess_move, undo);
 
@@ -141,6 +181,39 @@ impl Search<'_, '_, '_> {
         };
         self.table.store(key, depth, ply, best, bound, best_move);
         best
+    }
+
+    /// Whether passing the turn could plausibly still reach `beta`. Without a
+    /// piece to move, zugzwang is common and passing could be the only good
+    /// "move", so the test would prove nothing.
+    ///
+    /// This also rules out two passes in a row: the evaluation is the negative
+    /// of the opponent's, which was at least its beta, so here it is below beta.
+    fn null_move_may_cut(&self, depth: u32, beta: i32) -> bool {
+        depth >= NULL_MOVE_MIN_DEPTH
+            && beta.abs() <= MATE - MAX_PLY as i32
+            && self.board.has_non_pawn_material(self.board.side_to_move)
+            && evaluate(self.board) >= beta
+    }
+
+    /// Lets the opponent move twice in a row, with a reduced search. If the
+    /// score still reaches `beta`, a real move should do so even more, and the
+    /// position is cut off at a fraction of the cost. Returns that score.
+    fn null_move_search(&mut self, depth: u32, ply: u32, beta: i32) -> Option<i32> {
+        let undo = self.board.make_null_move();
+        self.context.visit(ply + 1);
+        self.path.push(position_hash(self.board));
+        let reduced = (depth - 1).saturating_sub(null_move_reduction(depth));
+        let score = -self.negamax(reduced, ply + 1, -beta, -beta + 1, None, &mut Vec::new());
+        self.path.pop();
+        self.board.unmake_null_move(undo);
+
+        if self.context.poll_stop() || score < beta {
+            return None;
+        }
+        // A mate found after passing is not a real line, so its distance means
+        // nothing.
+        Some(score.min(MATE - MAX_PLY as i32))
     }
 
     /// Searches on from the horizon until the position is quiet, so that a
@@ -223,6 +296,19 @@ impl Search<'_, '_, '_> {
     }
 }
 
+/// How many plies less a null move is searched, more at greater depths.
+fn null_move_reduction(depth: u32) -> u32 {
+    2 + depth / 6
+}
+
+/// How many plies less a late move is searched: more for later moves and at
+/// greater depths, but always leaving at least one ply. Integer logarithms keep
+/// the result the same on every platform, so the bench signature is too.
+fn late_move_reduction(depth: u32, index: usize) -> u32 {
+    let reduction = 1 + depth.ilog2() * (index + 1).ilog2() / 4;
+    reduction.min(depth - 2)
+}
+
 /// Moves that change the material: captures and queen promotions. Lesser
 /// promotions are almost never better and would only enlarge the tree.
 fn is_tactical(board: &Board, chess_move: Move) -> bool {
@@ -240,8 +326,8 @@ mod tests {
     use std::sync::atomic::AtomicBool;
     use std::sync::Arc;
 
-    /// Quiescence score of `fen` with an open window, and the nodes it visited.
-    fn quiesce(fen: &str) -> (i32, u64) {
+    /// Runs `body` on a new search of `fen`.
+    fn with_search<R>(fen: &str, body: impl FnOnce(&mut Search) -> R) -> R {
         let mut board = parse_fen(fen).unwrap();
         let path = vec![position_hash(&board)];
         let mut on_report = |_: &crate::search::SearchReport| {};
@@ -253,44 +339,87 @@ mod tests {
         );
         let mut table = TranspositionTable::new(1);
         let mut heuristics = Heuristics::new();
-        let mut search = Search {
+        body(&mut Search {
             board: &mut board,
             context: &mut context,
             table: &mut table,
             heuristics: &mut heuristics,
             path,
-        };
-        let score = search.quiescence(0, -INFINITY, INFINITY);
-        (score, context.nodes())
+        })
+    }
+
+    /// Quiescence score of `fen` with an open window, and the nodes it visited.
+    fn quiesce(fen: &str) -> (i32, u64) {
+        with_search(fen, |search| {
+            let score = search.quiescence(0, -INFINITY, INFINITY);
+            (score, search.context.nodes())
+        })
     }
 
     /// What one search of `fen` at depth 1 with the window `-INFINITY..beta`
     /// learned: the ordering score of `uci` at ply 0.
     fn learned_score(fen: &str, beta: i32, uci: &str) -> i32 {
-        let mut board = parse_fen(fen).unwrap();
-        let path = vec![position_hash(&board)];
-        let mut on_report = |_: &crate::search::SearchReport| {};
-        let mut context = SearchContext::new(
-            &board,
-            SearchLimits::default(),
-            Arc::new(AtomicBool::new(false)),
-            &mut on_report,
-        );
-        let mut table = TranspositionTable::new(1);
-        let mut heuristics = Heuristics::new();
-        let mut search = Search {
-            board: &mut board,
-            context: &mut context,
-            table: &mut table,
-            heuristics: &mut heuristics,
-            path,
-        };
-        search.negamax(1, 0, -INFINITY, beta, None, &mut Vec::new());
-        let chess_move = legal_moves(&mut board)
-            .into_iter()
-            .find(|chess_move| chess_move.to_uci() == uci)
-            .unwrap();
-        heuristics.quiet_score(board.side_to_move, chess_move, 0)
+        with_search(fen, |search| {
+            search.negamax(1, 0, -INFINITY, beta, None, &mut Vec::new());
+            let chess_move = legal_moves(search.board)
+                .into_iter()
+                .find(|chess_move| chess_move.to_uci() == uci)
+                .unwrap();
+            search
+                .heuristics
+                .quiet_score(search.board.side_to_move, chess_move, 0)
+        })
+    }
+
+    #[test]
+    fn null_move_needs_depth_a_piece_and_a_good_position() {
+        let may_cut = |fen, depth, beta| with_search(fen, |s| s.null_move_may_cut(depth, beta));
+        // White is a rook up.
+        let ahead = "4k3/8/8/8/8/8/8/R3K3 w - - 0 1";
+        assert!(may_cut(ahead, 3, 100));
+        assert!(!may_cut(ahead, 2, 100));
+        assert!(!may_cut(ahead, 3, 900));
+        assert!(!may_cut(ahead, 3, MATE - 1));
+        // Only pawns: passing could be the way out of a zugzwang.
+        assert!(!may_cut("4k3/8/8/8/8/8/P7/4K3 w - - 0 1", 3, -500));
+    }
+
+    #[test]
+    fn two_passes_in_a_row_are_impossible() {
+        // Any beta the first side can pass at leaves the other side's
+        // evaluation below its own beta.
+        let fen = "4k3/8/8/8/8/8/8/R3K3 w - - 0 1";
+        let (eval, first) = with_search(fen, |s| {
+            let eval = evaluate(s.board);
+            (eval, s.null_move_may_cut(3, eval))
+        });
+        assert!(first);
+        let after_pass = "4k3/8/8/8/8/8/8/R3K3 b - - 0 1";
+        assert_eq!(static_eval(after_pass), -eval);
+        assert!(!with_search(after_pass, |s| s.null_move_may_cut(3, -eval + 1)));
+    }
+
+    #[test]
+    fn passing_with_a_winning_position_saves_the_search() {
+        // A queen up with a window far below that: the reduced search after
+        // passing proves the cutoff.
+        let fen = "4k3/pp6/8/8/8/8/PP6/Q3K3 w - - 0 1";
+        let (score, cut) = with_search(fen, |s| {
+            let cut = s.null_move_search(6, 1, 100);
+            (static_eval(fen), cut)
+        });
+        assert!(score > 100);
+        assert!(cut.is_some_and(|cut| cut >= 100));
+    }
+
+    #[test]
+    fn passing_into_a_mate_threat_does_not_cut_off() {
+        // White has three knights against a rook, but if it passes then Black
+        // mates with Ra1, as no knight reaches the first rank.
+        let fen = "r5k1/8/8/7N/6NN/8/5PPP/6K1 w - - 0 1";
+        assert!(static_eval(fen) > 100);
+        let cut = with_search(fen, |s| s.null_move_search(5, 1, 100));
+        assert_eq!(cut, None);
     }
 
     #[test]
@@ -315,6 +444,26 @@ mod tests {
 
     fn static_eval(fen: &str) -> i32 {
         evaluate(&parse_fen(fen).unwrap())
+    }
+
+    #[test]
+    fn late_moves_are_reduced_more_but_keep_one_ply() {
+        assert_eq!(late_move_reduction(3, 3), 1);
+        assert_eq!(late_move_reduction(8, 15), 4);
+        assert!(late_move_reduction(8, 30) >= late_move_reduction(8, 4));
+        assert!(late_move_reduction(16, 10) >= late_move_reduction(4, 10));
+        for depth in LMR_MIN_DEPTH..=MAX_PLY {
+            for index in LMR_FIRST_MOVE..256 {
+                assert!(late_move_reduction(depth, index) <= depth - 2);
+            }
+        }
+    }
+
+    #[test]
+    fn null_move_reduction_grows_with_depth() {
+        assert_eq!(null_move_reduction(3), 2);
+        assert_eq!(null_move_reduction(6), 3);
+        assert_eq!(null_move_reduction(12), 4);
     }
 
     #[test]

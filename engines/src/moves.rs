@@ -86,6 +86,13 @@ pub struct Undo {
     pub fullmove_number: u16,
 }
 
+/// What [`crate::board::Board::make_null_move`] changes besides the side to move.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct NullUndo {
+    pub en_passant: Option<Square>,
+    pub halfmove_clock: u16,
+}
+
 /// More than the 218 legal moves of the richest known position.
 pub const MAX_MOVES: usize = 256;
 
