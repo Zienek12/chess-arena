@@ -12,6 +12,7 @@ use crate::moves::Move;
 use crate::status::insufficient_material;
 
 use super::ordering::{captured_piece, order_moves};
+use super::tt::{Bound, TranspositionTable};
 use super::{Score, SearchContext};
 
 pub const MATE: i32 = 32_000;
@@ -34,6 +35,7 @@ pub fn to_uci_score(score: i32) -> Score {
 pub struct Search<'b, 'c, 'a> {
     pub board: &'b mut Board,
     pub context: &'c mut SearchContext<'a>,
+    pub table: &'c mut TranspositionTable,
     /// Hashes of the game so far followed by the current search path; the
     /// last entry is the current position.
     pub path: Vec<u64>,
@@ -66,6 +68,12 @@ impl Search<'_, '_, '_> {
             return evaluate(self.board);
         }
 
+        let key = self.path[self.path.len() - 1];
+        let entry = self.table.probe(key);
+        if let Some(score) = entry.and_then(|entry| entry.cutoff(depth, ply, alpha, beta)) {
+            return score;
+        }
+
         let mut moves = legal_moves(self.board);
         if moves.is_empty() {
             return if in_check(self.board, self.board.side_to_move) {
@@ -75,9 +83,12 @@ impl Search<'_, '_, '_> {
             };
         }
         let hint_move = hint.and_then(|line| line.first().copied());
-        order_moves(self.board, &mut moves, hint_move);
+        let table_move = entry.and_then(|entry| entry.best_move(&moves));
+        order_moves(self.board, &mut moves, hint_move, table_move);
 
+        let original_alpha = alpha;
         let mut best = -INFINITY;
+        let mut best_move = moves[0];
         let mut child_pv = Vec::new();
         for chess_move in moves {
             let child_hint = match hint {
@@ -96,6 +107,7 @@ impl Search<'_, '_, '_> {
             }
             if score > best {
                 best = score;
+                best_move = chess_move;
                 if score > alpha {
                     alpha = score;
                     pv.clear();
@@ -107,6 +119,15 @@ impl Search<'_, '_, '_> {
                 break;
             }
         }
+
+        let bound = if best >= beta {
+            Bound::LOWER
+        } else if best <= original_alpha {
+            Bound::UPPER
+        } else {
+            Bound::EXACT
+        };
+        self.table.store(key, depth, ply, best, bound, best_move);
         best
     }
 
@@ -149,7 +170,7 @@ impl Search<'_, '_, '_> {
             let board = &*self.board;
             moves.retain(|&chess_move| is_tactical(board, chess_move));
         }
-        order_moves(self.board, &mut moves, None);
+        order_moves(self.board, &mut moves, None, None);
 
         for chess_move in moves {
             let undo = self.board.make_move(chess_move);
@@ -218,9 +239,11 @@ mod tests {
             Arc::new(AtomicBool::new(false)),
             &mut on_report,
         );
+        let mut table = TranspositionTable::new(1);
         let mut search = Search {
             board: &mut board,
             context: &mut context,
+            table: &mut table,
             path,
         };
         let score = search.quiescence(0, -INFINITY, INFINITY);

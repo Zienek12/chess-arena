@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, MutexGuard};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
@@ -11,6 +11,7 @@ use crate::fen::parse_fen;
 use crate::hash::position_hash;
 use crate::movegen::legal_moves;
 use crate::moves::Move;
+use crate::search::tt::{TranspositionTable, DEFAULT_SIZE_MIB, MAX_SIZE_MIB, MIN_SIZE_MIB};
 use crate::search::{search, SearchLimits};
 
 const START_FEN: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -38,6 +39,9 @@ pub struct UciEngine {
     history: Vec<u64>,
     output: Output,
     search: Option<RunningSearch>,
+    /// Kept between the moves of a game. The search thread holds the lock while
+    /// it runs, and commands that use the table stop the search first.
+    table: Arc<Mutex<TranspositionTable>>,
 }
 
 impl UciEngine {
@@ -48,6 +52,7 @@ impl UciEngine {
             board,
             output,
             search: None,
+            table: Arc::new(Mutex::new(TranspositionTable::new(DEFAULT_SIZE_MIB))),
         }
     }
 
@@ -69,6 +74,10 @@ impl UciEngine {
                     env!("CARGO_PKG_VERSION")
                 ));
                 self.send("id author Chess Arena");
+                self.send(format!(
+                    "option name Hash type spin default {} min {} max {}",
+                    DEFAULT_SIZE_MIB, MIN_SIZE_MIB, MAX_SIZE_MIB
+                ));
                 self.send("uciok");
             }
             // Answered at once, even while a search is running.
@@ -77,6 +86,13 @@ impl UciEngine {
                 self.stop_search();
                 self.board = parse_fen(START_FEN).expect("start FEN must be valid");
                 self.history = vec![position_hash(&self.board)];
+                self.lock_table().clear();
+            }
+            "setoption" => {
+                self.stop_search();
+                if let Err(error) = self.set_option(&parts.collect::<Vec<_>>()) {
+                    self.send(format!("info string error {}", error));
+                }
             }
             "position" => {
                 self.stop_search();
@@ -119,13 +135,16 @@ impl UciEngine {
         let output = Arc::clone(&self.output);
         let mut board = self.board;
         let history = self.history.clone();
+        let table = Arc::clone(&self.table);
         let thread = thread::spawn(move || {
             let infinite = limits.infinite;
+            let mut table = table.lock().expect("a search must not panic");
             let result = search(
                 &mut board,
                 &history,
                 limits,
                 Arc::clone(&thread_stop),
+                &mut table,
                 &mut |report| output(report.to_info_line()),
             );
             // UCI forbids bestmove before stop when searching infinitely.
@@ -138,6 +157,27 @@ impl UciEngine {
             output(format!("bestmove {}", best));
         });
         self.search = Some(RunningSearch { stop, thread });
+    }
+
+    fn lock_table(&self) -> MutexGuard<'_, TranspositionTable> {
+        self.table.lock().expect("a search must not panic")
+    }
+
+    /// Handles `setoption name <name> value <value>`.
+    fn set_option(&mut self, arguments: &[&str]) -> Result<(), String> {
+        let ["name", name, "value", value] = arguments else {
+            return Err(format!("invalid setoption {}", arguments.join(" ")));
+        };
+        if !name.eq_ignore_ascii_case("Hash") {
+            return Err(format!("unknown option {}", name));
+        }
+        match value.parse::<usize>() {
+            Ok(size) if (MIN_SIZE_MIB..=MAX_SIZE_MIB).contains(&size) => {
+                *self.lock_table() = TranspositionTable::new(size);
+                Ok(())
+            }
+            _ => Err(format!("invalid Hash value {}", value)),
+        }
     }
 
     /// Stops a running search and waits for its bestmove.
@@ -231,6 +271,57 @@ mod tests {
         fn output(&self) -> Vec<String> {
             self.lines.lock().unwrap().clone()
         }
+    }
+
+    /// The node count of the last `info` line of a search.
+    fn nodes(response: &[String]) -> u64 {
+        let info = &response[response.len() - 2];
+        let fields: Vec<&str> = info.split_whitespace().collect();
+        let index = fields.iter().position(|&field| field == "nodes").unwrap();
+        fields[index + 1].parse().unwrap()
+    }
+
+    #[test]
+    fn announces_the_hash_option() {
+        let mut uci = Harness::new();
+        let response = uci.run("uci");
+        assert!(response.contains(&"option name Hash type spin default 64 min 1 max 1024".into()));
+        assert_eq!(response.last().unwrap(), "uciok");
+    }
+
+    #[test]
+    fn accepts_a_valid_hash_size() {
+        let mut uci = Harness::new();
+        assert!(uci.run("setoption name Hash value 2").is_empty());
+        assert!(uci.run("position startpos").is_empty());
+        assert!(uci
+            .run("go depth 3")
+            .last()
+            .unwrap()
+            .starts_with("bestmove "));
+    }
+
+    #[test]
+    fn rejects_invalid_options() {
+        let mut uci = Harness::new();
+        for (command, error) in [
+            ("setoption name Hash value 0", "invalid Hash value 0"),
+            ("setoption name Hash value 2000", "invalid Hash value 2000"),
+            ("setoption name Hash value big", "invalid Hash value big"),
+            ("setoption name Threads value 2", "unknown option Threads"),
+            ("setoption name Hash", "invalid setoption name Hash"),
+        ] {
+            assert_eq!(uci.run(command), [format!("info string error {error}")]);
+        }
+    }
+
+    #[test]
+    fn table_persists_until_a_new_game() {
+        let mut uci = Harness::new();
+        let first = nodes(&uci.run("go depth 5"));
+        assert!(nodes(&uci.run("go depth 5")) < first);
+        uci.run("ucinewgame");
+        assert_eq!(nodes(&uci.run("go depth 5")), first);
     }
 
     #[test]

@@ -9,6 +9,7 @@ mod alphabeta;
 mod limits;
 mod ordering;
 mod report;
+pub mod tt;
 
 pub use limits::SearchLimits;
 pub use report::{Score, SearchReport};
@@ -23,6 +24,7 @@ use crate::moves::Move;
 
 use alphabeta::{to_uci_score, Search, INFINITY, MATE, MAX_PLY};
 use ordering::order_moves;
+use tt::TranspositionTable;
 
 /// Depth searched by a bare `go`, which sets no time, depth or node limit.
 const DEFAULT_DEPTH: u32 = 5;
@@ -146,6 +148,7 @@ pub fn search(
     history: &[u64],
     limits: SearchLimits,
     stop: Arc<AtomicBool>,
+    table: &mut TranspositionTable,
     on_report: &mut dyn FnMut(&SearchReport),
 ) -> SearchResult {
     let max_depth = match limits.depth {
@@ -187,6 +190,7 @@ pub fn search(
             depth,
             &best_line,
             &mut context,
+            table,
         ) else {
             break;
         };
@@ -222,8 +226,9 @@ fn search_root(
     depth: u32,
     previous_line: &[Move],
     context: &mut SearchContext,
+    table: &mut TranspositionTable,
 ) -> Option<(i32, Vec<Move>)> {
-    order_moves(board, root_moves, previous_line.first().copied());
+    order_moves(board, root_moves, previous_line.first().copied(), None);
     let mut path = history.to_vec();
     if path.is_empty() {
         path.push(crate::hash::position_hash(board));
@@ -231,6 +236,7 @@ fn search_root(
     let mut searcher = Search {
         board,
         context,
+        table,
         path,
     };
 
@@ -277,6 +283,7 @@ mod tests {
             &history,
             limits,
             Arc::new(AtomicBool::new(false)),
+            &mut TranspositionTable::new(1),
             &mut |report| reports.push(report.clone()),
         );
         (result, reports)
@@ -374,6 +381,7 @@ mod tests {
             &history,
             depth(1),
             Arc::new(AtomicBool::new(false)),
+            &mut TranspositionTable::new(1),
             &mut |report| reports.push(report.clone()),
         );
         // Ng1-f3 repeats the position after White's first move: a draw beats
@@ -415,6 +423,57 @@ mod tests {
         assert_eq!(best(&result), "a1a8");
         assert!(matches!(result.report.score, Score::Cp(cp) if cp > 300));
         assert!(reports[0].seldepth >= 3);
+    }
+
+    /// Searches `fen` twice with one table kept between the two searches.
+    fn run_twice(fen: &str, depth_limit: u32) -> (SearchResult, SearchResult) {
+        let mut table = TranspositionTable::new(1);
+        let mut once = || {
+            let mut board = parse_fen(fen).unwrap();
+            let history = vec![crate::hash::position_hash(&board)];
+            search(
+                &mut board,
+                &history,
+                depth(depth_limit),
+                Arc::new(AtomicBool::new(false)),
+                &mut table,
+                &mut |_| {},
+            )
+        };
+        (once(), once())
+    }
+
+    #[test]
+    fn table_saves_nodes_when_a_position_is_searched_again() {
+        let (first, second) = run_twice(
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+            4,
+        );
+        assert!(
+            second.report.nodes < first.report.nodes / 2,
+            "{} then {} nodes",
+            first.report.nodes,
+            second.report.nodes
+        );
+    }
+
+    #[test]
+    fn stored_results_keep_the_principal_variation_complete() {
+        let (_, second) = run_twice(
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            5,
+        );
+        assert_eq!(second.report.pv.len(), 5);
+        assert_eq!(second.report.pv[0], second.best_move.unwrap());
+    }
+
+    #[test]
+    fn stored_mate_scores_stay_correct() {
+        // 1. Kb6 Kb8 2. Rh8#
+        let (first, second) = run_twice("k7/8/2K5/8/8/8/8/7R w - - 0 1", 4);
+        assert_eq!(first.report.score, Score::Mate(2));
+        assert_eq!(second.report.score, Score::Mate(2));
+        assert_eq!(second.best_move, first.best_move);
     }
 
     #[test]
@@ -476,7 +535,8 @@ mod tests {
             infinite: true,
             ..SearchLimits::default()
         };
-        let result = search(&mut board, &history, limits, stop, &mut |_| {});
+        let mut table = TranspositionTable::new(1);
+        let result = search(&mut board, &history, limits, stop, &mut table, &mut |_| {});
         handle.join().unwrap();
         assert!(result.best_move.is_some());
     }
