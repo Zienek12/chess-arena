@@ -67,6 +67,11 @@ impl<'a> SearchContext<'a> {
         }
     }
 
+    #[cfg(test)]
+    pub fn nodes(&self) -> u64 {
+        self.nodes
+    }
+
     /// Counts a visited position `ply` half-moves below the root.
     pub fn visit(&mut self, ply: u32) {
         self.nodes += 1;
@@ -375,6 +380,41 @@ mod tests {
         // being a rook down.
         assert_eq!(best(&result), "g1f3");
         assert_eq!(result.report.score, Score::Cp(0));
+    }
+
+    #[test]
+    fn sees_the_recapture_beyond_the_horizon() {
+        // Rxd5 wins a pawn but exd5 recaptures one ply past depth 1; without
+        // quiescence search the rook would look like it won a pawn for free.
+        let (result, _) = run("4k3/8/4p3/3p4/8/8/8/3RK3 w - - 0 1", depth(1));
+        assert_ne!(best(&result), "d1d5");
+    }
+
+    #[test]
+    fn captures_when_the_exchange_wins() {
+        // The queen on d5 is defended by a pawn, but pawn takes queen wins it.
+        let (result, _) = run("4k3/8/4p3/3q4/4P3/8/8/4K3 w - - 0 1", depth(1));
+        assert_eq!(best(&result), "e4d5");
+    }
+
+    #[test]
+    fn sees_checkmate_at_the_horizon() {
+        // After Qg7 at depth 1 Black has no moves: it must be scored as mate,
+        // not by the material on the board.
+        let (result, _) = run("7k/8/5K2/8/8/8/8/6Q1 w - - 0 1", depth(1));
+        assert_eq!(best(&result), "g1g7");
+        assert_eq!(result.report.score, Score::Mate(1));
+    }
+
+    #[test]
+    fn sees_a_skewer_beyond_the_horizon() {
+        // Ra8+ forces the king off the rank, and Rxh8 then wins the queen: a
+        // rook against nothing instead of a rook against a queen. At depth 1
+        // this needs the evasions and the capture after them.
+        let (result, reports) = run("4k2q/8/8/8/8/8/8/R3K3 w - - 0 1", depth(1));
+        assert_eq!(best(&result), "a1a8");
+        assert!(matches!(result.report.score, Score::Cp(cp) if cp > 300));
+        assert!(reports[0].seldepth >= 3);
     }
 
     #[test]

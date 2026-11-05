@@ -17,7 +17,7 @@ The current implementation includes:
 - Perft validation.
 - Basic game-status detection.
 - UCI command handling.
-- Iterative-deepening alpha-beta search with search telemetry.
+- Iterative-deepening alpha-beta search with quiescence search and search telemetry.
 - A fixed benchmark whose node count verifies that the search is unchanged.
 
 ## Source Layout
@@ -38,7 +38,7 @@ The engine is located in `engines/`.
 | `src/uci.rs` | UCI command handling; runs the search on its own thread and streams its output. |
 | `src/eval.rs` | Static evaluation: material and piece-square tables. |
 | `src/search/mod.rs` | Iterative deepening and `SearchContext`: node and seldepth counters, time and node limits, `stop`, iteration reports. |
-| `src/search/alphabeta.rs` | Negamax with alpha-beta pruning, mate scores, draw detection, principal variation. |
+| `src/search/alphabeta.rs` | Negamax with alpha-beta pruning, quiescence search, mate scores, draw detection, principal variation. |
 | `src/search/ordering.rs` | Move ordering: previous best move, then MVV-LVA captures, then promotions. |
 | `src/search/limits.rs` | Parsing of `go` arguments and the time budget per move. |
 | `src/search/report.rs` | `Score` (centipawns or mate) and the `info` line of an iteration. |
@@ -255,7 +255,7 @@ For a step-by-step explanation of move generation, evaluation and search, with r
 
 `search()` runs **iterative deepening**: it searches to depth 1, then 2, 3 and so on, and sends an `info` line after each completed depth. Each depth is a **negamax search with alpha-beta pruning** (`alphabeta.rs`):
 
-- Leaves (depth 0) are scored by `evaluate`. There is no quiescence search yet.
+- At depth 0 a **quiescence search** continues with captures and queen promotions, and with all moves while in check, until the position is quiet. See [Quiescence search (v1.4.0)](engine-quiescence-v1.4.0.md).
 - Checkmate scores `-(MATE - ply)`, so the search prefers the fastest mate and the slowest defeat. Scores near `MATE` are reported as `score mate N`.
 - Stalemate, the fifty-move rule, insufficient material and repetitions score 0. A position that already occurred in the game or on the search path counts as a draw, so the engine both avoids repetitions when winning and seeks them when losing; for this the UCI layer passes the game's position history to the search.
 - The principal variation is collected while searching and reported as `pv`.
@@ -276,14 +276,14 @@ Every algorithm reports through `SearchContext`: `visit(ply)` for every position
 After every completed iteration the engine sends a standard UCI `info` line, and finally `bestmove`. The arena keeps the last `info` line before `bestmove` and stores every field in `game_moves`.
 
 ```text
-info depth 1 seldepth 1 score cp 0 nodes 20 nps 9640 time 2 pv e2e4
-bestmove e2e4
+info depth 1 seldepth 1 score cp 50 nodes 20 nps 9640 time 2 pv b1c3
+bestmove b1c3
 ```
 
 | Field | Meaning | Database column |
 | --- | --- | --- |
 | `depth` | Completed iteration depth in plies | `depth` |
-| `seldepth` | Deepest ply reached, including extensions | `seldepth` |
+| `seldepth` | Deepest ply reached, including the quiescence search | `seldepth` |
 | `score cp <n>` | Evaluation in centipawns from the side to move | `score_cp` |
 | `score mate <n>` | Mate in `n` moves; negative when the side to move gets mated | `score_mate` |
 | `nodes` | Positions visited since the search started | `nodes` |
@@ -310,7 +310,7 @@ A simple UCI session can be sent through standard input:
 @('uci', 'isready', 'position startpos moves e2e4', 'go', 'quit') | cargo run --quiet
 ```
 
-With `go movetime 1000`, the release build of version 1.3.0 typically reaches depth 6 from the starting position and in quiet middlegames (version 1.2.0 reached depth 4–5).
+With `go movetime 1000`, the release build of version 1.4.0 typically reaches depth 6 in the opening and in middlegames, with capture lines followed to `seldepth` 20–30.
 
 ## Verification
 
@@ -329,7 +329,7 @@ The test suite covers:
 - Check and castling legality.
 - FEN parsing and serialization.
 - Perft on six reference positions (shallow by default, deep with `--ignored`).
-- Evaluation, move ordering and alpha-beta search: mates in one and two, winning material, avoiding stalemate and repetition draws, limits and `stop`.
+- Evaluation, move ordering, alpha-beta and quiescence search: mates in one and two, winning material, exchanges past the horizon, avoiding stalemate and repetition draws, limits and `stop`.
 - UCI command handling and `info` telemetry.
 
 ### Bench
@@ -343,9 +343,9 @@ cargo run --release -- bench        # or bench <depth>; also available as the UC
 ```text
 Positions searched: 18
 Depth: 5
-Nodes searched: 1390581
-Time (ms): 2395
-Nodes/second: 580425
+Nodes searched: 2492336
+Time (ms): 959
+Nodes/second: 2599112
 ```
 
 The node count is the engine's **bench signature**. It depends only on what the search does, not on how fast the computer is, so it is the same on every platform. It changes when a change alters the search or the evaluation, and stays the same for a change that only makes the engine faster. CI runs the benchmark and fails when the count differs from `engines/bench-signature.txt`:
@@ -355,12 +355,11 @@ The node count is the engine's **bench signature**. It depends only on what the 
 
 `Nodes/second` measures speed. It varies between runs and machines, so compare it on the same computer only.
 
-| Version | Bench signature (depth 5) | Nodes/second (same computer) |
-| --- | --- | ---: |
-| 1.2.0 | 1,390,581 | 275,861 |
-| 1.3.0 | 1,390,581 | 2,750,515 |
-
-Version 1.3.0 only made the engine faster, so its signature is the same as 1.2.0's (see [Engine performance (v1.3.0)](engine-performance-v1.3.0.md)).
+| Version | Bench signature (depth 5) | Change |
+| --- | --- | --- |
+| 1.2.0 | 1,390,581 | Alpha-beta search and piece-square evaluation |
+| 1.3.0 | 1,390,581 | Speed only, so the signature is the same ([Engine performance](engine-performance-v1.3.0.md)) |
+| 1.4.0 | 2,492,336 | Quiescence search ([Quiescence search](engine-quiescence-v1.4.0.md)) |
 
 ## Versioning and Releases
 
@@ -411,7 +410,7 @@ The image `chess-arena-engine:engine-v1.0` was published before this scheme exis
 
 The following features are not implemented yet:
 
-- Quiescence search; without it the evaluation swings between odd and even depths (horizon effect).
+- Pruning inside the quiescence search (delta pruning, static exchange evaluation).
 - Transposition tables.
 - Killer moves and history heuristics for ordering quiet moves.
 - Evaluation terms beyond material and piece-square tables (pawn structure, mobility, king safety).
@@ -421,7 +420,7 @@ The following features are not implemented yet:
 
 ## Recommended Next Steps
 
-1. Add quiescence search over captures.
-2. Add a transposition table keyed by the position hash.
-3. Add killer moves and history heuristics.
+1. Add a transposition table keyed by the position hash.
+2. Add killer moves and history heuristics.
+3. Add principal variation search, null-move pruning and late move reductions.
 4. Measure each version against the previous one with `./scripts/regress.ps1`.

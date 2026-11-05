@@ -1,17 +1,17 @@
-//! Negamax search with alpha-beta pruning.
+//! Negamax search with alpha-beta pruning, followed by a quiescence search.
 //!
 //! Scores are in centipawns from the side to move. Mate scores encode the
 //! distance to mate, so the search prefers the fastest mate and the slowest
 //! defeat: being mated `ply` half-moves below the root scores `-(MATE - ply)`.
 
-use crate::board::Board;
+use crate::board::{Board, PieceKind};
 use crate::eval::evaluate;
 use crate::hash::position_hash;
 use crate::movegen::{in_check, legal_moves};
 use crate::moves::Move;
 use crate::status::insufficient_material;
 
-use super::ordering::order_moves;
+use super::ordering::{captured_piece, order_moves};
 use super::{Score, SearchContext};
 
 pub const MATE: i32 = 32_000;
@@ -56,10 +56,13 @@ impl Search<'_, '_, '_> {
         pv: &mut Vec<Move>,
     ) -> i32 {
         pv.clear();
+        if depth == 0 {
+            return self.quiescence(ply, alpha, beta);
+        }
         if ply > 0 && self.is_draw() {
             return 0;
         }
-        if depth == 0 || ply >= MAX_PLY {
+        if ply >= MAX_PLY {
             return evaluate(self.board);
         }
 
@@ -107,6 +110,67 @@ impl Search<'_, '_, '_> {
         best
     }
 
+    /// Searches on from the horizon until the position is quiet, so that a
+    /// position is never evaluated in the middle of an exchange.
+    ///
+    /// The side to move may "stand pat": decline to capture and accept the
+    /// static evaluation, since it nearly always has a quiet move at least that
+    /// good. That is a lower bound on its score, so only captures and queen
+    /// promotions are tried to beat it. A side in check cannot stand pat and
+    /// tries all its moves, which also recognizes checkmate at the horizon.
+    ///
+    /// Returns 0 as soon as the search is aborted, like [`Self::negamax`].
+    fn quiescence(&mut self, ply: u32, mut alpha: i32, beta: i32) -> i32 {
+        if self.is_draw() {
+            return 0;
+        }
+        if ply >= MAX_PLY {
+            return evaluate(self.board);
+        }
+
+        let checked = in_check(self.board, self.board.side_to_move);
+        let mut best = -INFINITY;
+        if !checked {
+            best = evaluate(self.board);
+            // Most positions end here, so moves are generated only after this
+            // test. A stalemate scoring at least beta goes unnoticed, but a
+            // stalemated side is rarely the one ahead.
+            if best >= beta {
+                return best;
+            }
+            alpha = alpha.max(best);
+        }
+
+        let mut moves = legal_moves(self.board);
+        if moves.is_empty() {
+            return if checked { -(MATE - ply as i32) } else { 0 };
+        }
+        if !checked {
+            let board = &*self.board;
+            moves.retain(|&chess_move| is_tactical(board, chess_move));
+        }
+        order_moves(self.board, &mut moves, None);
+
+        for chess_move in moves {
+            let undo = self.board.make_move(chess_move);
+            self.context.visit(ply + 1);
+            self.path.push(position_hash(self.board));
+            let score = -self.quiescence(ply + 1, -beta, -alpha);
+            self.path.pop();
+            self.board.unmake_move(chess_move, undo);
+
+            if self.context.poll_stop() {
+                return 0;
+            }
+            best = best.max(score);
+            alpha = alpha.max(score);
+            if alpha >= beta {
+                break;
+            }
+        }
+        best
+    }
+
     /// Draws by the fifty-move rule, insufficient material, or repetition. A
     /// single repetition counts: if it was worth repeating once, it is worth
     /// repeating again, so the result is the same as a threefold repetition.
@@ -126,9 +190,103 @@ impl Search<'_, '_, '_> {
     }
 }
 
+/// Moves that change the material: captures and queen promotions. Lesser
+/// promotions are almost never better and would only enlarge the tree.
+fn is_tactical(board: &Board, chess_move: Move) -> bool {
+    match chess_move.promotion {
+        Some(piece) => piece == PieceKind::Queen,
+        None => captured_piece(board, chess_move).is_some(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::fen::parse_fen;
+    use crate::search::SearchLimits;
+    use std::sync::atomic::AtomicBool;
+    use std::sync::Arc;
+
+    /// Quiescence score of `fen` with an open window, and the nodes it visited.
+    fn quiesce(fen: &str) -> (i32, u64) {
+        let mut board = parse_fen(fen).unwrap();
+        let path = vec![position_hash(&board)];
+        let mut on_report = |_: &crate::search::SearchReport| {};
+        let mut context = SearchContext::new(
+            &board,
+            SearchLimits::default(),
+            Arc::new(AtomicBool::new(false)),
+            &mut on_report,
+        );
+        let mut search = Search {
+            board: &mut board,
+            context: &mut context,
+            path,
+        };
+        let score = search.quiescence(0, -INFINITY, INFINITY);
+        (score, context.nodes())
+    }
+
+    fn static_eval(fen: &str) -> i32 {
+        evaluate(&parse_fen(fen).unwrap())
+    }
+
+    #[test]
+    fn quiet_position_scores_the_static_evaluation() {
+        let fen = "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1";
+        assert_eq!(quiesce(fen), (static_eval(fen), 0));
+    }
+
+    #[test]
+    fn stands_pat_instead_of_a_losing_capture() {
+        // Rxd5 exd5 would give up a rook for a pawn.
+        let fen = "4k3/8/4p3/3p4/8/8/8/3RK3 w - - 0 1";
+        assert_eq!(quiesce(fen).0, static_eval(fen));
+    }
+
+    #[test]
+    fn takes_a_winning_capture() {
+        let fen = "4k3/8/8/3q4/4P3/8/8/4K3 w - - 0 1";
+        let (score, nodes) = quiesce(fen);
+        assert!(score > static_eval(fen) + 800, "score {score}");
+        assert!(nodes >= 1);
+    }
+
+    #[test]
+    fn follows_the_whole_exchange() {
+        // Rxd5 Rxd5 Rxd5 wins a pawn only because White has the last capture.
+        let fen = "3rk3/8/8/3p4/8/8/3R4/3RK3 w - - 0 1";
+        assert!(quiesce(fen).0 > static_eval(fen) + 50);
+    }
+
+    #[test]
+    fn scores_checkmate() {
+        assert_eq!(quiesce("7k/6Q1/6K1/8/8/8/8/8 b - - 0 1").0, -MATE);
+    }
+
+    #[test]
+    fn scores_stalemate_as_a_draw() {
+        assert_eq!(quiesce("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1").0, 0);
+    }
+
+    #[test]
+    fn answers_a_check_with_quiet_moves() {
+        // In check, Black cannot stand pat: the only moves are quiet king
+        // moves, and all of them are searched.
+        let (_, nodes) = quiesce("R3k3/8/8/8/8/8/8/4K3 b - - 0 1");
+        assert!(nodes >= 1);
+    }
+
+    #[test]
+    fn ignores_quiet_moves_and_lesser_promotions() {
+        let mut board = parse_fen("4k3/P7/8/8/8/8/8/4K3 w - - 0 1").unwrap();
+        let promotions: Vec<String> = legal_moves(&mut board)
+            .into_iter()
+            .filter(|&chess_move| is_tactical(&board, chess_move))
+            .map(|chess_move| chess_move.to_uci())
+            .collect();
+        assert_eq!(promotions, ["a7a8q"]);
+    }
 
     #[test]
     fn converts_mate_scores_to_moves() {
