@@ -429,6 +429,27 @@ mod tests {
         assert!(reports[0].seldepth >= 3);
     }
 
+    #[test]
+    fn finds_a_quiet_sacrifice_among_late_moves() {
+        // 1. Qh6+ Kxh6 2. Bxf6#, with the queen sacrifice far down the list.
+        let (result, _) = run(
+            "r1bq2r1/b4pk1/p1pp1p2/1p2pP2/1P2P1PB/3P4/1PPQ2P1/R3K2R w - - 0 1",
+            depth(5),
+        );
+        assert_eq!(best(&result), "d2h6");
+        assert_eq!(result.report.score, Score::Mate(2));
+    }
+
+    #[test]
+    fn selective_search_keeps_the_principal_variation_complete() {
+        let (result, _) = run(
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+            depth(6),
+        );
+        assert_eq!(result.report.pv.len(), 6);
+        assert_eq!(result.report.pv[0], result.best_move.unwrap());
+    }
+
     /// Searches `fen` twice with one table kept between the two searches.
     fn run_twice(fen: &str, depth_limit: u32) -> (SearchResult, SearchResult) {
         let mut table = TranspositionTable::new(1);

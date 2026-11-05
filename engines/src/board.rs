@@ -3,7 +3,7 @@
 use std::fmt;
 
 use crate::hash::piece_key;
-use crate::moves::{Move, MoveKind, Undo};
+use crate::moves::{Move, MoveKind, NullUndo, Undo};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Bitboard(pub u64);
@@ -410,6 +410,26 @@ impl Board {
         undo
     }
 
+    /// Passes the turn, which is not a legal chess move; only the search uses
+    /// it. The halfmove clock restarts, so that no position before the pass
+    /// counts as a repetition: a line with a pass in it can never really occur.
+    pub fn make_null_move(&mut self) -> NullUndo {
+        let undo = NullUndo {
+            en_passant: self.en_passant,
+            halfmove_clock: self.halfmove_clock,
+        };
+        self.en_passant = None;
+        self.halfmove_clock = 0;
+        self.side_to_move = self.side_to_move.opposite();
+        undo
+    }
+
+    pub fn unmake_null_move(&mut self, undo: NullUndo) {
+        self.side_to_move = self.side_to_move.opposite();
+        self.en_passant = undo.en_passant;
+        self.halfmove_clock = undo.halfmove_clock;
+    }
+
     pub fn unmake_move(&mut self, chess_move: Move, undo: Undo) {
         self.side_to_move = self.side_to_move.opposite();
         self.castling_rights = undo.castling_rights;
@@ -519,6 +539,15 @@ impl Board {
         self.color_bitboards[color.index()]
     }
 
+    /// Whether `color` has a piece other than its king and pawns.
+    pub fn has_non_pawn_material(&self, color: Color) -> bool {
+        let pieces = self.piece_bb(PieceKind::Knight).0
+            | self.piece_bb(PieceKind::Bishop).0
+            | self.piece_bb(PieceKind::Rook).0
+            | self.piece_bb(PieceKind::Queen).0;
+        self.color_bb(color).0 & pieces != 0
+    }
+
     pub fn piece_at(&self, square: Square) -> Option<(PieceKind, Color)> {
         self.squares[square.index() as usize]
     }
@@ -595,6 +624,27 @@ impl fmt::Display for Board {
 mod tests {
     use super::*;
     use crate::moves::{Move, MoveKind};
+
+    #[test]
+    fn null_move_passes_the_turn_and_is_undone() {
+        let mut board =
+            crate::fen::parse_fen("rnbqkbnr/pppp1ppp/8/4p3/8/8/PPPPPPPP/RNBQKBNR w KQkq e6 7 2")
+                .unwrap();
+        let original = board;
+        let undo = board.make_null_move();
+        assert_eq!(board.side_to_move, Color::Black);
+        assert_eq!(board.en_passant, None);
+        assert_eq!(board.halfmove_clock, 0);
+        board.unmake_null_move(undo);
+        assert_eq!(board, original);
+    }
+
+    #[test]
+    fn non_pawn_material_excludes_kings_and_pawns() {
+        let board = crate::fen::parse_fen("4k3/4p3/8/8/8/8/8/4K2N w - - 0 1").unwrap();
+        assert!(board.has_non_pawn_material(Color::White));
+        assert!(!board.has_non_pawn_material(Color::Black));
+    }
 
     fn assert_round_trip(mut board: Board, chess_move: Move) {
         let original = board;

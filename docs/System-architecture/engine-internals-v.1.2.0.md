@@ -4,7 +4,7 @@ This document explains how the Rust engine in `engines/` turns a `go` command in
 
 For the module list, UCI commands, building and releasing, see [Engine implementation](engine-implementation.md).
 
-Version 1.3.0 replaced the attack generation, the legality test and the position hashing described in sections 4–6 with faster versions that give identical results, and fixed the slow move generation listed in section 12. See [Engine performance (v1.3.0)](engine-performance-v1.3.0.md). Version 1.4.0 added the quiescence search that section 12 calls for; see [Quiescence search (v1.4.0)](engine-quiescence-v1.4.0.md). Version 1.5.0 added the transposition table; see [Transposition table (v1.5.0)](engine-transposition-table-v1.5.0.md). Version 1.6.0 added the ordering of quiet moves described in section 12; see [Killer moves and history heuristic (v1.6.0)](engine-move-ordering-v1.6.0.md).
+Version 1.3.0 replaced the attack generation, the legality test and the position hashing described in sections 4–6 with faster versions that give identical results, and fixed the slow move generation listed in section 12. See [Engine performance (v1.3.0)](engine-performance-v1.3.0.md). Version 1.4.0 added the quiescence search that section 12 calls for; see [Quiescence search (v1.4.0)](engine-quiescence-v1.4.0.md). Version 1.5.0 added the transposition table; see [Transposition table (v1.5.0)](engine-transposition-table-v1.5.0.md). Version 1.6.0 added the ordering of quiet moves described in section 12; see [Killer moves and history heuristic (v1.6.0)](engine-move-ordering-v1.6.0.md). Version 1.7.0 added the null move pruning and late move reductions listed there; see [Null move pruning and late move reductions (v1.7.0)](engine-selective-search-v1.7.0.md).
 
 ## Contents
 
