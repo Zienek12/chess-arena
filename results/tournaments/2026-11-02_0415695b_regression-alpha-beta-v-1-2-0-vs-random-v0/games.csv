@@ -1,0 +1,41 @@
+game,white,black,white_image_id,black_image_id,white_uci_name,black_uci_name,position,opening,start_fen,status,result,termination,plies,started_at,finished_at,white_avg_depth,white_avg_nodes,white_avg_nps,white_avg_think_ms,white_accuracy,white_acpl,white_blunders,black_avg_depth,black_avg_nodes,black_avg_nps,black_avg_think_ms,black_accuracy,black_acpl,black_blunders
+1,alpha-beta v-1.2.0,random v0,,,,,1,"Ruy Lopez, Morphy Defence",r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 4 6,completed,1-0,checkmate,31,2026-11-02T20:39:19Z,2026-11-02T20:39:35Z,4.94,102127,482785,879,97.72,11.9,0,,,,4,87.78,75.9,2
+2,random v0,alpha-beta v-1.2.0,,,,,1,"Ruy Lopez, Morphy Defence",r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 4 6,completed,0-1,checkmate,28,2026-11-02T20:39:19Z,2026-11-02T20:39:32Z,,,,4,88.25,78.4,1,5.07,128792,519391,824,99.15,5.1,0
+3,alpha-beta v-1.2.0,random v0,,,,,2,"Ruy Lopez, Berlin Defence",r1bqkb1r/pppp1ppp/2nn4/1B2p3/3P4/5N2/PPP2PPP/RNBQ1RK1 w kq - 1 6,completed,1-0,checkmate,39,2026-11-02T20:39:32Z,2026-11-02T20:39:53Z,5.00,109911,493666,959,97.79,29.3,0,,,,4,90.72,82.6,1
+4,random v0,alpha-beta v-1.2.0,,,,,2,"Ruy Lopez, Berlin Defence",r1bqkb1r/pppp1ppp/2nn4/1B2p3/3P4/5N2/PPP2PPP/RNBQ1RK1 w kq - 1 6,completed,0-1,checkmate,22,2026-11-02T20:39:35Z,2026-11-02T20:39:45Z,,,,4,86.98,92.5,2,5.09,133176,418692,732,99.82,4.6,0
+5,alpha-beta v-1.2.0,random v0,,,,,3,"Ruy Lopez, Exchange Variation",r1bqkbnr/1pp3pp/p1p2p2/4p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 0 6,cancelled,,,14,2026-11-02T20:39:45Z,2026-11-02T20:39:53Z,5.14,173351,452042,1001,,,0,,,,3,,,0
+6,random v0,alpha-beta v-1.2.0,,,,,3,"Ruy Lopez, Exchange Variation",r1bqkbnr/1pp3pp/p1p2p2/4p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+7,alpha-beta v-1.2.0,random v0,,,,,4,"Italian Game, Giuoco Pianissimo",r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+8,random v0,alpha-beta v-1.2.0,,,,,4,"Italian Game, Giuoco Pianissimo",r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+9,alpha-beta v-1.2.0,random v0,,,,,5,Two Knights Defence,r1bq1rk1/ppppbppp/2n2n2/4p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 w - - 3 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+10,random v0,alpha-beta v-1.2.0,,,,,5,Two Knights Defence,r1bq1rk1/ppppbppp/2n2n2/4p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 w - - 3 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+11,alpha-beta v-1.2.0,random v0,,,,,6,Scotch Game,r1bqkb1r/p1pp1ppp/2p2n2/8/4P3/8/PPP2PPP/RNBQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+12,random v0,alpha-beta v-1.2.0,,,,,6,Scotch Game,r1bqkb1r/p1pp1ppp/2p2n2/8/4P3/8/PPP2PPP/RNBQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+13,alpha-beta v-1.2.0,random v0,,,,,7,Four Knights Game,r1bq1rk1/pppp1ppp/2n2n2/1B2p3/1b2P3/2N2N2/PPPP1PPP/R1BQ1RK1 w - - 8 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+14,random v0,alpha-beta v-1.2.0,,,,,7,Four Knights Game,r1bq1rk1/pppp1ppp/2n2n2/1B2p3/1b2P3/2N2N2/PPPP1PPP/R1BQ1RK1 w - - 8 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+15,alpha-beta v-1.2.0,random v0,,,,,8,Petrov Defence,rnbqkb1r/ppp2ppp/8/3p4/3Pn3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+16,random v0,alpha-beta v-1.2.0,,,,,8,Petrov Defence,rnbqkb1r/ppp2ppp/8/3p4/3Pn3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+17,alpha-beta v-1.2.0,random v0,,,,,9,Vienna Game,rnbqkb1r/ppp2ppp/8/4p3/8/2n3P1/PPPP1PBP/R1BQK1NR w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+18,random v0,alpha-beta v-1.2.0,,,,,9,Vienna Game,rnbqkb1r/ppp2ppp/8/4p3/8/2n3P1/PPPP1PBP/R1BQK1NR w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+19,alpha-beta v-1.2.0,random v0,,,,,10,King's Gambit Declined,rnbqk2r/ppp2ppp/3p1n2/2b5/3pPP2/2P2N2/PP4PP/RNBQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+20,random v0,alpha-beta v-1.2.0,,,,,10,King's Gambit Declined,rnbqk2r/ppp2ppp/3p1n2/2b5/3pPP2/2P2N2/PP4PP/RNBQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+21,alpha-beta v-1.2.0,random v0,,,,,11,Philidor Defence,r1bqk2r/pppnbppp/3p1n2/4p3/2BPP3/2N2N2/PPP2PPP/R1BQK2R w KQkq - 5 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+22,random v0,alpha-beta v-1.2.0,,,,,11,Philidor Defence,r1bqk2r/pppnbppp/3p1n2/4p3/2BPP3/2N2N2/PPP2PPP/R1BQK2R w KQkq - 5 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+23,alpha-beta v-1.2.0,random v0,,,,,12,"Sicilian, Najdorf",rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+24,random v0,alpha-beta v-1.2.0,,,,,12,"Sicilian, Najdorf",rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+25,alpha-beta v-1.2.0,random v0,,,,,13,"Sicilian, Dragon",rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+26,random v0,alpha-beta v-1.2.0,,,,,13,"Sicilian, Dragon",rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+27,alpha-beta v-1.2.0,random v0,,,,,14,"Sicilian, Classical",r1bqkb1r/pp2pppp/2np1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+28,random v0,alpha-beta v-1.2.0,,,,,14,"Sicilian, Classical",r1bqkb1r/pp2pppp/2np1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+29,alpha-beta v-1.2.0,random v0,,,,,15,"Sicilian, Scheveningen",rnbqkb1r/pp3ppp/3ppn2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+30,random v0,alpha-beta v-1.2.0,,,,,15,"Sicilian, Scheveningen",rnbqkb1r/pp3ppp/3ppn2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+31,alpha-beta v-1.2.0,random v0,,,,,16,"Sicilian, Taimanov",r1b1kbnr/ppqp1ppp/2n1p3/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+32,random v0,alpha-beta v-1.2.0,,,,,16,"Sicilian, Taimanov",r1b1kbnr/ppqp1ppp/2n1p3/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+33,alpha-beta v-1.2.0,random v0,,,,,17,"Sicilian, Sveshnikov",r1bqkb1r/pp1p1ppp/2n2n2/4p3/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq e6 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+34,random v0,alpha-beta v-1.2.0,,,,,17,"Sicilian, Sveshnikov",r1bqkb1r/pp1p1ppp/2n2n2/4p3/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq e6 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+35,alpha-beta v-1.2.0,random v0,,,,,18,"Sicilian, Rossolimo",r1bqk2r/pp1pppbp/2n2np1/1Bp5/4P3/2P2N2/PP1P1PPP/RNBQ1RK1 w kq - 1 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+36,random v0,alpha-beta v-1.2.0,,,,,18,"Sicilian, Rossolimo",r1bqk2r/pp1pppbp/2n2np1/1Bp5/4P3/2P2N2/PP1P1PPP/RNBQ1RK1 w kq - 1 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+37,alpha-beta v-1.2.0,random v0,,,,,19,"Sicilian, Alapin",r1bqkb1r/pp1ppppp/2n5/3nP3/3p4/2P2N2/PP3PPP/RNBQKB1R w KQkq - 2 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+38,random v0,alpha-beta v-1.2.0,,,,,19,"Sicilian, Alapin",r1bqkb1r/pp1ppppp/2n5/3nP3/3p4/2P2N2/PP3PPP/RNBQKB1R w KQkq - 2 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+39,alpha-beta v-1.2.0,random v0,,,,,20,"Sicilian, Closed",r1bqk1nr/pp2ppbp/2np2p1/2p5/4P3/2NP2P1/PPP2PBP/R1BQK1NR w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0
+40,random v0,alpha-beta v-1.2.0,,,,,20,"Sicilian, Closed",r1bqk1nr/pp2ppbp/2np2p1/2p5/4P3/2NP2P1/PPP2PBP/R1BQK1NR w KQkq - 0 6,cancelled,,,0,,2026-11-02T20:39:53Z,,,,,,,0,,,,,,,0

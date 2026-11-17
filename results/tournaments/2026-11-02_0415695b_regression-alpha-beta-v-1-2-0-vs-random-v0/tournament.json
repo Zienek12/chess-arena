@@ -1,0 +1,98 @@
+{
+  "id": "0415695b-726f-4de7-aa20-4ff5dd767aea",
+  "name": "Regression: alpha-beta v-1.2.0 vs random v0",
+  "engine_a_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+  "engine_b_id": "49ad6304-d466-43ea-848d-8d22ce7eb7d7",
+  "position_set_id": "28bde6e6-f979-4038-9bd7-4b07f414d7f8",
+  "game_count": 40,
+  "limit": {
+    "movetime_ms": 1000
+  },
+  "color_order": "alternate",
+  "position_order": "sequential",
+  "cpus": 1,
+  "memory_mb": 256,
+  "sprt": {
+    "elo0": 0,
+    "elo1": 200,
+    "alpha": 0.1,
+    "beta": 0.1
+  },
+  "status": "completed",
+  "sprt_result": "H1",
+  "created_at": "2026-11-02T20:39:17.267423Z",
+  "updated_at": "2026-11-02T20:39:53.892353Z",
+  "progress": {
+    "total": 40,
+    "queued": 0,
+    "running": 0,
+    "completed": 4,
+    "failed": 0,
+    "cancelled": 36
+  },
+  "score": {
+    "engine_a_wins": 4,
+    "engine_b_wins": 0,
+    "draws": 0,
+    "engine_a_points": 4,
+    "engine_b_points": 0
+  },
+  "stats": {
+    "games": 4,
+    "wins": 4,
+    "draws": 0,
+    "losses": 0,
+    "score": 1,
+    "los": 0.9772498680518208
+  },
+  "sprt_status": {
+    "elo0": 0,
+    "elo1": 200,
+    "alpha": 0.1,
+    "beta": 0.1,
+    "llr": 3.5137934103967585,
+    "lower_bound": -2.197224577336219,
+    "upper_bound": 2.1972245773362196,
+    "result": "H1"
+  },
+  "telemetry": [
+    {
+      "engine_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+      "moves": 68,
+      "moves_with_info": 68,
+      "average_depth": 5.029411764705882,
+      "max_depth": 6,
+      "average_nodes": 122260.64705882352,
+      "total_nodes": 8313724,
+      "average_nps": 479989.07352941175,
+      "average_think_time_ms": 879.8382352941177,
+      "analyzed_moves": 61,
+      "average_cp_loss": 14.737704918032787,
+      "accuracy": 98.4488607840618,
+      "best_moves": 31,
+      "inaccuracies": 0,
+      "mistakes": 0,
+      "blunders": 0,
+      "builds": []
+    },
+    {
+      "engine_id": "49ad6304-d466-43ea-848d-8d22ce7eb7d7",
+      "moves": 66,
+      "moves_with_info": 0,
+      "average_depth": 0,
+      "max_depth": 0,
+      "average_nodes": 0,
+      "total_nodes": 0,
+      "average_nps": 0,
+      "average_think_time_ms": 3.5757575757575757,
+      "analyzed_moves": 59,
+      "average_cp_loss": 81.72881355932203,
+      "accuracy": 88.68850453244384,
+      "best_moves": 6,
+      "inaccuracies": 5,
+      "mistakes": 0,
+      "blunders": 6,
+      "builds": []
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "id": "f0c6bf49-08ce-480e-81f5-69a40871dd4b",
+  "name": "Calibration: alpha-beta v-1.2.0 vs stockfish 2100",
+  "engine_a_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+  "engine_b_id": "d7da2671-c895-495b-ae29-abfc9e60ad2b",
+  "position_set_id": "28bde6e6-f979-4038-9bd7-4b07f414d7f8",
+  "game_count": 50,
+  "limit": {
+    "movetime_ms": 1000
+  },
+  "color_order": "alternate",
+  "position_order": "random",
+  "cpus": 1,
+  "memory_mb": 256,
+  "status": "completed",
+  "created_at": "2026-11-03T18:06:29.92196Z",
+  "updated_at": "2026-11-03T20:13:13.187035Z",
+  "progress": {
+    "total": 50,
+    "queued": 0,
+    "running": 0,
+    "completed": 50,
+    "failed": 0,
+    "cancelled": 0
+  },
+  "score": {
+    "engine_a_wins": 8,
+    "engine_b_wins": 34,
+    "draws": 8,
+    "engine_a_points": 12,
+    "engine_b_points": 38
+  },
+  "stats": {
+    "games": 50,
+    "wins": 8,
+    "draws": 8,
+    "losses": 34,
+    "score": 0.24,
+    "elo": -200.24094022767414,
+    "elo_error": 105.19739124072899,
+    "los": 3.0117653711470016e-05
+  },
+  "telemetry": [
+    {
+      "engine_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+      "moves": 3241,
+      "moves_with_info": 3241,
+      "average_depth": 7.019746991669238,
+      "max_depth": 128,
+      "average_nodes": 268527.2517741438,
+      "total_nodes": 870296823,
+      "average_nps": 571098.2348040728,
+      "average_think_time_ms": 840.3804381363776,
+      "analyzed_moves": 3241,
+      "average_cp_loss": 37.078987966676955,
+      "accuracy": 93.58411433208694,
+      "best_moves": 1266,
+      "inaccuracies": 218,
+      "mistakes": 76,
+      "blunders": 67,
+      "builds": [
+        {
+          "image_id": "sha256:4951f7690880d0ef6c93149ce620769e0757fbf30892427f262a9263f8956625",
+          "uci_name": "chess-arena-engine 1.2.0",
+          "games": 50
+        }
+      ]
+    },
+    {
+      "engine_id": "d7da2671-c895-495b-ae29-abfc9e60ad2b",
+      "moves": 3258,
+      "moves_with_info": 3258,
+      "average_depth": 35.101289134438304,
+      "max_depth": 245,
+      "average_nodes": 623351.6055862493,
+      "total_nodes": 2030879531,
+      "average_nps": 653918.1427255985,
+      "average_think_time_ms": 976.2495395948434,
+      "analyzed_moves": 3258,
+      "average_cp_loss": 31.30509515039902,
+      "accuracy": 94.73840053053621,
+      "best_moves": 1208,
+      "inaccuracies": 162,
+      "mistakes": 60,
+      "blunders": 69,
+      "builds": [
+        {
+          "image_id": "sha256:d7082009df4297366430aa0ca766a9d8465c1805b008a3af3880e97242ce4fff",
+          "uci_name": "Stockfish 17.1",
+          "games": 50
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "id": "5494216d-b663-45fc-93ac-b9d1c511a263",
+  "name": "alpha-beta v-1.2.0 vs random v0",
+  "engine_a_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+  "engine_b_id": "49ad6304-d466-43ea-848d-8d22ce7eb7d7",
+  "position_set_id": "47e71c1d-6c98-4bfe-9743-be534441ce2e",
+  "game_count": 10,
+  "limit": {
+    "movetime_ms": 1000
+  },
+  "color_order": "alternate",
+  "position_order": "sequential",
+  "cpus": 1,
+  "memory_mb": 256,
+  "status": "completed",
+  "created_at": "2026-11-01T17:32:33.035496Z",
+  "updated_at": "2026-11-01T17:33:35.199446Z",
+  "progress": {
+    "total": 10,
+    "queued": 0,
+    "running": 0,
+    "completed": 10,
+    "failed": 0,
+    "cancelled": 0
+  },
+  "score": {
+    "engine_a_wins": 10,
+    "engine_b_wins": 0,
+    "draws": 0,
+    "engine_a_points": 10,
+    "engine_b_points": 0
+  },
+  "stats": {
+    "games": 10,
+    "wins": 10,
+    "draws": 0,
+    "losses": 0,
+    "score": 1,
+    "los": 0.9992172988709987
+  },
+  "telemetry": [
+    {
+      "engine_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+      "moves": 119,
+      "moves_with_info": 119,
+      "average_depth": 4.907563025210084,
+      "max_depth": 6,
+      "average_nodes": 144781.8907563025,
+      "total_nodes": 17229045,
+      "average_nps": 496483.6806722689,
+      "average_think_time_ms": 829.1260504201681,
+      "analyzed_moves": 119,
+      "average_cp_loss": 13.159663865546218,
+      "accuracy": 96.28679718452341,
+      "best_moves": 61,
+      "inaccuracies": 6,
+      "mistakes": 2,
+      "blunders": 0,
+      "builds": []
+    },
+    {
+      "engine_id": "49ad6304-d466-43ea-848d-8d22ce7eb7d7",
+      "moves": 114,
+      "moves_with_info": 0,
+      "average_depth": 0,
+      "max_depth": 0,
+      "average_nodes": 0,
+      "total_nodes": 0,
+      "average_nps": 0,
+      "average_think_time_ms": 4.62280701754386,
+      "analyzed_moves": 114,
+      "average_cp_loss": 99.16666666666667,
+      "accuracy": 83.06879894343443,
+      "best_moves": 27,
+      "inaccuracies": 11,
+      "mistakes": 15,
+      "blunders": 11,
+      "builds": []
+    }
+  ]
+}

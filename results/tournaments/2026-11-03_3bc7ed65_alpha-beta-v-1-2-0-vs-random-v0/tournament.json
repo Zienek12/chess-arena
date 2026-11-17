@@ -1,0 +1,93 @@
+{
+  "id": "3bc7ed65-de26-4609-b6b2-390f29ab38d0",
+  "name": "alpha-beta v-1.2.0 vs random v0",
+  "engine_a_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+  "engine_b_id": "49ad6304-d466-43ea-848d-8d22ce7eb7d7",
+  "position_set_id": "28bde6e6-f979-4038-9bd7-4b07f414d7f8",
+  "game_count": 10,
+  "limit": {
+    "movetime_ms": 2000
+  },
+  "color_order": "alternate",
+  "position_order": "random",
+  "cpus": 1,
+  "memory_mb": 256,
+  "status": "completed",
+  "created_at": "2026-11-03T20:38:42.81906Z",
+  "updated_at": "2026-11-03T20:40:51.323533Z",
+  "progress": {
+    "total": 10,
+    "queued": 0,
+    "running": 0,
+    "completed": 10,
+    "failed": 0,
+    "cancelled": 0
+  },
+  "score": {
+    "engine_a_wins": 10,
+    "engine_b_wins": 0,
+    "draws": 0,
+    "engine_a_points": 10,
+    "engine_b_points": 0
+  },
+  "stats": {
+    "games": 10,
+    "wins": 10,
+    "draws": 0,
+    "losses": 0,
+    "score": 1,
+    "los": 0.9992172988709987
+  },
+  "telemetry": [
+    {
+      "engine_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+      "moves": 135,
+      "moves_with_info": 135,
+      "average_depth": 5.207407407407407,
+      "max_depth": 7,
+      "average_nodes": 224577.26666666666,
+      "total_nodes": 30317931,
+      "average_nps": 359091.74074074073,
+      "average_think_time_ms": 1601.0814814814814,
+      "analyzed_moves": 135,
+      "average_cp_loss": 22.274074074074075,
+      "accuracy": 94.7915799443564,
+      "best_moves": 72,
+      "inaccuracies": 8,
+      "mistakes": 1,
+      "blunders": 5,
+      "builds": [
+        {
+          "image_id": "sha256:4951f7690880d0ef6c93149ce620769e0757fbf30892427f262a9263f8956625",
+          "uci_name": "chess-arena-engine 1.2.0",
+          "games": 10
+        }
+      ]
+    },
+    {
+      "engine_id": "49ad6304-d466-43ea-848d-8d22ce7eb7d7",
+      "moves": 130,
+      "moves_with_info": 0,
+      "average_depth": 0,
+      "max_depth": 0,
+      "average_nodes": 0,
+      "total_nodes": 0,
+      "average_nps": 0,
+      "average_think_time_ms": 5.969230769230769,
+      "analyzed_moves": 130,
+      "average_cp_loss": 97.3,
+      "accuracy": 84.9479161088333,
+      "best_moves": 21,
+      "inaccuracies": 16,
+      "mistakes": 6,
+      "blunders": 14,
+      "builds": [
+        {
+          "image_id": "sha256:bee46b46c4cc825f9aaa2b0fe94f91cf28e46c7c65b5364cd8caf227ac675582",
+          "uci_name": "uci_stub",
+          "games": 10
+        }
+      ]
+    }
+  ]
+}

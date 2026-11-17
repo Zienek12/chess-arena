@@ -1,0 +1,112 @@
+{
+  "id": "d4727775-e210-493b-aedd-24bf285404cd",
+  "name": "Regression: selective-search v-1.7.0 vs killer-moves v-1.6.0",
+  "engine_a_id": "38295810-4eed-435e-9b4c-de9093e7eb46",
+  "engine_b_id": "901255b7-8fd3-4ea2-8959-814615c81963",
+  "position_set_id": "28bde6e6-f979-4038-9bd7-4b07f414d7f8",
+  "game_count": 2000,
+  "limit": {
+    "movetime_ms": 1000
+  },
+  "color_order": "alternate",
+  "position_order": "random",
+  "cpus": 1,
+  "memory_mb": 256,
+  "sprt": {
+    "elo0": 0,
+    "elo1": 20,
+    "alpha": 0.05,
+    "beta": 0.05
+  },
+  "status": "completed",
+  "sprt_result": "H1",
+  "created_at": "2026-11-06T11:16:19.957197Z",
+  "updated_at": "2026-11-06T12:16:42.614692Z",
+  "progress": {
+    "total": 2000,
+    "queued": 0,
+    "running": 0,
+    "completed": 69,
+    "failed": 0,
+    "cancelled": 1931
+  },
+  "score": {
+    "engine_a_wins": 41,
+    "engine_b_wins": 10,
+    "draws": 18,
+    "engine_a_points": 50,
+    "engine_b_points": 19
+  },
+  "stats": {
+    "games": 69,
+    "wins": 41,
+    "draws": 18,
+    "losses": 10,
+    "score": 0.7246376811594203,
+    "elo": 168.086561353276,
+    "elo_error": 77.29285003065118,
+    "los": 0.9999929039601322
+  },
+  "sprt_status": {
+    "elo0": 0,
+    "elo1": 20,
+    "alpha": 0.05,
+    "beta": 0.05,
+    "llr": 3.0611320994657794,
+    "lower_bound": -2.9444389791664403,
+    "upper_bound": 2.9444389791664403,
+    "result": "H1"
+  },
+  "telemetry": [
+    {
+      "engine_id": "38295810-4eed-435e-9b4c-de9093e7eb46",
+      "moves": 4369,
+      "moves_with_info": 4369,
+      "average_depth": 13.529640650034333,
+      "max_depth": 128,
+      "average_nodes": 673792.8141451133,
+      "total_nodes": 2943800805,
+      "average_nps": 1183082.2707713435,
+      "average_think_time_ms": 698.6056305790798,
+      "analyzed_moves": 4340,
+      "average_cp_loss": 25.21451612903226,
+      "accuracy": 93.71711400713683,
+      "best_moves": 2058,
+      "inaccuracies": 282,
+      "mistakes": 99,
+      "blunders": 92,
+      "builds": [
+        {
+          "image_id": "sha256:a428a24ddc56a13738043b74da24c757861b2e8db7499f109165ae5c667eef67",
+          "uci_name": "chess-arena-engine 1.7.0",
+          "games": 70
+        }
+      ]
+    },
+    {
+      "engine_id": "901255b7-8fd3-4ea2-8959-814615c81963",
+      "moves": 4358,
+      "moves_with_info": 4358,
+      "average_depth": 8.475447452960074,
+      "max_depth": 128,
+      "average_nodes": 682139.9827902708,
+      "total_nodes": 2972766045,
+      "average_nps": 1291373.992427719,
+      "average_think_time_ms": 801.0789352914181,
+      "analyzed_moves": 4329,
+      "average_cp_loss": 30.68029568029568,
+      "accuracy": 92.71080004678223,
+      "best_moves": 1892,
+      "inaccuracies": 350,
+      "mistakes": 119,
+      "blunders": 104,
+      "builds": [
+        {
+          "image_id": "sha256:fab51a832b6e19d0bd805f1c3be63d6ec131d2e2ce8a55b65e694cca490b8d50",
+          "uci_name": "chess-arena-engine 1.6.0",
+          "games": 70
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,257 @@
+[
+  {
+    "folder": "2026-11-06_d4727775_regression-selective-search-v-1-7-0-vs-killer-moves-v-1-6-0",
+    "name": "Regression: selective-search v-1.7.0 vs killer-moves v-1.6.0",
+    "status": "completed",
+    "games": 69,
+    "sprt_result": "H1",
+    "analyzed_moves": [
+      4340,
+      4329
+    ],
+    "moves": [
+      4369,
+      4358
+    ]
+  },
+  {
+    "folder": "2026-11-05_233bbd74_regression-killer-moves-v-1-6-0-vs-transposition-table-v-1-5-0",
+    "name": "Regression: killer-moves v-1.6.0 vs transposition-table v-1.5.0",
+    "status": "completed",
+    "games": 237,
+    "sprt_result": "H1",
+    "analyzed_moves": [
+      15574,
+      15555
+    ],
+    "moves": [
+      16171,
+      16152
+    ]
+  },
+  {
+    "folder": "2026-11-05_92069e72_regression-transposition-table-v-1-5-0-vs-quiescence-search-v-1-4-0",
+    "name": "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0",
+    "status": "completed",
+    "games": 53,
+    "sprt_result": "H1",
+    "analyzed_moves": [
+      3281,
+      3269
+    ],
+    "moves": [
+      3282,
+      3270
+    ]
+  },
+  {
+    "folder": "2026-11-05_adab858e_quiescence-search-v-1-4-0-vs-stockfish-17-1-elo2100",
+    "name": "quiescence-search v-1.4.0 vs stockfish 17.1-elo2100",
+    "status": "cancelled",
+    "games": 15,
+    "sprt_result": null,
+    "analyzed_moves": [
+      1144,
+      1141
+    ],
+    "moves": [
+      1192,
+      1190
+    ]
+  },
+  {
+    "folder": "2026-11-05_580071e0_regression-quiescence-search-v-1-4-0-vs-improved-move-gen-v-1-3-0",
+    "name": "Regression: quiescence-search v-1.4.0 vs improved-move-gen v-1.3.0",
+    "status": "completed",
+    "games": 43,
+    "sprt_result": "H1",
+    "analyzed_moves": [
+      2263,
+      2252
+    ],
+    "moves": [
+      2287,
+      2277
+    ]
+  },
+  {
+    "folder": "2026-11-03_3ca3a3ac_regression-improved-move-gen-v-1-3-0-vs-alpha-beta-v-1-2-0",
+    "name": "Regression: improved-move-gen v-1.3.0 vs alpha-beta v-1.2.0",
+    "status": "completed",
+    "games": 54,
+    "sprt_result": "H1",
+    "analyzed_moves": [
+      2836,
+      2821
+    ],
+    "moves": [
+      2864,
+      2848
+    ]
+  },
+  {
+    "folder": "2026-11-03_3bc7ed65_alpha-beta-v-1-2-0-vs-random-v0",
+    "name": "alpha-beta v-1.2.0 vs random v0",
+    "status": "completed",
+    "games": 10,
+    "sprt_result": null,
+    "analyzed_moves": [
+      135,
+      130
+    ],
+    "moves": [
+      135,
+      130
+    ]
+  },
+  {
+    "folder": "2026-11-03_0e1db89e_alpha-beta-v-1-2-0-vs-random-v0",
+    "name": "alpha-beta v-1.2.0 vs random v0",
+    "status": "cancelled",
+    "games": 1,
+    "sprt_result": null,
+    "analyzed_moves": [
+      11,
+      11
+    ],
+    "moves": [
+      18,
+      18
+    ]
+  },
+  {
+    "folder": "2026-11-03_f0c6bf49_calibration-alpha-beta-v-1-2-0-vs-stockfish-2100",
+    "name": "Calibration: alpha-beta v-1.2.0 vs stockfish 2100",
+    "status": "completed",
+    "games": 50,
+    "sprt_result": null,
+    "analyzed_moves": [
+      3241,
+      3258
+    ],
+    "moves": [
+      3241,
+      3258
+    ]
+  },
+  {
+    "folder": "2026-11-03_7a62a42b_calibration-alpha-beta-v-1-2-0-vs-stockfish-1800",
+    "name": "Calibration: alpha-beta v-1.2.0 vs stockfish 1800",
+    "status": "completed",
+    "games": 50,
+    "sprt_result": null,
+    "analyzed_moves": [
+      3089,
+      3098
+    ],
+    "moves": [
+      3089,
+      3098
+    ]
+  },
+  {
+    "folder": "2026-11-03_0b46df57_calibration-alpha-beta-v-1-2-0-vs-stockfish-1500",
+    "name": "Calibration: alpha-beta v-1.2.0 vs stockfish 1500",
+    "status": "completed",
+    "games": 40,
+    "sprt_result": null,
+    "analyzed_moves": [
+      1649,
+      1641
+    ],
+    "moves": [
+      1649,
+      1641
+    ]
+  },
+  {
+    "folder": "2026-11-02_3f75410e_alpha-beta-v-1-2-0-vs-stockfish-17-1-elo1500",
+    "name": "alpha-beta v-1.2.0 vs stockfish 17.1-elo1500",
+    "status": "completed",
+    "games": 100,
+    "sprt_result": null,
+    "analyzed_moves": [
+      5240,
+      5224
+    ],
+    "moves": [
+      5240,
+      5224
+    ]
+  },
+  {
+    "folder": "2026-11-02_d127d235_alpha-beta-v-1-2-0-vs-stockfish-17-1-elo1500",
+    "name": "alpha-beta v-1.2.0 vs stockfish 17.1-elo1500",
+    "status": "completed",
+    "games": 10,
+    "sprt_result": null,
+    "analyzed_moves": [
+      551,
+      549
+    ],
+    "moves": [
+      551,
+      549
+    ]
+  },
+  {
+    "folder": "2026-11-02_0415695b_regression-alpha-beta-v-1-2-0-vs-random-v0",
+    "name": "Regression: alpha-beta v-1.2.0 vs random v0",
+    "status": "completed",
+    "games": 4,
+    "sprt_result": "H1",
+    "analyzed_moves": [
+      61,
+      59
+    ],
+    "moves": [
+      68,
+      66
+    ]
+  },
+  {
+    "folder": "2026-11-02_89bdf079_regression-alpha-beta-v-1-2-0-vs-random-v0",
+    "name": "Regression: alpha-beta v-1.2.0 vs random v0",
+    "status": "completed",
+    "games": 40,
+    "sprt_result": null,
+    "analyzed_moves": [
+      498,
+      478
+    ],
+    "moves": [
+      498,
+      478
+    ]
+  },
+  {
+    "folder": "2026-11-01_1bee92e5_alpha-beta-v-1-2-0-vs-random-v0",
+    "name": "alpha-beta v-1.2.0 vs random v0",
+    "status": "completed",
+    "games": 85,
+    "sprt_result": null,
+    "analyzed_moves": [
+      1059,
+      1018
+    ],
+    "moves": [
+      1059,
+      1018
+    ]
+  },
+  {
+    "folder": "2026-11-01_5494216d_alpha-beta-v-1-2-0-vs-random-v0",
+    "name": "alpha-beta v-1.2.0 vs random v0",
+    "status": "completed",
+    "games": 10,
+    "sprt_result": null,
+    "analyzed_moves": [
+      119,
+      114
+    ],
+    "moves": [
+      119,
+      114
+    ]
+  }
+]
