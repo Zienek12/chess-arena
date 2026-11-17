@@ -1,0 +1,110 @@
+{
+  "id": "adab858e-9e40-4d0d-b0d9-8c1b411438ab",
+  "name": "quiescence-search v-1.4.0 vs stockfish 17.1-elo2100",
+  "engine_a_id": "a66c18d7-3a2c-4dfd-aab6-2ad538b076dd",
+  "engine_b_id": "d7da2671-c895-495b-ae29-abfc9e60ad2b",
+  "position_set_id": "28bde6e6-f979-4038-9bd7-4b07f414d7f8",
+  "game_count": 50,
+  "limit": {
+    "movetime_ms": 1000
+  },
+  "color_order": "alternate",
+  "position_order": "random",
+  "cpus": 1,
+  "memory_mb": 256,
+  "sprt": {
+    "elo0": 0,
+    "elo1": 10,
+    "alpha": 0.05,
+    "beta": 0.05
+  },
+  "status": "cancelled",
+  "created_at": "2026-11-05T10:54:37.712106Z",
+  "updated_at": "2026-11-05T11:13:37.869685Z",
+  "progress": {
+    "total": 50,
+    "queued": 0,
+    "running": 0,
+    "completed": 15,
+    "failed": 0,
+    "cancelled": 35
+  },
+  "score": {
+    "engine_a_wins": 9,
+    "engine_b_wins": 3,
+    "draws": 3,
+    "engine_a_points": 10.5,
+    "engine_b_points": 4.5
+  },
+  "stats": {
+    "games": 15,
+    "wins": 9,
+    "draws": 3,
+    "losses": 3,
+    "score": 0.7,
+    "elo": 147.19071411783776,
+    "elo_error": 194.0559977785421,
+    "los": 0.9583677416682248
+  },
+  "sprt_status": {
+    "elo0": 0,
+    "elo1": 10,
+    "alpha": 0.05,
+    "beta": 0.05,
+    "llr": 0.2529034799193563,
+    "lower_bound": -2.9444389791664403,
+    "upper_bound": 2.9444389791664403
+  },
+  "telemetry": [
+    {
+      "engine_id": "a66c18d7-3a2c-4dfd-aab6-2ad538b076dd",
+      "moves": 1192,
+      "moves_with_info": 1192,
+      "average_depth": 7.436241610738255,
+      "max_depth": 128,
+      "average_nodes": 739379.0125838926,
+      "total_nodes": 881339783,
+      "average_nps": 1552309.5536912752,
+      "average_think_time_ms": 844.4312080536913,
+      "analyzed_moves": 1144,
+      "average_cp_loss": 17.15646853146853,
+      "accuracy": 95.85659803294017,
+      "best_moves": 447,
+      "inaccuracies": 38,
+      "mistakes": 17,
+      "blunders": 15,
+      "builds": [
+        {
+          "image_id": "sha256:a98fe41e9260e0c3216c4809fc4bc2ab3b5435a5831df5f2f1fa013238af8c2c",
+          "uci_name": "chess-arena-engine 1.4.0",
+          "games": 17
+        }
+      ]
+    },
+    {
+      "engine_id": "d7da2671-c895-495b-ae29-abfc9e60ad2b",
+      "moves": 1190,
+      "moves_with_info": 1190,
+      "average_depth": 32.65294117647059,
+      "max_depth": 245,
+      "average_nodes": 389452.04789915966,
+      "total_nodes": 463447937,
+      "average_nps": 400140.2588235294,
+      "average_think_time_ms": 986.4613445378151,
+      "analyzed_moves": 1141,
+      "average_cp_loss": 21.58720420683611,
+      "accuracy": 95.03204377541368,
+      "best_moves": 395,
+      "inaccuracies": 58,
+      "mistakes": 23,
+      "blunders": 22,
+      "builds": [
+        {
+          "image_id": "sha256:d7082009df4297366430aa0ca766a9d8465c1805b008a3af3880e97242ce4fff",
+          "uci_name": "Stockfish 17.1",
+          "games": 17
+        }
+      ]
+    }
+  ]
+}

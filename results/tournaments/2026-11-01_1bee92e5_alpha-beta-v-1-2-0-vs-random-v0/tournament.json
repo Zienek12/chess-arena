@@ -1,0 +1,82 @@
+{
+  "id": "1bee92e5-3016-494f-93b6-1fdce0188aba",
+  "name": "alpha-beta v-1.2.0 vs random v0",
+  "engine_a_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+  "engine_b_id": "49ad6304-d466-43ea-848d-8d22ce7eb7d7",
+  "position_set_id": "28bde6e6-f979-4038-9bd7-4b07f414d7f8",
+  "game_count": 85,
+  "limit": {
+    "movetime_ms": 1000
+  },
+  "color_order": "alternate",
+  "position_order": "sequential",
+  "cpus": 1,
+  "memory_mb": 256,
+  "status": "completed",
+  "created_at": "2026-11-01T21:03:29.733595Z",
+  "updated_at": "2026-11-01T21:12:15.102525Z",
+  "progress": {
+    "total": 85,
+    "queued": 0,
+    "running": 0,
+    "completed": 85,
+    "failed": 0,
+    "cancelled": 0
+  },
+  "score": {
+    "engine_a_wins": 83,
+    "engine_b_wins": 2,
+    "draws": 0,
+    "engine_a_points": 83,
+    "engine_b_points": 2
+  },
+  "stats": {
+    "games": 85,
+    "wins": 83,
+    "draws": 0,
+    "losses": 2,
+    "score": 0.9764705882352941,
+    "elo": 647.2192386848365,
+    "los": 1
+  },
+  "telemetry": [
+    {
+      "engine_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+      "moves": 1059,
+      "moves_with_info": 1059,
+      "average_depth": 5.094428706326723,
+      "max_depth": 7,
+      "average_nodes": 150368.53163361663,
+      "total_nodes": 159240275,
+      "average_nps": 460087.8120868744,
+      "average_think_time_ms": 817.5797922568461,
+      "analyzed_moves": 1059,
+      "average_cp_loss": 17.376770538243626,
+      "accuracy": 96.28203957567003,
+      "best_moves": 545,
+      "inaccuracies": 41,
+      "mistakes": 17,
+      "blunders": 10,
+      "builds": []
+    },
+    {
+      "engine_id": "49ad6304-d466-43ea-848d-8d22ce7eb7d7",
+      "moves": 1018,
+      "moves_with_info": 0,
+      "average_depth": 0,
+      "max_depth": 0,
+      "average_nodes": 0,
+      "total_nodes": 0,
+      "average_nps": 0,
+      "average_think_time_ms": 3.1168958742632613,
+      "analyzed_moves": 1018,
+      "average_cp_loss": 99.14145383104126,
+      "accuracy": 84.99862545281714,
+      "best_moves": 160,
+      "inaccuracies": 100,
+      "mistakes": 40,
+      "blunders": 118,
+      "builds": []
+    }
+  ]
+}

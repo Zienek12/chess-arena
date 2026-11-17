@@ -1,0 +1,83 @@
+{
+  "id": "d127d235-3713-4c60-9e2c-b35d8bfe258b",
+  "name": "alpha-beta v-1.2.0 vs stockfish 17.1-elo1500",
+  "engine_a_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+  "engine_b_id": "4496a2e6-3fbc-4ee2-8e3a-7ec362674c28",
+  "position_set_id": "28bde6e6-f979-4038-9bd7-4b07f414d7f8",
+  "game_count": 10,
+  "limit": {
+    "movetime_ms": 1000
+  },
+  "color_order": "alternate",
+  "position_order": "sequential",
+  "cpus": 1,
+  "memory_mb": 256,
+  "status": "completed",
+  "created_at": "2026-11-02T20:59:48.965506Z",
+  "updated_at": "2026-11-02T21:10:21.833667Z",
+  "progress": {
+    "total": 10,
+    "queued": 0,
+    "running": 0,
+    "completed": 10,
+    "failed": 0,
+    "cancelled": 0
+  },
+  "score": {
+    "engine_a_wins": 7,
+    "engine_b_wins": 3,
+    "draws": 0,
+    "engine_a_points": 7,
+    "engine_b_points": 3
+  },
+  "stats": {
+    "games": 10,
+    "wins": 7,
+    "draws": 0,
+    "losses": 3,
+    "score": 0.7,
+    "elo": 147.19071411783776,
+    "elo_error": 387.39040889178074,
+    "los": 0.8970483946339658
+  },
+  "telemetry": [
+    {
+      "engine_id": "1b0f1dec-a4df-4eda-8148-ab5637fd0fb9",
+      "moves": 551,
+      "moves_with_info": 551,
+      "average_depth": 5.945553539019964,
+      "max_depth": 14,
+      "average_nodes": 217476.80762250454,
+      "total_nodes": 119829721,
+      "average_nps": 463751.3012704174,
+      "average_think_time_ms": 851.8130671506352,
+      "analyzed_moves": 551,
+      "average_cp_loss": 41.53720508166969,
+      "accuracy": 91.0813453560069,
+      "best_moves": 238,
+      "inaccuracies": 45,
+      "mistakes": 15,
+      "blunders": 28,
+      "builds": []
+    },
+    {
+      "engine_id": "4496a2e6-3fbc-4ee2-8e3a-7ec362674c28",
+      "moves": 549,
+      "moves_with_info": 549,
+      "average_depth": 32.27504553734062,
+      "max_depth": 245,
+      "average_nodes": 431864.737704918,
+      "total_nodes": 237093741,
+      "average_nps": 462670.9653916211,
+      "average_think_time_ms": 972.8834244080145,
+      "analyzed_moves": 549,
+      "average_cp_loss": 49.71766848816029,
+      "accuracy": 90.24106920809479,
+      "best_moves": 204,
+      "inaccuracies": 55,
+      "mistakes": 15,
+      "blunders": 33,
+      "builds": []
+    }
+  ]
+}

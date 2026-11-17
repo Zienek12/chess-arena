@@ -1,0 +1,11 @@
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "2"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqk2r/ppp2ppp/3p1n2/2b5/3pPP2/2P2N2/PP4PP/RNBQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Ng1 dxc3 7. Qg4 Nxg4 8. Ne2 Bf2+ 9. Kd1 Ne3+ 10. Bxe3 cxb2 11. Na3 bxa1=Q+ 12. Kc2 Qxa2+ 13. Kd1 Bxe3 14. Nc2 Qb1+ 15. Nc1 Bg4+ 16. Be2 Qxc1# 0-1

@@ -1,0 +1,99 @@
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "1"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[Termination "checkmate"]
+
+1. e4 c5 2. Qh5 Qb6 3. Nc3 c4 4. Bxc4 e5 5. Qxf7+ Kd8 6. Qxf8+ Kc7 7. Nd5+ Kc6 8. Qxc8+ Kd6 9. Nxb6 Na6 10. Nxa8 Ke7 11. Bxg8 h5 12. Nf3 Rh6 13. Nxe5 Nb4 14. Qxd7+ Kf6 15. Qd6+ Kg5 16. h4+ Kf4 17. d3# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "2"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[Termination "checkmate"]
+
+1. e4 d5 2. Qh5 dxe4 3. a4 Nf6 4. Qh6 gxh6 5. h3 e5 6. Bd3 exd3 7. g3 dxc2 8. d3 Qd5 9. b3 Qxh1 10. b4 Qxg1+ 11. Kd2 Qd1+ 12. Ke3 Qxc1+ 13. Nd2 Qxa1 14. Nb3 Qe1+ 15. Kf3 Be6 16. h4 Bd5# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "3"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[Termination "checkmate"]
+
+1. e4 g5 2. d4 Nf6 3. Nc3 h5 4. Bxg5 c6 5. Qf3 c5 6. dxc5 Bg7 7. Bc4 Rh7 8. e5 Ng4 9. Qxf7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "4"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[Termination "checkmate"]
+
+1. e3 e5 2. h4 Nc6 3. e4 Nf6 4. c3 Nxe4 5. Qe2 d5 6. d3 Nf6 7. Qc2 Bf5 8. b4 e4 9. d4 Qd7 10. Kd2 e3+ 11. Kd1 Bxc2+ 12. Kxc2 exf2 13. Rh3 fxg1=Q 14. Bd2 Qxf1 15. Kb3 Qxg2 16. b5 Nxd4+ 17. cxd4 Qxb5+ 18. Kc3 Qxh3+ 19. Be3 Qxe3+ 20. Kc2 Qc4+ 21. Kd1 Qec1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "5"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[Termination "checkmate"]
+
+1. e4 g6 2. Nc3 g5 3. d4 f6 4. Qh5# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "6"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[Termination "checkmate"]
+
+1. e3 e5 2. Ne2 Qh4 3. Na3 Nf6 4. Ng3 Bxa3 5. Qe2 Bb4 6. Qd1 Ne4 7. Qg4 Qxg4 8. Rb1 Nxg3 9. c3 Nxh1 10. f4 Bd6 11. e4 Qxf4 12. d4 Qxe4+ 13. Be3 Qxb1+ 14. Bc1 Qxc1+ 15. Ke2 Qxb2+ 16. Ke1 Qf2+ 17. Kd1 Qxf1+ 18. Kc2 Qxg2+ 19. Kc1 Qe2 20. h4 Ba3+ 21. Kb1 Qd1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "7"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[Termination "checkmate"]
+
+1. e4 c6 2. Nc3 g5 3. d4 f5 4. Qh5# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "8"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[Termination "checkmate"]
+
+1. f3 Nc6 2. Nh3 e5 3. Nf4 exf4 4. h3 Qh4+ 5. g3 Qxg3# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "9"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[Termination "checkmate"]
+
+1. e4 e5 2. Nf3 g6 3. Nc3 h5 4. Nxe5 Bc5 5. Bc4 Bd4 6. Bxf7+ Ke7 7. Nd5+ Kf8 8. Nxg6+ Kxf7 9. Nxh8+ Ke8 10. Qxh5+ Kf8 11. Qf7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "10"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[Termination "checkmate"]
+
+1. a4 e5 2. Nc3 Nc6 3. Na2 Qh4 4. Nf3 Qxa4 5. g4 d5 6. d3 Bxg4 7. Bg5 Bb4+ 8. Nxb4 Qxb4+ 9. Qd2 Qxb2 10. Bh4 Qxa1+ 11. Qc1 Qxc1# 0-1

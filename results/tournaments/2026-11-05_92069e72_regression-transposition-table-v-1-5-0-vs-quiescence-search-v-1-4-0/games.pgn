@@ -1,0 +1,635 @@
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "1"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "0-1"]
+[FEN "rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bb5+ Nbd7 7. O-O e5 8. Nf3 a6 9. Bxd7+ Qxd7 10. Qd3 Be7 11. Bh6 Ng4 12. Nd5 f5 13. Nb6 Qc6 14. Nxa8 fxe4 15. Qd5 exf3 16. Qxc6+ bxc6 17. Bd2 fxg2 18. Kxg2 Bd8 19. h3 Nf6 20. f4 Bb7 21. fxe5 c5+ 22. Kg1 Ne4 23. exd6 Nxd2 24. Rae1+ Ne4 25. Rxe4+ Bxe4 26. Re1 Kd7 27. Rxe4 Kxd6 28. Ra4 Kc6 29. Rxa6+ Kb7 30. Rd6 Kxa8 31. Rd7 Bf6 32. b3 Bd4+ 33. Kf1 Rf8+ 34. Ke1 h5 35. Rd6 Rf3 36. Rxg6 Rxh3 37. Kd2 Kb7 38. a3 Kc7 39. Ra6 Rg3 40. Ra7+ Kd6 41. Rh7 Rh3 42. Rb7 h4 43. Rb6+ Kd5 44. Rb7 Ke4 45. Re7+ Be5 46. Rf7 Rh2+ 47. Kd1 h3 48. Rh7 Ke3 49. c3 Kd3 50. Rd7+ Bd4 51. Kc1 Kxc3 52. Kb1 Re2 53. Rc7 Kd3 54. b4 h2 55. Rh7 Re1+ 56. Ka2 Kc4 57. Rxh2 Ra1# 0-1
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "2"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "0-1"]
+[FEN "rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bb5+ Nbd7 7. O-O e5 8. Nf3 Be7 9. Bh6 Ng4 10. Qd2 a6 11. Bc4 Nc5 12. Rfd1 Qb6 13. Nd5 Qd8 14. Re1 Nxh6 15. Qxh6 Be6 16. b4 Nd7 17. Rad1 Bxd5 18. Bxd5 Qb6 19. Qg7 Rf8 20. Qxh7 Nf6 21. Qh6 Nxd5 22. exd5 Qxb4 23. Qe3 Qb2 24. Qb3 Qxb3 25. axb3 Rc8 26. Rc1 Kd7 27. b4 Rc7 28. Re2 Rfc8 29. Ne1 Rc4 30. Rd1 Rxb4 31. Nd3 Rd4 32. g3 Bf6 33. f4 exf4 34. gxf4 Rcc4 35. Kf1 Kc7 36. Kf2 Rxd5 37. Ke3 Rf5 38. Rg2 g5 39. Rf1 d5 40. Kf3 gxf4 41. Rg8 Be7 42. Rf2 Bd6 43. Rg7 Ra4 44. Rfg2 Kc6 45. Rd2 Re4 46. Rf2 Rf6 47. Rf1 Re3+ 48. Kf2 Rh3 49. Kg2 Rh4 50. Rf3 Rhh6 51. h3 Rhg6+ 52. Rxg6 Rxg6+ 53. Kf2 Rf6 54. Ke2 d4 55. Rf1 Kd5 56. Kf3 Rg6 57. Rb1 Rg3+ 58. Kf2 b5 59. Rh1 b4 60. Rb1 Rxh3 61. Nxb4+ Bxb4 62. Rxb4 Ke4 63. Kg1 Rc3 64. Rb7 Rxc2 65. Re7+ Kf3 66. Rd7 Kg3 67. Kf1 f3 68. Ke1 f2+ 69. Kd1 f1=Q+ 70. Kxc2 Qf5+ 71. Kd2 Qxd7 72. Kd3 Kf4 73. Ke2 Qb5+ 74. Kf2 Qb2+ 75. Kf1 Kf3 76. Kg1 Qg2# 0-1
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "3"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/pp2pppp/2np1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bb5 Bd7 7. Nxc6 bxc6 8. Bc4 e6 9. Qe2 Be7 10. Bb3 O-O 11. O-O c5 12. Be3 Bc6 13. Qf3 Qb6 14. Rfe1 Rad8 15. Bf4 Rfe8 16. Rad1 d5 17. exd5 exd5 18. Nxd5 Nxd5 19. Bxd5 Rxd5 20. Rxd5 Qb4 21. Bd2 Qb7 22. c4 Bxd5 23. cxd5 Qxb2 24. Bc3 Qb8 25. Qg4 Bf6 26. Rxe8+ Qxe8 27. Bd2 Qb8 28. Qe4 Be5 29. g3 a6 30. Kg2 Bf6 31. Be3 Qc8 32. Qc4 Be7 33. g4 Bd6 34. Kf3 h5 35. h3 hxg4+ 36. hxg4 Qb7 37. Bf4 Be7 38. Qe4 Bf6 39. d6 Qb5 40. Qd5 c4 41. Qxb5 axb5 42. d7 Bd8 43. Ke4 Kf8 44. Bd6+ Kg8 45. Bb4 Kh7 46. Kd5 Kg6 47. f4 Kf6 48. Kc6 g6 49. Kb7 g5 50. Kc8 c3 51. Bxc3+ Ke7 52. Bb4+ Ke6 53. f5+ Ke5 54. Kxd8 Kf4 55. Ke7 Kxg4 56. d8=Q Kxf5 57. Qd3+ Kg4 58. Kf6 Kf4 59. Bd6+ Kg4 60. Qg3+ Kh5 61. Qxg5# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "4"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "r1bqkb1r/pp2pppp/2np1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+6. Bb5 Bd7 7. Nxc6 bxc6 8. Bc4 e5 9. O-O Be7 10. Be3 O-O 11. Qd3 Ng4 12. Rad1 Nxe3 13. Qxe3 Qc7 14. h3 Rad8 15. Qd3 Bc8 16. Rfe1 Bf6 17. Qe3 Be6 18. Qe2 Bxc4 19. Qxc4 Qb6 20. Qb3 Qxb3 21. axb3 Rd7 22. Rd2 Rfd8 23. Red1 Kf8 24. Kf1 Ke7 25. Ke2 Ke6 26. Na4 Be7 27. Nc3 d5 28. Rd3 Bb4 29. Kf3 Bxc3 30. bxc3 f5 31. exf5+ Kxf5 32. Ke3 c5 33. R3d2 d4+ 34. Ke2 Ke4 35. cxd4 Rxd4 36. Rd3 Rxd3 37. cxd3+ Kd4 38. Ra1 Rd7 39. Ra4+ Kd5 40. Ke3 Rb7 41. Ra5 Kd6 42. Ra6+ Kd5 43. Ra5 Kd6 44. Ra6+ Kd5 45. Ra5 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "5"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "rn1qk2r/p1pp1ppp/bp2pn2/8/1bPP4/1P3NP1/P3PP1P/RNBQKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bd2 Nc6 7. Bxb4 Nxb4 8. Nc3 d5 9. e3 Ne4 10. Nxe4 dxe4 11. Ne5 Bb7 12. Bg2 Qb8 13. a3 Nc6 14. Nxc6 Bxc6 15. d5 Bb7 16. Bxe4 O-O 17. O-O Rd8 18. Qf3 f5 19. Bc2 exd5 20. Rad1 f4 21. cxd5 fxe3 22. fxe3 Rf8 23. Qe4 g6 24. Qe6+ Kh8 25. Qe5+ Kg8 26. Rxf8+ Qxf8 27. Qxc7 Rc8 28. Qxb7 Rxc2 29. Rf1 Qxa3 30. Qf7+ Kh8 31. Qf6+ Kg8 32. d6 Rc8 33. Qe6+ Kg7 34. Rf7+ Kh6 35. Qh3+ Kg5 36. Qh4# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "6"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "0-1"]
+[FEN "rn1qk2r/p1pp1ppp/bp2pn2/8/1bPP4/1P3NP1/P3PP1P/RNBQKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nbd2 Bb7 7. Qc2 d5 8. Bg2 Nc6 9. O-O O-O 10. e3 Bd6 11. Bb2 Qe7 12. Ne5 Nb4 13. Qc3 Ne4 14. Nxe4 dxe4 15. a3 Bxe5 16. axb4 Bf6 17. Qc2 e5 18. d5 Rfe8 19. Bc3 Qd6 20. Bxe4 h6 21. Rfd1 a6 22. b5 axb5 23. Rxa8 Rxa8 24. cxb5 Qc5 25. Qd3 Ra3 26. Bd2 Ra2 27. b4 Qd6 28. Bc3 Ra3 29. Qc4 Ra8 30. Bf3 Rd8 31. e4 Ra8 32. g4 Qd7 33. Re1 Qd6 34. Ra1 Rxa1+ 35. Bxa1 Qe7 36. Bc3 Bg5 37. Kf1 Bf6 38. Ke2 Qd7 39. Kd3 Qd6 40. h3 Qd7 41. Kc2 Qd6 42. Qa2 Kh7 43. Qa3 Bh4 44. Be1 Kg8 45. Qa7 Bc8 46. Qa8 Qd7 47. Bc3 Bf6 48. Bb2 Qe8 49. Kc3 Bh4 50. Qb8 Bxf2 51. Kb3 f6 52. Qxc7 Bd7 53. Qc2 Bh4 54. Qc1 Bxb5 55. Qe3 Qc8 56. Ka2 Qc4+ 57. Ka3 Qf1 58. d6 Kh7 59. Qb3 Qxh3 60. Ka2 Qf1 61. Ka3 Bc4 62. Bg2 Qxg2 63. Qxc4 Qxg4 64. Qd5 Qd7 65. Kb3 Be1 66. b5 Kg6 67. Qc6 Qh3+ 68. Kc2 Qg2+ 69. Kb1 Qd2 70. Qe8+ Kh7 71. Qc6 Qd3+ 72. Ka2 Bb4 73. d7 Be7 74. Qd5 Qc2 75. d8=Q Qa4+ 76. Kb1 Bxd8 77. Qxd8 Qxe4+ 78. Kc1 Qc4+ 79. Kd2 Qxb5 80. Qd3+ Qxd3+ 81. Kxd3 h5 82. Bc1 h4 83. Be3 h3 84. Bg1 Kg6 85. Ke4 b5 86. Bh2 b4 87. Kd3 Kf5 88. Kd2 e4 89. Kc2 e3 90. Kd3 b3 91. Bg3 e2 92. Kd2 Kg4 93. Kxe2 b2 94. Bd6 b1=Q 95. Kd2 f5 96. Bh2 Qb2+ 97. Kd3 Qxh2 98. Ke3 Qd6 99. Kf2 Qd2+ 100. Kf1 Kf4 101. Kg1 Qg2# 0-1
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "7"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1b1k2r/ppppqppp/2n1pn2/8/1bPP4/5NP1/PP1BPP1P/RN1QKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nc3 d5 7. e3 O-O 8. Bd3 dxc4 9. Bxc4 e5 10. d5 Na5 11. Bb5 c6 12. dxc6 Nxc6 13. Bxc6 bxc6 14. e4 Bh3 15. Qe2 Bg2 16. Rg1 Bxf3 17. Qxf3 c5 18. O-O-O c4 19. Kb1 Qe6 20. g4 Qb6 21. g5 Bxc3 22. Bxc3 Ne8 23. Bxe5 Nc7 24. Bd4 Qc6 25. Qe3 Rfe8 26. Rge1 Rad8 27. Rc1 Nb5 28. Bc3 Rd3 29. Qf4 Nxc3+ 30. Rxc3 Rxc3 31. bxc3 Qb6+ 32. Ka1 Rb8 33. Qd2 Rd8 34. Qe2 Rd3 35. Rb1 Qd8 36. Qc2 Qd6 37. Qa4 Qe5 38. Qxc4 Rxc3 39. Qd5 Qe8 40. Rb7 a6 41. Qf5 Rd3 42. Qf4 Rd4 43. Rb8 Rd8 44. Rxd8 Qxd8 45. Kb1 Qd3+ 46. Kb2 Qd4+ 47. Kb3 Qd1+ 48. Ka3 Qb1 49. h4 Qb6 50. e5 h6 51. gxh6 gxh6 52. h5 a5 53. Ka4 Qd8 54. Qg3+ Kh7 55. Qe3 Qd5 56. a3 Kg8 57. Qf4 Kg7 58. Qf6+ Kh7 59. f4 Qc4+ 60. Kxa5 Qc5+ 61. Ka6 Qxa3+ 62. Kb6 Qb3+ 63. Kc7 Qd5 64. Kc8 Qb3 65. Kd8 Qd1+ 66. Ke7 Qxh5 67. Qxf7+ Qxf7+ 68. Kxf7 h5 69. e6 h4 70. e7 h3 71. e8=Q h2 72. Qc6 Kh8 73. Qh6# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "8"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "r1b1k2r/ppppqppp/2n1pn2/8/1bPP4/5NP1/PP1BPP1P/RN1QKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+6. Nc3 d5 7. e3 O-O 8. Bd3 Bxc3 9. Bxc3 Ne4 10. Qc2 Nxc3 11. Qxc3 Nb4 12. O-O Nxd3 13. Qxd3 Qb4 14. Ng5 f5 15. cxd5 exd5 16. Qc2 Qe7 17. h4 h6 18. Nf3 Qe4 19. Qe2 Qg4 20. Rae1 Be6 21. Ne5 Qxe2 22. Rxe2 Rac8 23. Rd1 a6 24. Rc2 Rfe8 25. Rdc1 c6 26. Kf1 Kf8 27. Ke2 Ke7 28. Kd3 Kd6 29. a3 Bg8 30. Rc5 Bh7 31. Kd2 Bg8 32. Kd3 Bh7 33. Ke2 Bg8 34. Kd3 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "9"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "rnbqkb1r/ppp2ppp/8/4p3/8/2n3P1/PPPP1PBP/R1BQK1NR w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. dxc3 Qxd1+ 7. Kxd1 Bd6 8. Be3 O-O 9. Ne2 Nd7 10. c4 Nc5 11. f4 exf4 12. gxf4 Rd8 13. Kc1 Bg4 14. Nc3 Ne6 15. Bxb7 Rab8 16. Be4 Bxf4 17. Bxf4 Nxf4 18. Nd5 Nxd5 19. Bxd5 Re8 20. Rf1 Bh5 21. Rh1 Bg6 22. Bf3 Be4 23. Bxe4 Rxe4 24. b3 Rd8 25. Kb2 Re2 26. Rae1 Rf2 27. Re7 Rc8 28. Kc3 Kf8 29. Rd7 Ke8 30. Rdd1 Ke7 31. c5 Ke6 32. c6 Ke5 33. Rhe1+ Kf6 34. Rd7 Rxh2 35. Rf1+ Ke5 36. Rfxf7 Rh6 37. Rxc7 Rxc6+ 38. Rxc6 Rxc6+ 39. Kd3 Rd6+ 40. Ke3 Rc6 41. Rxg7 Rxc2 42. Re7+ Kd5 43. Rxa7 h6 44. Ra5+ Kd6 45. b4 Rh2 46. a3 Rh3+ 47. Kd4 Rh4+ 48. Kd3 Rh3+ 49. Ke4 Rh4+ 50. Kf5 Rh5+ 51. Kg4 Rh2 52. Rh5 Rg2+ 53. Kf5 Rf2+ 54. Ke4 Re2+ 55. Kd4 Re6 56. Rd5+ Ke7 57. b5 Rg6 58. Kc5 Rg3 59. Rh5 Rxa3 60. Rxh6 Rc3+ 61. Kd4 Rg3 62. b6 Kd7 63. Kc4 Rg4+ 64. Kd5 Rg5+ 65. Ke4 Rb5 66. Kd3 Rg5 67. Kc3 Rg1 68. Kb4 Rg4+ 69. Kb3 Rg5 70. Kb2 Rc5 71. Ka3 Rb5 72. Ka4 Rb1 73. Ka5 Rb2 74. Ka6 Rb1 75. Rf6 Ke7 76. Rf2 Kd6 77. Ka7 Ra1+ 78. Kb8 Rc1 79. Ra2 Rb1 80. b7 Re1 81. Ka7 Rb1 82. b8=Q+ Rxb8 83. Kxb8 Kc6 84. Rd2 Kc5 85. Kc7 Kc4 86. Kc6 Kc3 87. Rd7 Kc4 88. Rd6 Kb4 89. Kd5 Kc3 90. Kc5 Kb3 91. Kd4 Kc2 92. Kc4 Kb2 93. Rd2+ Kc1 94. Kc3 Kb1 95. Rd1+ Ka2 96. Rc1 Ka3 97. Ra1# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "10"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "rnbqkb1r/ppp2ppp/8/4p3/8/2n3P1/PPPP1PBP/R1BQK1NR w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "fifty_move_rule"]
+
+6. dxc3 Qxd1+ 7. Kxd1 Bc5 8. Nf3 Nc6 9. b4 Bd6 10. b5 Ne7 11. Re1 Bg4 12. h3 Bxf3+ 13. Bxf3 O-O-O 14. Ke2 Kb8 15. Bb2 Bc5 16. Rad1 Nf5 17. g4 Nd6 18. Bd5 Nxb5 19. c4 Nd4+ 20. Bxd4 Bxd4 21. Rb1 b6 22. Rb3 Rhf8 23. Rd1 Bc5 24. Rf3 Rd7 25. Rf5 Re7 26. Kf3 a6 27. Ke4 Bd6 28. Rd3 g6 29. Rf6 g5 30. Rdf3 Kc8 31. Rxf7 Rfxf7 32. Rxf7 c6 33. Rf8+ Kc7 34. Bg8 b5 35. Rf7 Rxf7 36. Bxf7 h6 37. Kf5 Bc5 38. Kxe5 Bxf2 39. cxb5 cxb5 40. Kf6 Kd6 41. Kg6 Ke5 42. Kxh6 Kf6 43. Bd5 Be3 44. Bc6 b4 45. Kh5 a5 46. Bb5 Bf2 47. Bd7 Be1 48. Bc6 Bg3 49. Be8 Be1 50. Bd7 Bf2 51. Bb5 Bg3 52. Bc6 Be5 53. Bd7 Bd4 54. Be8 Bc5 55. Ba4 Bg1 56. Kh6 Be3 57. Bb3 Bd4 58. Kh7 Bg1 59. Bc4 a4 60. Kh6 Be3 61. Kh5 a3 62. Bf1 Bc1 63. Be2 Bd2 64. Bf3 Be3 65. Bg2 Bb6 66. Bf1 Be3 67. Bc4 Bd4 68. Be2 Be3 69. Bb5 Bf2 70. Bc6 Be1 71. Bf3 Bf2 72. Be4 Bg1 73. Bd5 Be3 74. Bc6 Bc1 75. Bh1 Be3 76. Bb7 Bc1 77. Be4 Be3 78. Bf5 Bf2 79. Bg6 Be3 80. Kh6 Bc1 81. Bh7 Be3 82. Bf5 Bc1 83. Kh5 Be3 84. Bd7 Bc1 85. Bb5 Be3 86. Be8 Bc1 87. Bc6 Be3 88. Bd5 Ke5 89. Bb3 Kf4 90. Kg6 Kg3 91. Kf5 Kxh3 92. Ke4 Bc5 93. Kf3 Be7 94. Bc4 Bc5 95. Bd5 Kh4 96. Bb3 Kh3 97. Bc4 Kh2 98. Bf1 Bb6 99. Bd3 Kh3 100. Bf5 Kh2 101. Be6 Bc5 102. Bd7 Kh3 103. Bf5 Kh2 104. Bg6 Kh3 105. Bf7 Kh4 106. Bd5 Kh3 107. Bc6 Kh4 108. Ba4 Kh3 109. Bd7 Kh2 110. Bb5 Kh1 111. Bf1 Kh2 112. Bd3 Kh3 113. Bb5 Kh4 114. Bf1 Bd6 115. Bd3 Kh3 116. Bb5 Bc5 117. Be2 Kh2 118. Ba6 Kh3 119. Bc8 Kh4 120. Kg2 Bd4 121. Bf5 Bb2 122. Kf3 Ba1 123. Bd3 Bc3 124. Bc4 Bf6 125. Bb3 Kh3 126. Bd5 Kh4 127. Bc4 Kh3 128. Bd3 Kh4 129. Bb5 Kh3 130. Bf1+ Kh2 131. Bd3 Kh3 132. Bb5 Kh4 133. Bc6 Kh3 134. Bd7 Kh4 135. Bc8 Bb2 136. Be6 Bc3 137. Bf7 Bf6 138. Bd5 Kh3 139. Be6 Kh4 140. Bd7 Kh3 141. Ke4 Kg2 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "11"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1/2-1/2"]
+[FEN "r2qkb1r/pp1npppp/2p2n2/3p4/6b1/3P1NP1/PPP1PPBP/RNBQ1RK1 w kq - 1 6"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+6. d4 Qc7 7. Nc3 e5 8. dxe5 Nxe5 9. Nxe5 Qxe5 10. h3 Be6 11. Bf4 Qf5 12. e3 Bc5 13. g4 Qg6 14. g5 Nh5 15. Qd2 Nxf4 16. exf4 O-O 17. Rfe1 Bf5 18. Ne2 Bb6 19. Rac1 Rfd8 20. Ng3 Be6 21. Bf1 d4 22. Bd3 f5 23. Re5 Qf7 24. Rce1 Bxa2 25. Re7 Qf8 26. Nxf5 g6 27. Nh6+ Kh8 28. Rxb7 Rab8 29. Rxb8 Rxb8 30. Ng4 Qc5 31. b4 Qd6 32. Ne5 Be6 33. c3 c5 34. Bc4 Bxc4 35. Nxc4 Qd5 36. Qd3 Rd8 37. Re5 Qc6 38. Nxb6 axb6 39. bxc5 bxc5 40. Qc4 d3 41. Qb3 d2 42. Qd1 c4 43. Re7 Qd6 44. Re4 Qc7 45. Kh2 Kg8 46. h4 Rd3 47. f3 Rd8 48. Kg2 Kf7 49. Kf2 Rd3 50. Ke2 Qc6 51. Kf2 Qc7 52. Ke2 Qc6 53. Kf2 Qc7 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "12"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "r2qkb1r/pp1npppp/2p2n2/3p4/6b1/3P1NP1/PPP1PPBP/RNBQ1RK1 w kq - 1 6"]
+[SetUp "1"]
+[Termination "insufficient_material"]
+
+6. d4 Qc7 7. h3 Bxf3 8. exf3 e5 9. dxe5 Nxe5 10. f4 Nc4 11. Nd2 Nd6 12. g4 O-O-O 13. g5 Nd7 14. Nf3 Kb8 15. Qd4 Nb5 16. Qd3 Nc5 17. Qd1 Ne4 18. Be3 Bc5 19. Bxc5 Nxc5 20. Qc1 Nd6 21. Qe3 Ne6 22. Ne5 d4 23. Qb3 Ka8 24. Qf3 c5 25. Qg4 Kb8 26. Rae1 Nf8 27. Bd5 Ng6 28. Rd1 Rhf8 29. Nxg6 hxg6 30. Qf3 Qb6 31. Qb3 Qxb3 32. axb3 Nf5 33. Bc4 Kc7 34. Kg2 Kc6 35. Kf3 Nd6 36. Rfe1 Rh8 37. Rh1 a6 38. Bd3 Rhe8 39. Ra1 Re7 40. Rae1 Rxe1 41. Rxe1 Rh8 42. Kg4 a5 43. Re7 b5 44. Bf1 Rh4+ 45. Kf3 Rh8 46. Bg2 Kb6 47. Ke2 c4 48. Bd5 Rf8 49. bxc4 bxc4 50. Kd2 a4 51. Bf3 Rd8 52. Bd5 Rf8 53. Ke2 Kc5 54. Bf3 Re8 55. Re5+ Rxe5+ 56. fxe5 Nb5 57. Be4 c3 58. b4+ axb3 59. cxb3 Nc7 60. Kf3 Nd5 61. e6 fxe6 62. Bxg6 Kb4 63. Bc2 Ka3 64. Ke4 Kb2 65. Bd1 Nf4 66. Kxd4 Nxh3 67. Ke3 c2 68. Bxc2 Kxc2 69. f4 Kxb3 70. Kf3 e5 71. fxe5 Nxg5+ 72. Kf4 Ne6+ 73. Kf5 Nd4+ 74. Kg6 Kc4 75. Kxg7 Ne6+ 76. Kf7 Kd5 77. Kf6 Nd4 78. e6 Nxe6 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "13"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1bqkbnr/pp3ppp/2n5/2pp4/3P4/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 2 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bg5 Be7 7. Bxe7 Ngxe7 8. dxc5 Qa5 9. e4 dxe4 10. Ng5 e3 11. Ne4 exf2+ 12. Kxf2 Qb4 13. Qd2 O-O 14. a3 Qd4+ 15. Qxd4 Nxd4 16. Bc4 Nec6 17. Bd5 Be6 18. Rad1 Bxd5 19. Nxd5 Rad8 20. Ne3 Rfe8 21. Nd6 Re6 22. Rhe1 Re5 23. b4 b5 24. Rd2 Re6 25. Red1 Rf6+ 26. Kg1 Rfxd6 27. cxd6 Rxd6 28. Kh1 a5 29. Nc2 axb4 30. Nxd4 Kf8 31. Nxc6 Rxc6 32. axb4 Rc4 33. Rd4 Rxd4 34. Rxd4 Ke7 35. Rd5 Ke6 36. Rxb5 Kd6 37. Kg1 Ke6 38. Kf2 Kd6 39. Rb8 Ke5 40. b5 h6 41. b6 Kd5 42. Rc8 Kd4 43. b7 Ke5 44. b8=Q+ Kf5 45. Rc5+ Kg6 46. Qf8 Kh7 47. Qxf7 Kh8 48. Rc7 g5 49. Rc8# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "14"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1-0"]
+[FEN "r1bqkbnr/pp3ppp/2n5/2pp4/3P4/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 2 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bg5 Be7 7. Bxe7 Ngxe7 8. dxc5 Qa5 9. Qd3 Qxc5 10. e4 dxe4 11. Qxe4 Bf5 12. Qa4 O-O 13. Qb5 Qd6 14. Bc4 a6 15. Qb6 Rfd8 16. Bb3 Bd3 17. O-O-O Qf4+ 18. Qe3 Ng6 19. Bd5 Bf5 20. Bxc6 bxc6 21. Rxd8+ Rxd8 22. Qxf4 Nxf4 23. Ne5 c5 24. g4 Nd3+ 25. Nxd3 Bxd3 26. Rd1 h6 27. Rg1 c4 28. g5 h5 29. Re1 Kf8 30. Kd2 Bg6+ 31. Kc1 Rd4 32. Rd1 Rh4 33. Rh1 Rg4 34. h4 Rg2 35. Nd1 Be4 36. Kd2 Bf3 37. Ke3 Bc6 38. Ke2 Rg4 39. Rh2 Re4+ 40. Ne3 Ke7 41. Kd2 Ke6 42. Kc3 Bd5 43. Kb4 c3+ 44. Kxc3 Rf4 45. Nxd5 Kxd5 46. Kd3 Rd4+ 47. Ke3 Re4+ 48. Kf3 Re1 49. Kg3 Kd4 50. a3 Re2 51. f3 Rxh2 52. Kxh2 a5 53. Kg3 Ke3 54. b4 axb4 55. axb4 Kd4 56. Kf4 Kc4 57. Ke5 Kxb4 58. Kd6 Kc4 59. Ke7 f5 60. gxf6 gxf6 61. Kxf6 Kd4 62. f4 Ke4 63. f5 Kf4 64. Ke6 Kg3 65. f6 Kxh4 66. f7 Kg3 67. f8=Q h4 68. Qg7+ Kf4 69. Qg2 Ke3 70. Ke5 Kd3 71. Qh2 h3 72. Qxh3+ Kc4 73. Qa3 Kb5 74. Kd5 Kb6 75. Qe7 Ka5 76. Kc5 Ka6 77. Qd7 Ka5 78. Qb5# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "15"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "rnbqk2r/ppp1ppbp/6p1/8/3PP3/2P5/P4PPP/R1BQKBNR w KQkq - 1 7"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+7. Nf3 Nc6 8. Bb5 O-O 9. Bxc6 bxc6 10. O-O Bg4 11. Bg5 Qd7 12. Bf4 Rfe8 13. Be5 f6 14. Bg3 e5 15. Re1 Qd6 16. h3 Be6 17. Qc2 Bc4 18. Qa4 Bf7 19. Rad1 Qe6 20. Qa5 Re7 21. a3 a6 22. c4 Qxc4 23. dxe5 fxe5 24. Bxe5 Bxe5 25. Nxe5 Qb5 26. Qxb5 cxb5 27. Nc6 Re6 28. Nd4 Re7 29. e5 Rae8 30. Nc6 Re6 31. Rc1 g5 32. Nb4 Rc8 33. Nd5 c5 34. f4 gxf4 35. Nxf4 Re7 36. e6 Bg6 37. Nd5 Rb7 38. e7 Kg7 39. Re6 Ra7 40. Rce1 Re8 41. Rc6 Rd7 42. Re5 Be4 43. Rg5+ Bg6 44. Kf2 Kh6 45. Re5 Kg7 46. Nf6 Rexe7 47. Nxd7 Rf7+ 48. Ke1 Rxd7 49. Rxa6 Rc7 50. Rb6 Bd3 51. Kd2 Bc4 52. Kc3 h6 53. a4 Bf1 54. axb5 Bxg2 55. Rh5 Be4 56. Kc4 Bb1 57. Rc6 Re7 58. Rhxh6 Re5 59. Rhd6 Ba2+ 60. Kd3 Bb1+ 61. Kd2 Bf5 62. Rc7+ Kf8 63. b6 Be4 64. Rd8+ Re8 65. Rxe8+ Kxe8 66. b7 Bxb7 67. Rxb7 Kd8 68. Kc3 Ke8 69. Kc4 Kd8 70. Kxc5 Ke8 71. Kd6 Kf8 72. Ke6 Kg8 73. Kf6 Kh8 74. Kg6 Kg8 75. Rb8# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "16"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "rnbqk2r/ppp1ppbp/6p1/8/3PP3/2P5/P4PPP/R1BQKBNR w KQkq - 1 7"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+7. Nf3 Nc6 8. Bb5 Qd7 9. Bb2 Qg4 10. Qd3 f5 11. d5 fxe4 12. dxc6 b6 13. Qe3 Qxg2 14. Kd2 Qxf3 15. Rae1 Bg4 16. Rhf1 O-O-O+ 17. Kc1 Qxe3+ 18. fxe3 Bf5 19. Kc2 Be5 20. Rh1 Bd6 21. c4 e5 22. Bc3 Kb8 23. Rd1 g5 24. Rhf1 Bg4 25. Rd5 Rhe8 26. Rf6 Bc8 27. Rdxd6 Rxd6 28. Rxd6 cxd6 29. c7+ Kxc7 30. Bxe8 Be6 31. Bb5 Kb7 32. Bb4 a6 33. Ba4 Kc7 34. Kc3 g4 35. Bb3 Kc6 36. Ba3 d5 37. Bc2 b5 38. cxd5+ Bxd5 39. Kb4 Kb6 40. Bb2 a5+ 41. Ka3 b4+ 42. Ka4 Bc6+ 43. Kb3 Bd5+ 44. Ka4 Bc6+ 45. Kb3 Bd5+ 46. Ka4 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "17"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "0-1"]
+[FEN "rnbqk2r/pppnbppp/4p3/3pP1B1/3P4/2N5/PPP2PPP/R2QKBNR w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Be3 Nc6 7. Bb5 O-O 8. Bxc6 bxc6 9. Nf3 Rb8 10. Rb1 Ba6 11. Kd2 c5 12. Kc1 cxd4 13. Qxd4 Bc5 14. Qd2 Bc4 15. Bxc5 Nxc5 16. b3 Bb5 17. Qe3 Qe7 18. b4 Na6 19. a3 c6 20. Nd4 Qb7 21. a4 Bc4 22. b5 cxb5 23. Ndxb5 Ra8 24. Nd6 Qc6 25. Qf3 Nb8 26. Rd1 Nd7 27. Qe3 Rfd8 28. Nxc4 Qxc4 29. h3 Rdc8 30. Rb3 Nc5 31. Rb2 Nxa4 32. Nxa4 Qxa4 33. Kb1 Rab8 34. Rb3 Qc4 35. Qd3 Rxb3+ 36. cxb3 Qf4 37. Qd4 Qh2 38. Qxa7 Qxe5 39. Qa6 Qe4+ 40. Qd3 Qxg2 41. f4 Rd8 42. Qe3 Qg6+ 43. Kb2 Rc8 44. Rd2 h6 45. Re2 h5 46. Rd2 h4 47. Qe1 Qh5 48. Qe3 Qf5 49. Rg2 g6 50. Rd2 Rc6 51. Rd3 Qf6+ 52. Qe5 Kg7 53. Re3 Rc8 54. Rd3 Qxe5+ 55. fxe5 f6 56. Rc3 Rxc3 57. exf6+ Kxf6 58. Kxc3 Ke5 59. Kd3 d4 60. b4 Kd5 61. b5 e5 62. b6 e4+ 63. Kc2 Kc6 64. b7 Kxb7 65. Kd1 d3 66. Kd2 g5 67. Ke3 Kc6 68. Kxe4 d2 69. Kf5 d1=Q 70. Kxg5 Qe1 71. Kf4 Kd5 72. Kg4 Qg3+ 73. Kf5 Qxh3+ 74. Kg5 Ke5 75. Kg6 Qd7 76. Kg5 Qg7+ 77. Kxh4 Kf4 78. Kh3 Qg3# 0-1
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "18"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "rnbqk2r/pppnbppp/4p3/3pP1B1/3P4/2N5/PPP2PPP/R2QKBNR w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "insufficient_material"]
+
+6. Bxe7 Qxe7 7. Nf3 a6 8. Qc1 c5 9. dxc5 Nc6 10. Qe3 Qxc5 11. Qxc5 Nxc5 12. Kd2 O-O 13. Bd3 f6 14. exf6 Rxf6 15. Rad1 Nb4 16. Ke3 Nc6 17. Rhe1 Bd7 18. a3 Rd8 19. Bf1 a5 20. Bd3 a4 21. h3 h6 22. Kd2 Ne7 23. Re3 Bc6 24. Ree1 Ng6 25. Bxg6 Rxg6 26. Rg1 d4 27. Ne2 Rf6 28. Ne5 Bb5 29. Ke1 Rf5 30. Nf3 d3 31. Nc1 Rfd5 32. cxd3 e5 33. Rd2 Bxd3 34. Nh2 h5 35. Nf1 Bxf1 36. Rxd5 Rxd5 37. Rxf1 Rd6 38. f4 e4 39. Rf2 Kf7 40. Rc2 Rd5 41. Kf2 Ke6 42. Ne2 h4 43. Rc3 Kd6 44. Ke3 Rd1 45. f5 b6 46. Nd4 Ke5 47. Ne6 Rd3+ 48. Rxd3 Nxd3 49. Ng5 Nxb2 50. Nxe4 Nc4+ 51. Kd3 Nxa3 52. Nd2 Kxf5 53. Nf3 Kf4 54. Nxh4 Nb5 55. Kc4 a3 56. Kb3 Kg3 57. Nf5+ Kxg2 58. h4 Kh3 59. Nxg7 Kg4 60. Ne6 Kxh4 61. Nf4 a2 62. Kxa2 Nc7 63. Kb3 Kg3 64. Ne2+ Kf3 65. Nc3 Ne8 66. Nd5 Ke4 67. Nxb6 Kd4 68. Kc2 Nc7 69. Nd5 Na6 70. Nb4 Nc5 71. Nc6+ Ke4 72. Kc3 Na4+ 73. Kb4 Nb6 74. Kc5 Nd5 75. Nd4 Nf4 76. Nf3 Nd3+ 77. Kd6 Kxf3 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "19"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1/2-1/2"]
+[FEN "rnbq1rk1/ppp1bppp/4pn2/3p4/2PP4/5NP1/PP2PPBP/RNBQK2R w KQ - 4 6"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+6. Nbd2 Nc6 7. O-O Ne4 8. e3 Nxd2 9. Bxd2 dxc4 10. Qc2 Bf6 11. Qxc4 Qd5 12. Ne5 Nxe5 13. Bxd5 Nxc4 14. Bxc4 e5 15. Bc3 exd4 16. Bxd4 Bxd4 17. exd4 Bf5 18. Rad1 Bg4 19. Rd2 Rad8 20. Re1 Rde8 21. Rc1 Bf3 22. d5 Re7 23. Rc3 Bg4 24. Kg2 Rd8 25. Rd4 Bf5 26. Kf3 Re1 27. g4 Bg6 28. Bd3 Bxd3 29. Rdxd3 Re7 30. Rb3 Rb8 31. Rd1 a6 32. Re3 Rd7 33. g5 Rd6 34. Re7 c6 35. Rde1 Kf8 36. dxc6 bxc6 37. R1e2 Rd5 38. Ra7 Rxg5 39. Rxa6 Rf5+ 40. Kg3 Rfb5 41. Ra7 Re8 42. Rd2 Rf5 43. Rc7 Rf6 44. f4 Rb8 45. h4 Rh6 46. Rdd7 Rf6 47. Kf3 Kg8 48. h5 Kf8 49. a3 h6 50. Ra7 c5 51. Rdc7 Kg8 52. Rab7 Rb6 53. Rxb6 Rxb6 54. Rc8+ Kh7 55. Rxc5 Rxb2 56. Ke4 Re2+ 57. Kd3 Ra2 58. Ra5 g6 59. hxg6+ Kxg6 60. Ra7 Kf6 61. Ra6+ Kf5 62. Ra7 Kxf4 63. Rxf7+ Ke5 64. Re7+ Kd6 65. Ra7 Kd5 66. Rd7+ Kc6 67. Ra7 Kb6 68. Ra8 Kc5 69. Ra7 Kd5 70. Rd7+ Ke6 71. Ra7 Kd5 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "20"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "rnbq1rk1/ppp1bppp/4pn2/3p4/2PP4/5NP1/PP2PPBP/RNBQK2R w KQ - 4 6"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+6. Nbd2 Nc6 7. O-O Ne4 8. e3 Nxd2 9. Bxd2 dxc4 10. Rc1 Bf6 11. Rxc4 e5 12. dxe5 Nxe5 13. Nxe5 Bxe5 14. Qc2 Qf6 15. Be4 h6 16. Bc3 Bxc3 17. Rxc3 c6 18. Rb3 Qe7 19. Bh7+ Kh8 20. Bf5 Kg8 21. Bxc8 Raxc8 22. e4 c5 23. Qc4 Rcd8 24. Re1 Rd4 25. Qc2 c4 26. Rc3 Qc5 27. Rc1 Rfd8 28. Re3 Rd2 29. Qc3 Qb6 30. Rc2 Rd1+ 31. Kg2 R1d3 32. Qxc4 Rxe3 33. fxe3 Qxe3 34. Rf2 Kh7 35. Qe2 Qxe2 36. Rxe2 Kg6 37. Kf3 Kf6 38. Kf4 Rd3 39. Re3 g5+ 40. Kf3 g4+ 41. Kf4 Rxe3 42. Kxe3 Ke5 43. a3 a6 44. Kd3 a5 45. a4 h5 46. Ke3 Ke6 47. Kf4 f6 48. b3 b6 49. Ke3 Ke5 50. Kd3 Kd6 51. Kc4 Ke5 52. Kd3 Kd6 53. Kd4 Ke6 54. Kc3 Ke5 55. Kd3 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "21"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1/2-1/2"]
+[FEN "r1bqkb1r/p1pp1ppp/2p2n2/8/4P3/8/PPP2PPP/RNBQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+6. e5 Nd5 7. c4 Nb6 8. Nc3 d5 9. cxd5 cxd5 10. Be3 Bb4 11. Qb3 Bxc3+ 12. Qxc3 O-O 13. Bd3 Be6 14. O-O Nc4 15. Bxc4 dxc4 16. Rad1 Qe7 17. Rfe1 Rfe8 18. Qa5 Reb8 19. Bd4 Bg4 20. Rc1 Be6 21. Qc3 a6 22. Rcd1 Re8 23. Qf3 Qd7 24. Bc3 Qb5 25. a3 Rad8 26. Rxd8 Rxd8 27. h3 Qd5 28. Qxd5 Rxd5 29. Kf1 Rd3 30. Ke2 Bd5 31. Rg1 Bc6 32. Ba5 Rd7 33. h4 Re7 34. f4 f6 35. Bc3 Kf7 36. Ke3 Rd7 37. Bd4 Ke6 38. h5 Bd5 39. g4 fxe5 40. fxe5 Rf7 41. Bc3 Rf3+ 42. Kd4 Rf4+ 43. Kc5 Bf3 44. Rf1 Rf7 45. Rg1 Rf4 46. Rf1 Rf7 47. Rg1 Rf4 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "22"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "0-1"]
+[FEN "r1bqkb1r/p1pp1ppp/2p2n2/8/4P3/8/PPP2PPP/RNBQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. e5 Nd5 7. c4 Nb6 8. Qe2 Be7 9. Be3 d5 10. exd6 cxd6 11. Nd2 Be6 12. Qf3 d5 13. Bd3 Nd7 14. Bd4 O-O 15. O-O Bd6 16. cxd5 cxd5 17. Qh5 h6 18. Rfc1 Re8 19. Rc6 Qe7 20. Nb3 a5 21. a4 Reb8 22. Rc3 Rb4 23. Bb5 Nf6 24. Qf3 Ne4 25. Rcc1 Qh4 26. g3 Ng5 27. Qd1 Qe4 28. Bc5 Nh3+ 29. Kf1 Qh1+ 30. Ke2 Bg4+ 31. Kd2 Bxd1 32. Rxd1 Qf3 33. Bxd6 Qxf2+ 34. Kc3 Qe3+ 35. Rd3 Rc8+ 36. Nc5 Rxc5+ 37. Bxc5 Qxc5+ 38. Bc4 Qxc4+ 39. Kd2 Rxb2+ 40. Ke1 Qe4+ 41. Kd1 Qh1# 0-1
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "23"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/pp1ppppp/2n5/3nP3/3p4/2P2N2/PP3PPP/RNBQKB1R w KQkq - 2 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. cxd4 d6 7. Bc4 e6 8. O-O Qc7 9. Bxd5 exd5 10. Nc3 Be6 11. Be3 dxe5 12. dxe5 Qa5 13. Qd3 Bc5 14. Nb5 Bxe3 15. Nd6+ Kd7 16. Qxe3 Qb4 17. a3 Qb6 18. Qxb6 axb6 19. Nb5 Bg4 20. Rad1 Bxf3 21. gxf3 Ne7 22. Rfe1 Rhc8 23. Nd6 Rc2 24. Nxf7 Rxb2 25. e6+ Kc7 26. Rd3 Ra2 27. Rc1+ Kb8 28. Rcc3 Ng6 29. h4 Ra1+ 30. Kh2 Ra4 31. f4 Rxf4 32. h5 d4 33. Rb3 Rh4+ 34. Rh3 Rxh3+ 35. Rxh3 Ne7 36. Rg3 g6 37. Nd6 Rd1 38. hxg6 hxg6 39. Nb5 Rd2 40. Kg1 d3 41. Nc3 Kc7 42. Kf1 Kc6 43. Ke1 Rb2 44. Rxd3 Rb3 45. a4 Nf5 46. Rd8 Rb4 47. Kd2 Rf4 48. Kd3 Rf3+ 49. Ke4 Rxf2 50. Ke5 b5 51. axb5+ Kb6 52. Rd7 Rc2 53. Nd5+ Kxb5 54. Rxb7+ Ka6 55. Rh7 Re2+ 56. Kf6 Nd6 57. Rd7 Ne4+ 58. Kxg6 Kb5 59. e7 Rg2+ 60. Kf5 Re2 61. Kf4 Nc5 62. Ne3 Ne6+ 63. Kf3 Rxe3+ 64. Kxe3 Ng7 65. Ke4 Ne8 66. Rd8 Kc5 67. Kf5 Kc6 68. Ke5 Kc7 69. Ke6 Ng7+ 70. Kf6 Nh5+ 71. Kf7 Nf4 72. e8=Q Nh3 73. Rd5 Ng5+ 74. Rxg5 Kd6 75. Qb5 Kc7 76. Rc5+ Kd6 77. Qc6# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "24"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "r1bqkb1r/pp1ppppp/2n5/3nP3/3p4/2P2N2/PP3PPP/RNBQKB1R w KQkq - 2 6"]
+[SetUp "1"]
+[Termination "fifty_move_rule"]
+
+6. cxd4 d6 7. Bc4 e6 8. Nbd2 dxe5 9. dxe5 Qc7 10. Bb5 Bd7 11. Bxc6 Bxc6 12. O-O O-O-O 13. Qe2 Nf4 14. Qe3 Nd3 15. a3 b5 16. Rb1 Rd5 17. Ne4 Nxe5 18. Qf4 Nxf3+ 19. gxf3 Qxf4 20. Bxf4 Kb7 21. Bg3 Rf5 22. Kg2 e5 23. Rbd1 Be7 24. Rfe1 Re8 25. Bh4 Kc7 26. Bg3 h5 27. h4 b4 28. axb4 Bxb4 29. Re3 a5 30. Rd4 Re7 31. Kf1 Rd7 32. Rc4 Rd1+ 33. Kg2 Kd7 34. Nc3 Bxc3 35. Rexc3 Bd5 36. Ra4 Rxf3 37. Rxf3 Rd3 38. Bxe5 Bxf3+ 39. Kh2 Rd5 40. Bxg7 Rf5 41. Bc3 Bc6 42. Rxa5 Rxf2+ 43. Kg1 Rg2+ 44. Kf1 Rc2 45. Rxh5 Kd6 46. Rg5 Be4 47. Kg1 f5 48. h5 f4 49. Be5+ Kc6 50. Bxf4 Rxb2 51. h6 Rb1+ 52. Kf2 Rb3 53. Rg3 Rxg3 54. Bxg3 Kd5 55. Ke3 Bf5 56. Bh2 Be4 57. Bd6 Bf5 58. Bg3 Be4 59. Be1 Bf5 60. Bc3 Be4 61. Ba1 Bf5 62. Bb2 Be4 63. Bc3 Bf5 64. Ba1 Be4 65. Bb2 Bf5 66. Bf6 Be4 67. Bh4 Bf5 68. Be7 Ke5 69. Bc5 Kd5 70. Bb6 Ke5 71. Ba7 Kd5 72. Bb8 Be4 73. Bc7 Bf5 74. Bd8 Ke5 75. Ba5 Kd5 76. Bc7 Be4 77. Bd8 Bf5 78. Bh4 Ke5 79. Be7 Kd5 80. Bf8 Ke5 81. Bb4 Kd5 82. Ba3 Ke5 83. Bf8 Kd5 84. Bg7 Be4 85. Kf4 Bd3 86. Bc3 Be4 87. Bh8 Bd3 88. Kf3 Bf5 89. Ba1 Bd3 90. Kf4 Be4 91. Bc3 Bd3 92. Ba5 Be4 93. Bc7 Bd3 94. Bd8 Be4 95. Ba5 Bd3 96. Bc7 Be4 97. Bd8 Bd3 98. Bb6 Be4 99. Be3 Bd3 100. Bf2 Be4 101. Bb6 Bd3 102. Ke3 Be4 103. Bd4 Bc2 104. Kd2 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "25"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1bqk1nr/pp2ppbp/2np2p1/2p5/4P3/2NP2P1/PPP2PBP/R1BQK1NR w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nge2 Nf6 7. d4 cxd4 8. Nxd4 Nxd4 9. Qxd4 e5 10. Qd3 Be6 11. Be3 Ng4 12. Nb5 Nxe3 13. fxe3 Ke7 14. O-O-O Bxa2 15. Nxd6 Be6 16. Qa3 Qf8 17. Rhf1 f6 18. Qc5 Kd8 19. Nf5+ Ke8 20. Qb5+ Kf7 21. Qxb7+ Kg8 22. Nxg7 Bg4 23. Bf3 Bh3 24. Nf5 gxf5 25. exf5 Rd8 26. Rxd8 Qxd8 27. Bd5+ Qxd5 28. Qxd5+ Kg7 29. Qb7+ Kh6 30. Qf7 Kg5 31. Qg7+ Kh5 32. Qxf6 Bxf5 33. Rxf5+ Kg4 34. e4 Kh3 35. Rf2 Re8 36. Qh4# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "26"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "r1bqk1nr/pp2ppbp/2np2p1/2p5/4P3/2NP2P1/PPP2PBP/R1BQK1NR w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "insufficient_material"]
+
+6. Nf3 Bxc3+ 7. bxc3 Nf6 8. O-O e5 9. Bg5 h6 10. Be3 g5 11. c4 Be6 12. h4 g4 13. Nd2 Nd4 14. f4 gxf3 15. Bxf3 Kf8 16. Nb3 Qc7 17. Qd2 Kg7 18. Rae1 Ng4 19. Bxd4 cxd4 20. c3 dxc3 21. Qxc3 Nf6 22. Rc1 Rac8 23. Qd2 Qb6+ 24. Qf2 Qxf2+ 25. Rxf2 Rhe8 26. Rfc2 Bg4 27. Bxg4 Nxg4 28. Re1 Nf6 29. Rb2 Nd7 30. Kf2 Nb6 31. a4 Kf6 32. a5 Na4 33. Rbb1 Ke6 34. g4 Rg8 35. Kf3 Rg6 36. h5 Rg7 37. Rec1 Rcg8 38. Rg1 b5 39. axb6 Nxb6 40. c5 Nd7 41. Ra1 Nxc5 42. Nxc5+ dxc5 43. Ra6+ Ke7 44. Rxa7+ Kf6 45. Rc7 Rd8 46. Ke3 Rd6 47. Rxc5 Rg8 48. Rd5 Rxd5 49. exd5 Ke7 50. Ke4 Kd6 51. g5 f5+ 52. Kxf5 Kxd5 53. g6 Rf8+ 54. Kg4 Rg8 55. Re1 Rd8 56. Kf3 Rf8+ 57. Ke3 Rf5 58. Rh1 Rg5 59. Kd2 Kd4 60. Rh4+ Kd5 61. Kc3 Rg1 62. Rh3 Rc1+ 63. Kd2 Rg1 64. Ke2 Kd4 65. Rh4+ Kd5 66. Kf2 Rg5 67. Kf3 Rf5+ 68. Ke2 Rg5 69. Kf2 Ke6 70. Ke3 Kd5 71. d4 exd4+ 72. Rxd4+ Ke5 73. Rh4 Rg3+ 74. Kf2 Rg5 75. Kf3 Rf5+ 76. Ke3 Rg5 77. Rh1 Kd5 78. Kf4 Ke6 79. Rh2 Kd5 80. Rh3 Ke6 81. Rh1 Kd5 82. Ra1 Kd6 83. Ra6+ Ke7 84. g7 Rxg7 85. Rxh6 Rg2 86. Rb6 Rf2+ 87. Ke5 Re2+ 88. Kf5 Ra2 89. h6 Rf2+ 90. Ke4 Re2+ 91. Kd3 Rh2 92. Kc3 Kf7 93. Rc6 Kg8 94. Kd4 Kh7 95. Ke4 Rxh6 96. Rc2 Kg6 97. Ke5 Rh8 98. Rf2 Re8+ 99. Kd6 Kg7 100. Kd5 Rf8 101. Rh2 Kf6 102. Rh7 Rf7 103. Rh1 Rd7+ 104. Ke4 Re7+ 105. Kf4 Ke6 106. Re1+ Kd6 107. Rxe7 Kxe7 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "27"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/pppp1ppp/2nn4/1B2p3/3P4/5N2/PPP2PPP/RNBQ1RK1 w kq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bxc6 dxc6 7. dxe5 Nf5 8. Qxd8+ Kxd8 9. Bg5+ Be7 10. Rd1+ Ke8 11. Nc3 Bxg5 12. Nxg5 Ke7 13. Rac1 Nh4 14. Re1 Ng6 15. a3 Bg4 16. h3 Be6 17. Na4 Bc4 18. Nc5 Rab8 19. Rcd1 b6 20. Rd7+ Ke8 21. Rd4 bxc5 22. Rxc4 Rb5 23. e6 f5 24. b4 cxb4 25. Nf7 Rf8 26. Rxc6 Rb7 27. axb4 h6 28. Rd1 Rxf7 29. exf7+ Kxf7 30. Rd7+ Ne7 31. Rcxc7 Rxc7 32. Rxc7 f4 33. Rxa7 Kf8 34. b5 Nd5 35. Rd7 Nb6 36. Rb7 Nd5 37. b6 Nb4 38. Rb8+ Kf7 39. b7 Kg6 40. Rd8 Na2 41. b8=Q Nc1 42. Qe5 Ne2+ 43. Qxe2 Kf7 44. Qe5 g5 45. Qd6 h5 46. Rd7+ Kg8 47. Qb8# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "28"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "0-1"]
+[FEN "r1bqkb1r/pppp1ppp/2nn4/1B2p3/3P4/5N2/PPP2PPP/RNBQ1RK1 w kq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bxc6 dxc6 7. dxe5 Nf5 8. Nc3 Qxd1 9. Rxd1 Bb4 10. Ne2 Be6 11. Bf4 Bc5 12. Ng5 Bc4 13. Nc3 Nd4 14. Be3 Ne2+ 15. Nxe2 Bxe3 16. fxe3 Bxe2 17. Rd2 Bh5 18. Ne4 Bg6 19. Nc5 O-O 20. Rd7 Rfe8 21. e6 fxe6 22. Rxc7 b6 23. Nd3 c5 24. Re1 Be4 25. Rf1 Rec8 26. Rff7 Rxc7 27. Rxc7 Rd8 28. Rxa7 Bxd3 29. cxd3 Rxd3 30. Kf1 Rd2 31. b3 e5 32. e4 Kf8 33. Ra6 Ke7 34. Ra7+ Kf6 35. Rb7 Rxa2 36. Rxb6+ Kg5 37. Rb7 Kf4 38. Rxg7 h6 39. Rg3 Kxe4 40. Rh3 Rb2 41. Rxh6 Rxb3 42. Rh4+ Kd5 43. Ke2 c4 44. Rh7 Rb2+ 45. Kf3 c3 46. Rc7 e4+ 47. Kg3 Kd4 48. h3 Rd2 49. Kf4 c2 50. Rd7+ Kc3 51. Rc7+ Kd3 52. Rd7+ Ke2 53. Rc7 Kd1 54. g3 Rd4 55. Ke3 Rb4 56. Rd7+ Kc1 57. Rc7 Kb1 58. g4 c1=Q+ 59. Rxc1+ Kxc1 60. g5 Kc2 61. g6 Rb6 62. g7 Rg6 63. Kxe4 Rxg7 64. Kf4 Kc3 65. Kf3 Kd4 66. Kf4 Rf7+ 67. Kg4 Ke4 68. h4 Rg7+ 69. Kh3 Ke5 70. Kh2 Kf4 71. Kh3 Rg3+ 72. Kh2 Kf3 73. h5 Rg5 74. h6 Rh5+ 75. Kg1 Rxh6 76. Kf1 Rh1# 0-1
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "29"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/ppp2ppp/2n5/3np3/8/2N2NP1/PP1PPP1P/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. e4 Nxc3 7. dxc3 Qxd1+ 8. Kxd1 Bg4 9. Bg2 Be6 10. Ng5 Bd7 11. Be3 h6 12. Nf3 Be6 13. Kc2 Bd6 14. Bf1 Kd7 15. Kb1 f5 16. Nd2 fxe4 17. Nxe4 Bf5 18. Bd3 Rad8 19. Nc5+ Bxc5 20. Bxf5+ Kd6 21. Rd1+ Ke7 22. Bxc5+ Kf6 23. Bd7 b6 24. Be3 Na5 25. Kc2 Nc4 26. g4 a6 27. Rab1 Rhf8 28. Rbc1 Nxe3+ 29. fxe3 e4 30. Rd4 Ke5 31. Bc6 Rf2+ 32. Kb3 Rxd4 33. cxd4+ Kd6 34. Bxe4 Re2 35. Rc3 c5 36. dxc5+ bxc5 37. h4 Ke5 38. Bf5 Kd6 39. e4 Rd2 40. h5 a5 41. Rc4 Rf2 42. Ra4 Rf3+ 43. Kc4 Rf2 44. b3 Rc2+ 45. Kb5 Rc1 46. Rxa5 Ke7 47. e5 Re1 48. Ra7+ Kf8 49. e6 Re5 50. Rd7 Re1 51. Kxc5 Rc1+ 52. Kd6 Rd1+ 53. Kc7 Re1 54. Kd8 Re2 55. e7+ Kg8 56. Bg6 Re1 57. Kc7 Rc1+ 58. Kb6 Rc6+ 59. Kxc6 Kh8 60. e8=Q# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "30"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "r1bqkb1r/ppp2ppp/2n5/3np3/8/2N2NP1/PP1PPP1P/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "insufficient_material"]
+
+6. e4 Nxc3 7. dxc3 Qxd1+ 8. Kxd1 Bg4 9. Bg2 Be6 10. Be3 Bd6 11. Ng5 Bc4 12. b3 Ba6 13. c4 Nd4 14. Nf3 Ne6 15. Ke1 b6 16. Ng5 Nxg5 17. Bxg5 Bb7 18. g4 Kd7 19. Kd2 Bc6 20. Rad1 Ke6 21. Kd3 h6 22. Bh4 Bc5 23. Bf3 Rhe8 24. Kc2 a6 25. g5 hxg5 26. Bxg5 Bd4 27. Rhe1 Rab8 28. a3 Ra8 29. Bg4+ Kd6 30. Bf4 exf4 31. Rxd4+ Ke5 32. Kc3 Red8 33. Rxd8 Rxd8 34. f3 b5 35. c5 a5 36. Bh5 Rh8 37. Bxf7 Rh3 38. Kc2 Rxf3 39. Bd5 Bxd5 40. exd5+ Kxd5 41. Re7 Rf2+ 42. Kd3 Rxh2 43. Rxg7 Ra2 44. Rxc7 Rxa3 45. Kc2 a4 46. bxa4 bxa4 47. Rf7 Rf3 48. Rf5+ Kc6 49. Kb2 a3+ 50. Ka2 Kb5 51. Re5 Rc3 52. Rf5 f3 53. Kb1 Rb3+ 54. Ka1 Kc6 55. Ka2 Rc3 56. Ka1 Re3 57. Ka2 Kb5 58. Kb1 Rc3 59. Ka2 Kb4 60. c6 Rxc6 61. Rxf3 Rc2+ 62. Ka1 Rc3 63. Rxc3 Kxc3 64. Ka2 Kb4 65. Kb1 Kc4 66. Ka2 Kc3 67. Kxa3 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "31"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "rnbqkb1r/pp3ppp/4pn2/2p5/2BP4/4PN2/PP3PPP/RNBQK2R w KQkq c6 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nc3 Nc6 7. O-O Bd6 8. dxc5 Bxc5 9. Qxd8+ Kxd8 10. e4 Bb4 11. Bg5 Bxc3 12. bxc3 Kc7 13. Bf4+ Kd8 14. Rad1+ Ke7 15. Bd6+ Ke8 16. Rfe1 Ne7 17. Be5 Bd7 18. Bxf6 gxf6 19. Bb3 Rc8 20. Re3 Ng6 21. Nd2 Ke7 22. Nc4 Nf4 23. g3 Rcg8 24. Nd6 Bc6 25. Nf5+ Ke8 26. Nd4 Bd7 27. Kf1 Ng6 28. Ke2 Ke7 29. c4 Rd8 30. Red3 f5 31. exf5 exf5 32. f4 Be6 33. c5 Bd7 34. Kf2 Rc8 35. Rc3 Rhd8 36. Bd5 Rb8 37. Ra3 a6 38. Bg2 Rdc8 39. Re1+ Kf6 40. Rb3 Rxc5 41. Rb6+ Kg7 42. Rxb7 Rxb7 43. Bxb7 Ra5 44. Ra1 Kf6 45. a3 Ne7 46. Ke3 Be6 47. Kd3 Nd5 48. Kd2 Nb6 49. Kd3 Bc4+ 50. Kc3 Rc5 51. Kd2 Rc7 52. Bf3 Bd5 53. Be2 a5 54. Rb1 Nc4+ 55. Bxc4 Bxc4 56. Rb6+ Be6 57. Ra6 Rc5 58. g4 fxg4 59. f5 Ke5 60. fxe6 Kxd4 61. exf7 Rf5 62. Ra7 Rf3 63. Ke2 Re3+ 64. Kf1 Rf3+ 65. Kg2 Ke4 66. Rxa5 Rxf7 67. Kg3 Rd7 68. Ra4+ Kf5 69. Rf4+ Ke5 70. Kxg4 Ra7 71. a4 Rb7 72. Kg3 Rb3+ 73. Rf3 Rb2 74. Ra3 Kd4 75. a5 Rb7 76. a6 Rg7+ 77. Kf4 Rf7+ 78. Kg4 Ra7 79. Ra5 Ke4 80. Kg5 Rg7+ 81. Kf6 Ra7 82. Ke6 Kd4 83. Kd6 Kc4 84. Kc6 Kd4 85. Ra4+ Kd3 86. Kb6 Re7 87. a7 Re6+ 88. Kc5 Re5+ 89. Kd6 Re8 90. a8=Q Rxa8 91. Rxa8 Ke4 92. Rh8 h6 93. Rxh6 Kf4 94. Rf6+ Ke4 95. h4 Kd4 96. h5 Ke4 97. h6 Kd4 98. h7 Ke4 99. h8=Q Kd3 100. Qh4 Ke3 101. Qg3+ Kd2 102. Rf2+ Kd1 103. Qg1# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "32"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "rnbqkb1r/pp3ppp/4pn2/2p5/2BP4/4PN2/PP3PPP/RNBQK2R w KQkq c6 0 6"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+6. Nc3 Nc6 7. O-O Bd6 8. dxc5 Bxc5 9. Qxd8+ Kxd8 10. e4 Bb4 11. Re1 Bxc3 12. bxc3 Bd7 13. Bg5 Kc7 14. Bf4+ Kc8 15. Rad1 Na5 16. Ne5 Be8 17. Bd3 h6 18. Rb1 Nh5 19. Be3 Nf6 20. c4 Nc6 21. f4 Kc7 22. c5 Rd8 23. Rb3 Na5 24. Rc3 Nc6 25. Bf2 Nb4 26. Bb1 Kb8 27. a3 Nc6 28. Bd3 Nd4 29. Bg3 Nh5 30. Bc4 Nxg3 31. Rxg3 Rh7 32. Rd3 f6 33. Nf3 Nxf3+ 34. Rxf3 Bd7 35. e5 Rc8 36. Rd3 Rc7 37. exf6 gxf6 38. Bxe6 Bxe6 39. Rxe6 Rxc5 40. Rxf6 Rc1+ 41. Kf2 Rc2+ 42. Kf3 Rg7 43. Rb3 Rgxg2 44. Rf8+ Kc7 45. Rf7+ Kd6 46. Rbxb7 Rgf2+ 47. Ke4 Rfe2+ 48. Kd4 Rcd2+ 49. Kc3 Rc2+ 50. Kb3 Rb2+ 51. Kc4 Rxb7 52. Rxb7 Re4+ 53. Kc3 Rxf4 54. Rxa7 Rh4 55. Ra6+ Kd5 56. Ra5+ Ke6 57. Ra6+ Kd5 58. Ra5+ Ke6 59. Ra6+ Kd5 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "33"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "rnbq1rk1/ppp2pbp/3p1np1/4p3/2PPP3/2N2N2/PP2BPPP/R1BQK2R w KQ e6 0 7"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+7. O-O Nbd7 8. Bg5 exd4 9. Nxd4 Nc5 10. Bf3 h6 11. Be3 g5 12. b4 Ncd7 13. Nf5 Ne5 14. Nxg7 Kxg7 15. c5 Be6 16. cxd6 cxd6 17. h3 d5 18. Bd4 Nxf3+ 19. gxf3 Kh7 20. Bxf6 Qxf6 21. Nxd5 Qb2 22. Kg2 Qe5 23. Qc2 Rac8 24. Qb3 Kg8 25. Rad1 Rfe8 26. b5 Rcd8 27. Rh1 f5 28. Qc4 f4 29. Kg1 Rc8 30. Qb3 Ra8 31. a4 Rad8 32. a5 Bxd5 33. exd5 Qd6 34. Kg2 Re5 35. Rd2 Ree8 36. Rhd1 Qf6 37. d6+ Qf7 38. Qd3 Rd7 39. a6 Red8 40. axb7 Rxb7 41. Rc1 Rbd7 42. Rc6 Qe6 43. Rd1 Rb7 44. Kh2 Rbd7 45. Qe4 Qb3 46. Rd5 Qb2 47. Kg2 Qf6 48. Rc7 Kg7 49. Rd1 Kf8 50. Rxd7 Rxd7 51. Qd5 Qf7 52. Qe5 Kg8 53. Rc1 Rd8 54. Rc7 Rd7 55. Qc5 g4 56. hxg4 Qe6 57. Rxd7 Qxd7 58. Qc7 Qxb5 59. d7 Qg5 60. d8=R+ Qxd8 61. Qxd8+ Kg7 62. Qd4+ Kg6 63. Qxa7 h5 64. gxh5+ Kf6 65. Qd7 Ke5 66. h6 Kf6 67. h7 Kg5 68. Qe6 Kh5 69. Qg4+ Kh6 70. h8=Q# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "34"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "rnbq1rk1/ppp2pbp/3p1np1/4p3/2PPP3/2N2N2/PP2BPPP/R1BQK2R w KQ e6 0 7"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+7. O-O Nbd7 8. Bg5 exd4 9. Nxd4 Nc5 10. Qc2 Qe8 11. Ndb5 Qd8 12. Bxf6 Bxf6 13. Nd5 Ne6 14. Bg4 Nd4 15. Nxd4 Bxg4 16. Nb5 c6 17. Nxf6+ Qxf6 18. Nc3 Be6 19. Qd3 Rad8 20. Rad1 Qe5 21. Rfe1 Qc5 22. b3 Rfe8 23. h3 g5 24. Rb1 h5 25. Rbd1 g4 26. hxg4 hxg4 27. Qg3 Qe5 28. Qe3 Qa5 29. Qd2 Qc5 30. e5 d5 31. Ne4 dxe4 32. Qg5+ Kh7 33. Rxd8 Rxd8 34. Qxd8 Qxe5 35. Qe7 b5 36. cxb5 cxb5 37. Qb7 Kg6 38. Qxa7 Kf5 39. Qb6 Qd5 40. Rc1 Kf6 41. Qe3 b4 42. Qb6 Qd2 43. Rc4 Qxa2 44. Qd4+ Kg6 45. Qxe4+ Kg7 46. Qd4+ Kg6 47. Rxb4 Qa5 48. Qd6 Qa1+ 49. Kh2 Qf6 50. Kg3 Qc3+ 51. f3 Qe1+ 52. Kf4 Qc1+ 53. Ke5 gxf3 54. Qd3+ Kg7 55. Kd6 fxg2 56. Qg3+ Kf6 57. Qf2+ Bf5 58. Qxg2 Qf4+ 59. Kc5 Qe3+ 60. Rd4 Qc3+ 61. Rc4 Qa5+ 62. Kd6 Qd8+ 63. Kc5 Qa5+ 64. Kd6 Qd8+ 65. Kc5 Qa5+ 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "35"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 4 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bxc6 dxc6 7. Nc3 Bg4 8. d3 O-O 9. h3 Bxf3 10. Qxf3 Bb4 11. Bg5 Bxc3 12. bxc3 c5 13. c4 Re8 14. Qe3 Qd4 15. Bxf6 gxf6 16. Qg3+ Kf8 17. Rab1 Rab8 18. Rb3 Qd7 19. Qh4 Kg7 20. Qg4+ Qxg4 21. hxg4 Kg6 22. Kh2 b5 23. cxb5 Rxb5 24. Rfb1 Reb8 25. Kg3 Rxb3 26. axb3 Kg5 27. Rf1 Rd8 28. f4+ Kg6 29. Kf3 Kg7 30. f5 Kf8 31. Rh1 Kg8 32. Ke3 Rd4 33. Ra1 Rd6 34. Ra4 Rb6 35. Rc4 Rb5 36. b4 cxb4 37. Rxc7 b3 38. cxb3 Rxb3 39. Rc2 Kf8 40. Rc8+ Kg7 41. Rd8 a5 42. Ra8 Rb2 43. Rxa5 Rxg2 44. Kf3 Rd2 45. Ra3 Rh2 46. Rc3 h6 47. Rb3 Rd2 48. Ra3 Rd1 49. Rc3 Rb1 50. Rc8 Rg1 51. Ra8 Rd1 52. Rd8 Rf1+ 53. Kg2 Rf4 54. Kg3 Rf1 55. Rd6 Rh1 56. Rb6 Rg1+ 57. Kf3 Rf1+ 58. Kg2 Rf4 59. Kg3 Rf1 60. Rb3 Rg1+ 61. Kf3 Rd1 62. Kg2 Rd2+ 63. Kh3 Kf8 64. Kg3 Kg7 65. Ra3 Kf8 66. Rc3 Ke7 67. Kf3 Kd6 68. Ra3 Kc5 69. Ke3 Rg2 70. Ra6 Rg3+ 71. Kd2 Rxg4 72. Rxf6 Rg7 73. Ra6 Kb4 74. Rxh6 Rg2+ 75. Ke3 Rg3+ 76. Ke2 Kc5 77. Ra6 Rg2+ 78. Ke3 Rg3+ 79. Kd2 Kb4 80. Ra7 Rg2+ 81. Ke3 f6 82. Rf7 Rg3+ 83. Ke2 Kc3 84. Rxf6 Rg2+ 85. Kf3 Rh2 86. Re6 Kxd3 87. Rxe5 Rh3+ 88. Kf4 Rh4+ 89. Kg5 Kd4 90. Kxh4 Kxe5 91. Kg5 Kd6 92. Kf6 Kd7 93. Ke5 Ke7 94. f6+ Kf7 95. Kf5 Kf8 96. Ke6 Ke8 97. e5 Kf8 98. f7 Kg7 99. Ke7 Kg6 100. f8=Q Kg5 101. Qf3 Kh4 102. Qe3 Kh5 103. Qg3 Kh6 104. Kf6 Kh7 105. Qg7# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "36"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 4 6"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+6. d3 b5 7. Bb3 d5 8. Nc3 d4 9. Nd5 O-O 10. Bg5 Be6 11. Nxe7+ Qxe7 12. Bd5 Bxd5 13. exd5 Nb4 14. Re1 Qd6 15. a3 Nbxd5 16. Nxe5 Rae8 17. Bxf6 Nxf6 18. Nf3 b4 19. axb4 Qxb4 20. Rxe8 Rxe8 21. Qc1 Qd6 22. Qd2 c5 23. Re1 Rxe1+ 24. Qxe1 h6 25. Nd2 Qc7 26. Nc4 Qc6 27. Qa5 Qe6 28. h3 Qe2 29. Qxc5 Qe1+ 30. Kh2 Qxf2 31. Qd6 Kh7 32. Qe5 Kg8 33. Qd6 Kh7 34. Qe5 Nd7 35. Qd6 Nf6 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "37"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. b4 Bb6 7. b5 Ne7 8. Bg5 Ng4 9. O-O f6 10. Bd2 f5 11. Qb3 fxe4 12. dxe4 Nf6 13. Re1 Bg4 14. Na3 Bxf3 15. gxf3 Rf8 16. Nc2 Nd7 17. Be2 Nc5 18. Qb4 d5 19. Be3 Qd6 20. Rad1 O-O-O 21. exd5 Nxd5 22. Qg4+ Qe6 23. Qxe6+ Nxe6 24. Bc4 Nef4 25. Bxd5 Rxd5 26. Rxd5 Nxd5 27. Bxb6 Nxb6 28. Rxe5 Rxf3 29. Ne3 Kd7 30. c4 Rf4 31. Rg5 g6 32. c5 Nc4 33. Nd5 Rf7 34. Ne3 Nxe3 35. fxe3 Ke6 36. c6 bxc6 37. bxc6 Kd6 38. Ra5 Rf3 39. Ra3 a5 40. Kg2 Rf5 41. Rc3 Rc5 42. Rxc5 Kxc5 43. Kf3 Kxc6 44. Ke4 Kd6 45. Kd4 a4 46. a3 h6 47. Kc4 Ke5 48. Kb4 Ke4 49. Kxa4 g5 50. Kb5 Kxe3 51. a4 Kf2 52. a5 g4 53. a6 Kg1 54. a7 Kxh2 55. a8=Q g3 56. Qa5 c6+ 57. Kxc6 g2 58. Qe5+ Kh3 59. Qe3+ Kh4 60. Kd5 h5 61. Ke4 Kg4 62. Qf2 Kg5 63. Qxg2+ Kf6 64. Qg3 Kf7 65. Kf5 Ke7 66. Qc7+ Kf8 67. Kf6 h4 68. Qf7# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "38"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1-0"]
+[FEN "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nbd2 O-O 7. b4 Bb6 8. b5 Na5 9. O-O Bd7 10. Rb1 Nxc4 11. Nxc4 Be6 12. Qc2 Bxc4 13. dxc4 Qd7 14. Qd3 Rad8 15. Be3 Bxe3 16. Qxe3 Qe6 17. Rb4 Ra8 18. Ng5 Qd7 19. Rd1 h6 20. Nf3 Qe6 21. Re1 Nd7 22. Rd1 Nc5 23. Re1 Rad8 24. Nh4 Rfe8 25. Nf5 Qf6 26. Rbb1 h5 27. Rbd1 Qe6 28. Rd5 g6 29. Qg5 Nd7 30. Nh6+ Kh7 31. Rd3 Qxc4 32. Nf5 gxf5 33. Rg3 Qf1+ 34. Rxf1 Re6 35. Qg7# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "39"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1/2-1/2"]
+[FEN "rnbqk2r/ppp3pp/3bpn2/3p1p2/3P4/5NP1/PPP1PPBP/RNBQ1RK1 w kq - 2 6"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+6. Nc3 Nc6 7. Bf4 Ne4 8. Qd3 Nb4 9. Qd1 O-O 10. e3 Bxf4 11. gxf4 Bd7 12. Ne5 Qe7 13. Nxe4 fxe4 14. c4 a5 15. f3 exf3 16. Bxf3 Qd6 17. Qd2 b6 18. Qg2 Ba4 19. b3 Bd7 20. a3 Na6 21. cxd5 Rae8 22. Bg4 Bc8 23. e4 exd5 24. Bxc8 Rxc8 25. exd5 Rcd8 26. Nc6 Rd7 27. Qf3 Re8 28. Rae1 Rxe1 29. Rxe1 Qg6+ 30. Kf1 Qf7 31. b4 axb4 32. axb4 Qf8 33. Ne5 Rd8 34. b5 Nb4 35. Nc6 Nxc6 36. bxc6 Qb4 37. Qe4 Qc4+ 38. Kf2 h6 39. Rg1 Qa2+ 40. Ke3 Qb3+ 41. Kd2 Qb4+ 42. Kd3 Qb3+ 43. Ke2 Qc4+ 44. Kf3 Qb3+ 45. Kg4 Rxd5 46. Kh4 Rd6 47. Qe8+ Kh7 48. Qe7 Qg8 49. Qxc7 Rxd4 50. Rg4 Qd8+ 51. Qxd8 Rxd8 52. f5 b5 53. Rb4 Rc8 54. Rxb5 Rxc6 55. Rb7 Kg8 56. Kg3 Rc2 57. Ra7 h5 58. Rd7 Rb2 59. Rc7 Rd2 60. Rb7 Rc2 61. Ra7 Rb2 62. Re7 Kf8 63. Rc7 Kg8 64. h3 Rb3+ 65. Kh4 Rf3 66. Rc5 Kf7 67. Kxh5 Rxh3+ 68. Kg4 Re3 69. Kf4 Re2 70. Rc1 Kf6 71. Rc6+ Ke7 72. Ra6 Kf7 73. Rb6 Ke7 74. Rc6 Kf7 75. Rd6 Re1 76. Rb6 Re7 77. Kg5 Ra7 78. Rc6 Re7 79. Rd6 Ra7 80. Rd2 Rb7 81. Kf4 Re7 82. Ra2 Re8 83. Kg5 Re7 84. Rb2 Ra7 85. Re2 Ra4 86. Re6 Rd4 87. Re1 Kf8 88. Ra1 Rd2 89. Ra8+ Ke7 90. Ra7+ Kf8 91. Kf4 Re2 92. Rb7 Re7 93. Rb8+ Kf7 94. Kg5 Ra7 95. Rb6 Re7 96. Kf4 Re2 97. Rg6 Re1 98. Rd6 Re2 99. Kg4 Re4+ 100. Kg5 Ke7 101. Rc6 Rd4 102. Rc7+ Kf8 103. f6 gxf6+ 104. Kxf6 Rd6+ 105. Ke5 Rg6 106. Kf4 Rg7 107. Rc6 Ke7 108. Ke5 Rg5+ 109. Ke4 Kf7 110. Kf4 Rg6 111. Rc2 Ke6 112. Re2+ Kd5 113. Rd2+ Ke6 114. Rd1 Rg2 115. Re1+ Kd5 116. Rd1+ Ke6 117. Re1+ Kd6 118. Rd1+ Ke6 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "40"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "0-1"]
+[FEN "rnbqk2r/ppp3pp/3bpn2/3p1p2/3P4/5NP1/PPP1PPBP/RNBQ1RK1 w kq - 2 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nc3 Nc6 7. Bf4 O-O 8. e3 Ne4 9. Qd3 Re8 10. Ne5 Nb4 11. Qe2 g5 12. Nxe4 dxe4 13. a3 gxf4 14. axb4 f3 15. Nxf3 exf3 16. Bxf3 Bxb4 17. Qb5 a5 18. Rad1 Qe7 19. Ra1 Ra6 20. Rad1 Rb6 21. Qc4 Bd6 22. Qc3 Bd7 23. Bh5 Rd8 24. Be2 a4 25. Bd3 Bc6 26. Bc4 Be4 27. b3 a3 28. Rc1 Ra8 29. Rfd1 Bb4 30. Qa1 Bf3 31. Rf1 Bd2 32. Rb1 a2 33. b4 Bd5 34. Bxd5 exd5 35. Rb2 Rba6 36. b5 Ra5 37. Rb3 Qe4 38. Rd3 Bb4 39. Rb3 Rxb5 40. Qb2 Ra6 41. f3 Qe8 42. Kg2 Qc6 43. Kg1 Bc3 44. Qxc3 Qxc3 45. Rxc3 Rb1 46. Rxc7 a1=Q 47. Rc8+ Kf7 48. Rc7+ Ke6 49. Rxb1 Qxb1+ 50. Kg2 Ra2 51. g4 Rxc2+ 52. Rxc2 Qxc2+ 53. Kf1 Qd2 54. gxf5+ Kxf5 55. h4 Qxe3 56. Kg2 Kf4 57. h5 Qd2+ 58. Kh3 Qf2 59. h6 Qg3# 0-1
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "41"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1b1kbnr/ppqp1ppp/2n1p3/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Ndb5 Qa5 7. Bd2 Qd8 8. Bg5 Qa5 9. a3 Nf6 10. Bxf6 gxf6 11. Bc4 Qb6 12. O-O a6 13. Na4 Qd8 14. Nd4 d5 15. Nxc6 bxc6 16. Bd3 Rb8 17. Rb1 dxe4 18. Bxe4 Qxd1 19. Rfxd1 Bb7 20. Nb6 f5 21. Nd7 Rc8 22. Bf3 Rc7 23. Ne5 Bg7 24. Nd3 e5 25. Nc5 e4 26. Be2 a5 27. Nb3 a4 28. Nc5 Ke7 29. Nxa4 c5 30. Nb6 Bd4 31. Re1 Kf6 32. Bb5 Rg8 33. Nc4 f4 34. Kf1 Bd5 35. Nb6 Bb7 36. Re2 f3 37. gxf3 exf3 38. Rd2 Rg2 39. h3 Be3 40. Rd6+ Ke7 41. Rbd1 Rxf2+ 42. Ke1 Be4 43. Rd8 Ke6 44. Re8+ Kf5 45. Nd5 Bxd5 46. Rxe3 Rxc2 47. Rxd5+ Kf4 48. Rd2 Rxd2 49. Kxd2 f2 50. Bf1 Rb7 51. b3 Ra7 52. Ke2 Rxa3 53. Kxf2 Ra2+ 54. Be2 f5 55. Rc3 Rb2 56. h4 Ke4 57. Rxc5 f4 58. Rb5 Rc2 59. Rb7 h6 60. Rb4+ Ke5 61. Rb6 Rb2 62. Kf3 Rc2 63. Rb5+ Kf6 64. h5 Ke6 65. Bc4+ Kd6 66. Kxf4 Kc7 67. Ke4 Rc1 68. Rc5+ Kd6 69. Ra5 Re1+ 70. Kf4 Rb1 71. Ra6+ Kc5 72. Rxh6 Rb2 73. Rh8 Kd4 74. h6 Rf2+ 75. Kg3 Rf6 76. h7 Rg6+ 77. Kf4 Rd6 78. Be6 Rxe6 79. Rd8+ Kc5 80. h8=Q Kb5 81. Qc3 Kb6 82. Rb8+ Ka7 83. Qc7+ Ka6 84. Qb7+ Ka5 85. Qb5# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "42"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "r1b1kbnr/ppqp1ppp/2n1p3/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+6. Ndb5 Qe5 7. Qf3 d5 8. Bf4 dxe4 9. Qg3 Qc5 10. Nc7+ Ke7 11. Nxa8 e5 12. Be3 Qa5 13. Bb5 Be6 14. Bxc6 bxc6 15. b4 Qd8 16. Bc5+ Ke8 17. Nxe4 Qxa8 18. Qxe5 Ne7 19. Nd6+ Kd7 20. O-O Nd5 21. Ne4 Qe8 22. Rab1 h6 23. c4 Nb6 24. Rbd1+ Bd5 25. Qxe8+ Kxe8 26. cxd5 Nxd5 27. Bxf8 Rxf8 28. b5 Kd7 29. Rd4 f5 30. Nc3 Ke6 31. Re1+ Kf6 32. Nxd5+ cxd5 33. Rxd5 Rf7 34. f4 Rc7 35. Kf1 Rc4 36. Rd6+ Kf7 37. Rd7+ Kf6 38. g3 Ra4 39. Rc1 Kg6 40. Rc6+ Kh5 41. Ra6 Rb4 42. Rxg7 Rb1+ 43. Kf2 Rb2+ 44. Ke3 Rb3+ 45. Kd4 Rd3+ 46. Ke5 Rd5+ 47. Ke6 Rxb5 48. Raxa7 Rb6+ 49. Kxf5 Rb5+ 50. Ke4 Rb4+ 51. Kd5 Rd4+ 52. Ke5 Re4+ 53. Kd6 Rd4+ 54. Ke6 Re4+ 55. Kf7 Re7+ 56. Kf6 Re6+ 57. Kf5 Re5+ 58. Kf6 Re6+ 59. Kf7 Re7+ 60. Kf8 Re8+ 61. Kf7 Re7+ 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "43"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "rnbq1rk1/ppp1ppbp/3p1np1/8/3PP3/2N2N2/PPP1BPPP/R1BQK2R w KQ - 4 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. e5 dxe5 7. Nxe5 Nc6 8. Nxc6 bxc6 9. O-O Qd6 10. Bf3 Bb7 11. Re1 Nd5 12. Ne4 Qb4 13. Nc5 Rfe8 14. Nxb7 Qxb7 15. c4 Nb6 16. c5 Nd5 17. Re2 e5 18. Qe1 Nb4 19. Bg5 h6 20. Bh4 Nd3 21. Qd2 Nf4 22. Re3 g5 23. Rb3 Qa6 24. Bg3 Red8 25. Ra3 Qc4 26. Bxf4 Rxd4 27. Qc1 gxf4 28. Bxc6 Qxc1+ 29. Rxc1 Rad8 30. Rf1 Rd2 31. b4 R8d4 32. Rxa7 Rxb4 33. Rxc7 Rb8 34. Bf3 Rbb2 35. Bh5 f5 36. Bg6 Rxa2 37. Bf7+ Kh7 38. Bxa2 Rxa2 39. c6 Rc2 40. Rd1 e4 41. h4 Kg6 42. h5+ Kxh5 43. Rxg7 Rxc6 44. Rd5 Rf6 45. Kh2 f3 46. g4+ Kh4 47. Rxf5 Rxf5 48. gxf5 e3 49. fxe3 f2 50. Kg2 f1=Q+ 51. Kxf1 Kh3 52. f6 Kh2 53. f7 h5 54. f8=Q h4 55. Qf2+ Kh3 56. Qg2# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "44"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "rnbq1rk1/ppp1ppbp/3p1np1/8/3PP3/2N2N2/PPP1BPPP/R1BQK2R w KQ - 4 6"]
+[SetUp "1"]
+[Termination "insufficient_material"]
+
+6. e5 dxe5 7. Nxe5 Nbd7 8. O-O Nxe5 9. dxe5 Nd7 10. f4 e6 11. Bc4 Re8 12. Be3 f6 13. exf6 Bxf6 14. Bd4 Bxd4+ 15. Qxd4 Nb6 16. Qxd8 Rxd8 17. Bb3 c5 18. a3 c4 19. Ba2 Bd7 20. b3 Rac8 21. bxc4 Nxc4 22. Rfd1 Kg7 23. Ne4 e5 24. Bxc4 Rxc4 25. Nd6 Bg4 26. Nxc4 Rxd1+ 27. Rxd1 Bxd1 28. Ne3 Bxc2 29. Nxc2 exf4 30. Kf2 Kf6 31. Ke2 Ke5 32. Kd3 g5 33. h3 h5 34. Nd4 g4 35. hxg4 hxg4 36. Kc4 Ke4 37. Nb5 f3 38. Nc3+ Ke3 39. Nd5+ Kf2 40. gxf3 Kxf3 41. Kd3 g3 42. Nc3 g2 43. Ne2 Kf2 44. Nf4 g1=Q 45. Nh3+ Kf1 46. Nxg1 Kxg1 47. Ke3 Kg2 48. Ke2 Kg3 49. Ke3 Kg4 50. Ke4 Kg5 51. Ke5 b6 52. Kd5 Kf4 53. Kc6 Ke4 54. Kb7 b5 55. Kxa7 Kd4 56. Kb6 Kc4 57. Kc6 b4 58. axb4 Kxb4 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "45"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/pp3ppp/2n1pn2/2pp4/3P1B2/2P1PN2/PP3PPP/RN1QKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nbd2 Bd6 7. Bb5 O-O 8. Bxc6 bxc6 9. O-O Bxf4 10. exf4 c4 11. b3 cxb3 12. Qxb3 Nh5 13. g3 Nf6 14. c4 Qc7 15. c5 Rb8 16. Qc2 Bb7 17. Ne5 Rbd8 18. g4 Rfe8 19. g5 Nh5 20. f5 Nf4 21. Rfe1 Qe7 22. h4 exf5 23. Qxf5 Ne6 24. Ndf3 Qc7 25. Rad1 Bc8 26. Qc2 Bb7 27. h5 Qe7 28. Qf5 Qc7 29. h6 Rb8 30. Rb1 gxh6 31. gxh6 a6 32. Ng5 Nf8 33. Qf6 Ne6 34. Nexf7 Qh2+ 35. Kxh2 Kf8 36. Nxh7+ Kg8 37. Qg6+ Ng7 38. Qxg7# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "46"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "r1bqkb1r/pp3ppp/2n1pn2/2pp4/3P1B2/2P1PN2/PP3PPP/RN1QKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+6. Nbd2 Bd6 7. Bb5 O-O 8. Bxc6 bxc6 9. O-O Bxf4 10. exf4 c4 11. b3 cxb3 12. Qxb3 Qc7 13. Ne5 c5 14. Rad1 c4 15. Qc2 Nh5 16. g3 Nf6 17. g4 Bb7 18. f5 exf5 19. gxf5 Rad8 20. Rfe1 Rfe8 21. Qa4 a6 22. a3 Bc8 23. Qc2 Qd6 24. a4 Qc7 25. h3 Bb7 26. Ndf3 Ne4 27. Nd2 Nd6 28. Re3 Bc8 29. Rf3 Bd7 30. Nxd7 Qxd7 31. Nf1 Qe7 32. Ne3 Ne4 33. Re1 Qh4 34. Kh2 Ng5 35. Rg3 Qf4 36. Kg2 Qe4+ 37. Kf1 Qxc2 38. Nxc2 Rxe1+ 39. Kxe1 Ne4 40. Re3 Rb8 41. Na3 Nf6 42. Nc2 Rb1+ 43. Ke2 Rb2 44. Kd1 Ra2 45. Re5 Rxa4 46. Ne3 Ra2 47. Ng4 Kf8 48. Nxf6 gxf6 49. Rxd5 Rxf2 50. Rc5 Ke8 51. Rxc4 Rxf5 52. Ra4 Rf3 53. Kc2 Rxh3 54. Rxa6 f5 55. Ra7 f4 56. Kd2 Rh2+ 57. Kd3 f3 58. Ke3 f2 59. Ra1 h6 60. c4 Ke7 61. Rf1 Rh3+ 62. Kxf2 Rd3 63. d5 Rc3 64. Rh1 Rxc4 65. Rxh6 Rd4 66. Rh5 Kd6 67. Rf5 Rxd5 68. Rxf7 Re5 69. Ra7 Re8 70. Kf3 Kd5 71. Rb7 Ra8 72. Ke3 Ra3+ 73. Kf4 Ra4+ 74. Kf5 Ra2 75. Rd7+ Kc6 76. Rd1 Re2 77. Kf4 Re6 78. Rd2 Kc5 79. Rd7 Kc6 80. Rd2 Kc5 81. Rd7 Kc6 82. Rd2 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "47"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "rnbqk2r/pp2nppp/4p3/2ppP3/3P4/P1P5/2P2PPP/R1BQKBNR w KQkq - 1 7"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+7. dxc5 Qa5 8. Qd3 Nd7 9. Nf3 Nc6 10. Bb2 Kf8 11. Qe3 Qxc5 12. Qxc5+ Nxc5 13. c4 Ke7 14. Be2 Ne4 15. Rd1 Rd8 16. Bd3 Rb8 17. Bxe4 dxe4 18. Rxd8 Nxd8 19. Ng5 b5 20. c5 b4 21. Kd2 bxa3 22. Bxa3 Nc6 23. Nxe4 Nxe5 24. c6+ Ke8 25. Bd6 Nc4+ 26. Kd3 Nxd6 27. Nxd6+ Ke7 28. c7 Ba6+ 29. Kd4 Rf8 30. Kc5 Bc8 31. Nxc8+ Rxc8 32. Kc6 e5 33. Rb1 Ke6 34. Rb8 Rxc7+ 35. Kxc7 e4 36. Kc6 Ke5 37. Re8+ Kd4 38. Re7 f5 39. Rxg7 Kc3 40. Rxa7 h6 41. Kd5 Kxc2 42. Ra3 Kd2 43. Re3 f4 44. Rxe4 f3 45. gxf3 Kd3 46. f4 Kc3 47. f5 Kd2 48. f6 Kd3 49. f7 h5 50. f8=Q h4 51. Qb4 h3 52. Re3+ Kc2 53. Re2+ Kd3 54. Rd2# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "48"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "rnbqk2r/pp2nppp/4p3/2ppP3/3P4/P1P5/2P2PPP/R1BQKBNR w KQkq - 1 7"]
+[SetUp "1"]
+[Termination "threefold_repetition"]
+
+7. dxc5 Qa5 8. Qd3 Nd7 9. Nf3 Nc6 10. Bb2 Kf8 11. Qe3 Qxc5 12. Qxc5+ Nxc5 13. c4 Kg8 14. Be2 Bd7 15. O-O Ne7 16. cxd5 exd5 17. Bd4 Ne6 18. Rad1 Nf5 19. Rfe1 Nfxd4 20. Nxd4 Nxd4 21. Rxd4 Be6 22. c4 dxc4 23. Bxc4 Bf5 24. Rf4 Be6 25. Bxe6 fxe6 26. Rc4 b5 27. Rc7 h6 28. Rd1 Kh7 29. Rdd7 Kg6 30. Rxg7+ Kf5 31. Rc5 a6 32. Re7 Rhe8 33. Rf7+ Ke4 34. f3+ Kd4 35. Rfc7 Rf8 36. a4 bxa4 37. Ra5 Rfb8 38. Rh7 Rb1+ 39. Kf2 Rb2+ 40. Kg3 Rg8+ 41. Kf4 Rf8+ 42. Kg3 Rg8+ 43. Kf4 Rf8+ 44. Kg3 Rg8+ 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "49"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "rnbqkb1r/ppp2ppp/8/3p4/3Pn3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nbd2 Bf5 7. Bd3 Nd7 8. O-O Be7 9. Re1 Nd6 10. Bxf5 Nxf5 11. c4 dxc4 12. Nxc4 Nb6 13. Nxb6 axb6 14. g4 Nd6 15. Bg5 f6 16. Bf4 Qd7 17. h3 O-O-O 18. Qc2 Kb8 19. Rad1 b5 20. d5 Nc4 21. Nd4 Bd6 22. Bxd6 Nxd6 23. Nf5 Nxf5 24. gxf5 b4 25. Qd3 Qa4 26. Re4 Rde8 27. Rc4 Qxa2 28. Rxb4 Rhg8 29. Qb5 Qa7 30. Ra4 Qb6 31. Qxb6 cxb6 32. d6 g6 33. fxg6 Rxg6+ 34. Kf1 Rd8 35. Rb4 f5 36. Rxb6 Ka7 37. Rb5 Rgxd6 38. Rxd6 Rxd6 39. Rxf5 Rb6 40. Ra5+ Kb8 41. Rh5 Rxb2 42. Rxh7 Ka7 43. Kg2 Kb6 44. h4 Rb3 45. h5 Kc6 46. h6 Rb4 47. Rg7 Rf4 48. h7 Rh4 49. f4 b5 50. f5 b4 51. f6 Kd6 52. Ra7 Rh5 53. f7 Rg5+ 54. Kf3 Rf5+ 55. Ke4 Rxf7 56. Rxf7 Kc5 57. h8=Q Kb5 58. Rb7+ Kc4 59. Qb2 Kc5 60. Qxb4+ Kc6 61. Qb6# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "50"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "1/2-1/2"]
+[FEN "rnbqkb1r/ppp2ppp/8/3p4/3Pn3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "insufficient_material"]
+
+6. Nbd2 Bf5 7. Bd3 Nc6 8. O-O Bd6 9. Nxe4 Bxe4 10. Re1 f5 11. Bg5 Qd7 12. c4 O-O 13. cxd5 Bxd5 14. Ne5 Bxe5 15. dxe5 Qe6 16. Bb1 Nxe5 17. Bf4 Be4 18. Bxe4 fxe4 19. Rxe4 Qc6 20. Qd4 Ng4 21. Rc1 Rad8 22. Rxc6 Rxd4 23. Rxd4 bxc6 24. Bxc7 Rc8 25. Bg3 Nf6 26. Kf1 Re8 27. Ra4 Re7 28. Rc4 Re6 29. Rb4 Ne4 30. Rb8+ Kf7 31. Rb7+ Kf6 32. Bf4 Re7 33. Rxe7 Kxe7 34. Be3 a6 35. Ke2 Kd6 36. Bd4 g6 37. Kd3 Kd5 38. b4 Ng5 39. h4 Ne6 40. Be3 Ng7 41. Bf4 Nf5 42. Bg5 h6 43. Bd8 c5 44. bxc5 Kxc5 45. g4 Nd6 46. Be7 a5 47. g5 hxg5 48. hxg5 Kd5 49. Bxd6 Kxd6 50. Kd4 Ke6 51. Ke4 a4 52. f4 a3 53. f5+ gxf5+ 54. Kf4 Ke7 55. Ke5 f4 56. Kxf4 Ke6 57. Ke4 Ke7 58. Kf5 Kf7 59. g6+ Kg7 60. Kg5 Kg8 61. Kg4 Kf8 62. Kh4 Kg8 63. Kg5 Kg7 64. Kf5 Kg8 65. Ke4 Kg7 66. Kd5 Kxg6 67. Kc4 Kf5 68. Kb3 Ke4 69. Kxa3 Kd5 70. Kb4 Kc6 71. a3 Kb6 72. a4 Ka6 73. a5 Ka7 74. Kb5 Kb7 75. a6+ Ka7 76. Ka5 Ka8 77. Kb4 Kb8 78. Kc4 Ka7 79. Kb5 Kb8 80. Kb6 Ka8 81. Kc5 Ka7 82. Kb4 Kxa6 1/2-1/2
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "51"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "r1bqk2r/pp1pppbp/2n2np1/1Bp5/4P3/2P2N2/PP1P1PPP/RNBQ1RK1 w kq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. e5 Nd5 7. d4 Qb6 8. c4 Nc7 9. dxc5 Qxc5 10. Be3 Qb4 11. Bd2 Qxb2 12. Bc3 Nxe5 13. Bxb2 Nxf3+ 14. Qxf3 Bxb2 15. Nc3 Bxa1 16. Rxa1 O-O 17. Ba4 d6 18. Re1 e5 19. Qd1 Rd8 20. c5 d5 21. Rxe5 d4 22. Ne4 Be6 23. Nd6 Bxa2 24. Re7 Nd5 25. Re1 Nc3 26. Qxd4 Nxa4 27. Qxa4 Bd5 28. Re7 Kf8 29. Rc7 Kg8 30. Qd4 Be6 31. Rxb7 a6 32. c6 g5 33. c7 Rf8 34. Qb6 Rac8 35. Ra7 Rce8 36. Nxe8 Rxe8 37. Qd4 Bd7 38. h3 Bc8 39. Qd8 Kf8 40. Ra8 f5 41. Rxc8 Rxd8 42. cxd8=Q+ Kf7 43. Rc6 g4 44. Rf6+ Kg7 45. Qf8# 1-0
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "52"]
+[White "quiescence-search v-1.4.0"]
+[Black "transposition-table v-1.5.0"]
+[Result "0-1"]
+[FEN "r1bqk2r/pp1pppbp/2n2np1/1Bp5/4P3/2P2N2/PP1P1PPP/RNBQ1RK1 w kq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. e5 Nd5 7. d4 Qb6 8. c4 Nxd4 9. Nxd4 cxd4 10. cxd5 Qxb5 11. Qxd4 Qe2 12. f4 d6 13. Nc3 dxe5 14. Qa4+ b5 15. Qa5 Qc4 16. Qxb5+ Qxb5 17. Nxb5 O-O 18. fxe5 Bxe5 19. Re1 f6 20. Be3 Bxb2 21. Rab1 Be5 22. Nxa7 Bf5 23. Rbd1 Bg4 24. Rc1 Rf7 25. Nc6 Rxa2 26. Bh6 Bd7 27. Nxe5 fxe5 28. Rb1 Ra8 29. Rxe5 Rf5 30. Rbe1 Rxe5 31. Rxe5 Kf7 32. Bg5 e6 33. Kf2 Ra2+ 34. Kf3 Ra3+ 35. Kf4 Ra4+ 36. Ke3 Ra3+ 37. Ke4 Ra4+ 38. Ke3 Ra3+ 39. Ke2 Bb5+ 40. Kf2 Ra2+ 41. Ke3 exd5 42. Rxd5 Bc6 43. Rc5 Rxg2 44. Rxc6 Rxg5 45. Rc7+ Kg8 46. Rc8+ Kg7 47. Rc7+ Kh6 48. Rc2 Rg4 49. Kf3 Rb4 50. Ke3 Kg5 51. Rf2 Rh4 52. Kd3 Rf4 53. Rxf4 Kxf4 54. Kd4 g5 55. Kd5 g4 56. Kd6 h5 57. Ke6 h4 58. Kd5 g3 59. hxg3+ hxg3 60. Kc4 Ke5 61. Kd3 g2 62. Ke3 g1=Q+ 63. Kd3 Qd4+ 64. Kc2 Ke4 65. Kc1 Qf2 66. Kb1 Kd3 67. Ka1 Kc2 68. Ka2 Qa7# 0-1
+
+[Event "Regression: transposition-table v-1.5.0 vs quiescence-search v-1.4.0"]
+[Site "Chess Arena"]
+[Round "53"]
+[White "transposition-table v-1.5.0"]
+[Black "quiescence-search v-1.4.0"]
+[Result "1-0"]
+[FEN "rn1qkbnr/pp3ppp/4p3/2ppPb2/3P4/5N2/PPP1BPPP/RNBQK2R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nc3 cxd4 7. Nxd4 Ne7 8. Ncb5 Ng6 9. Nxf5 exf5 10. Qxd5 Qxd5 11. Nc7+ Kd7 12. Nxd5 Nxe5 13. f4 Nec6 14. Bd3 g6 15. Bd2 Nd4 16. O-O-O Nbc6 17. Kb1 Bc5 18. Bc3 Kd6 19. Bc4 b5 20. Bb3 Rae8 21. Bxd4 Nxd4 22. Nf6 Re6 23. Bxe6 Kxe6 24. c3 Ne2 25. Nd5 Rd8 26. Nc7+ Ke7 27. Rde1 Rd2 28. Rhf1 b4 29. Na6 bxc3 30. Nxc5 c2+ 31. Ka1 c1=Q+ 32. Rxc1 Nxc1 33. Rxc1 Rxg2 34. Rh1 Rf2 35. Nd3 Re2 36. Kb1 Rd2 37. Ne5 Rf2 38. Nc6+ Kd6 39. Nxa7 Rxf4 40. Rd1+ Kc5 41. Nc8 Rh4 42. Rd2 f6 43. a3 Rd4 44. b4+ Kd5 45. Nb6+ Ke4 46. Rxd4+ Kxd4 47. Nd7 f4 48. Kc2 f3 49. Kd2 f5 50. b5 f4 51. b6 f2 52. Ke2 Kd5 53. b7 Kc6 54. b8=Q f1=Q+ 55. Kxf1 Kxd7 56. Qxf4 Ke6 57. Qh6 Ke5 58. Qxh7 Kf5 59. a4 Ke5 60. Qxg6 Kd5 61. a5 Ke5 62. a6 Kd5 63. a7 Ke5 64. a8=Q Kd4 65. Ke2 Kc4 66. Qb6 Kc3 67. Qac6# 1-0

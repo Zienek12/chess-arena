@@ -1,0 +1,1019 @@
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "1"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 4 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nc3 Nb4 7. Nxe5 Ng4 8. Nxg4 Bg5 9. a3 Nd5 10. exd5 Bf6 11. d4 c6 12. dxc6 b5 13. Nxf6+ gxf6 14. Re1+ Qe7 15. Nd5 f5 16. Rxe7+ Kf8 17. Bh6+ Kg8 18. Nf6# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "2"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 4 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. d4 b5 7. Nc3 exd4 8. Qe1 dxc3 9. Qd1 cxb2 10. Bxb2 bxa4 11. Re1 O-O 12. Qd4 Nxd4 13. g3 Nxf3+ 14. Kf1 Nxe1 15. a3 Nxc2 16. Bc1 Nxa1 17. f3 Nc2 18. f4 Nxe4 19. h4 Nxg3+ 20. Kf2 Bxh4 21. Kf3 Qe7 22. Bd2 Qe2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "3"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/pppp1ppp/2nn4/1B2p3/3P4/5N2/PPP2PPP/RNBQ1RK1 w kq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bxc6 f6 7. Bd5 b5 8. Bxa8 Ke7 9. dxe5 h6 10. exd6+ Ke6 11. Qd5# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "4"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqkb1r/pppp1ppp/2nn4/1B2p3/3P4/5N2/PPP2PPP/RNBQ1RK1 w kq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Ne1 Nxb5 7. Nf3 Nbxd4 8. Qxd4 Nxd4 9. Nc3 Nxf3+ 10. gxf3 Qf6 11. h4 Qxf3 12. Bh6 Qg4+ 13. Kh1 gxh6 14. Rac1 Qh3+ 15. Kg1 Rg8# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "5"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqkbnr/1pp3pp/p1p2p2/4p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nc3 g6 7. h3 c5 8. d3 Be6 9. Be3 Qe7 10. Qd2 g5 11. Rad1 c6 12. Rfe1 Bf7 13. a3 Bg6 14. Ne2 Bf7 15. Ng3 Bg7 16. Nf5 a5 17. Nxe7 Ba2 18. Nxg8 g4 19. Nxf6+ Kd8 20. Nxg4 Ra6 21. Bxc5 Rg8 22. Qg5+ Bf6 23. Qxf6+ Ke8 24. Qe7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "6"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqkbnr/1pp3pp/p1p2p2/4p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. g4 Bxg4 7. Nc3 Bb4 8. Nb5 cxb5 9. Nxe5 Bxd1 10. h3 Bxc2 11. Nc4 bxc4 12. Rb1 Bxb1 13. a3 Bd6 14. e5 fxe5 15. f3 Qh4 16. Kg2 Bf5 17. Kh1 Qxh3+ 18. Kg1 Bc5+ 19. d4 cxd3+ 20. Be3 Bxe3+ 21. Rf2 d2 22. b4 d1=Q# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "7"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qb3 Rb8 7. Bxf7+ Kf8 8. Bg5 Bg4 9. Be6 Ne8 10. Bxd8 Ba3 11. Bxg4 b5 12. Nxa3 Na5 13. Qe6 Rc8 14. Be7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "8"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qb3 Na5 7. Kd2 Nxb3+ 8. Ke1 Nxa1 9. Nbd2 O-O 10. Ke2 Bb6 11. Bd5 Nxd5 12. c4 Nf4+ 13. Kd1 Nxd3 14. Nb3 Nxf2+ 15. Kd2 Nxb3+ 16. Kc2 Na1+ 17. Kc3 Nxh1 18. Ng5 Nf2 19. a3 Bd4+ 20. Kb4 a5+ 21. Ka4 Bd7# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "9"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bq1rk1/ppppbppp/2n2n2/4p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 w - - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bd2 g5 7. Nxg5 Ne8 8. Qh5 d6 9. Qxh7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "10"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bq1rk1/ppppbppp/2n2n2/4p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 w - - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. h4 d6 7. Ne1 Bg4 8. Qe2 Bxe2 9. a3 Nxe4 10. Bf4 exf4 11. Kh1 Bxf1 12. c3 d5 13. b3 dxc4 14. dxe4 cxb3 15. a4 Qd1 16. Kh2 b2 17. Kh1 bxa1=Q 18. Nd2 Qxd2 19. a5 Qaxe1 20. Kh2 Qxe4 21. h5 Qxg2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "11"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/p1pp1ppp/2p2n2/8/4P3/8/PPP2PPP/RNBQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qd4 Nxe4 7. Qxe4+ Be7 8. Bg5 d5 9. Qxe7+ Qxe7+ 10. Bxe7 Kxe7 11. Nc3 Bh3 12. gxh3 c5 13. Nxd5+ Kd7 14. O-O-O h5 15. Nb6+ Ke7 16. Nxa8 Rh6 17. Nxc7 g5 18. Bc4 Rf6 19. Nd5+ Kf8 20. Nxf6 a6 21. Nxh5 f5 22. Rhe1 a5 23. Rd8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "12"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqkb1r/p1pp1ppp/2p2n2/8/4P3/8/PPP2PPP/RNBQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nc3 Bb4 7. Qg4 Nxg4 8. Rb1 Qf6 9. Bc4 Qxf2+ 10. Kd1 Qd4+ 11. Ke2 Qxc4+ 12. Ke1 Qxa2 13. h4 Qxb1 14. Rg1 Qxc1+ 15. Ke2 Qe3+ 16. Kd1 Nf2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "13"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bq1rk1/pppp1ppp/2n2n2/1B2p3/1b2P3/2N2N2/PPPP1PPP/R1BQ1RK1 w - - 8 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nd5 Nd4 7. Nxd4 a6 8. Nxb4 Qe8 9. Qf3 d5 10. Bxe8 h6 11. Nxd5 Nxe4 12. Ne7+ Kh7 13. Qxe4+ g6 14. Nxc8 Kh8 15. Qxe5+ Kh7 16. Qxc7 a5 17. Qxb7 h5 18. Bxf7 h4 19. Bb3+ Kh8 20. Qxa8 Rf3 21. Nxf3 a4 22. Qa7 axb3 23. Re1 g5 24. Re8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "14"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bq1rk1/pppp1ppp/2n2n2/1B2p3/1b2P3/2N2N2/PPPP1PPP/R1BQ1RK1 w - - 8 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. d4 Nxd4 7. Na4 Nxb5 8. Re1 Bxe1 9. Qxd7 Qxd7 10. Nd2 Bxd2 11. Kh1 Nxe4 12. b4 Qd4 13. Nb2 Nxf2+ 14. Kg1 Nh3+ 15. Kf1 Qf2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "15"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqkb1r/ppp2ppp/8/3p4/3Pn3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qe2 Bb4+ 7. Bd2 a6 8. Bxb4 Ra7 9. Bc5 Qe7 10. Bxe7 Nd7 11. Nc3 f6 12. Ba3 Kf7 13. Nxd5 g5 14. Qxe4 Rf8 15. Qxh7+ Ke8 16. Qe7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "16"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqkb1r/ppp2ppp/8/3p4/3Pn3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bd2 Bg4 7. Nh4 Bxd1 8. c3 Qxh4 9. Ba6 Nxa6 10. h3 Bc2 11. Bh6 Qxf2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "17"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqkb1r/ppp2ppp/8/4p3/8/2n3P1/PPPP1PBP/R1BQK1NR w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. bxc3 c5 7. Qe2 h6 8. Qxe5+ Be6 9. Bxb7 h5 10. Bxa8 Qb6 11. Nf3 Qb5 12. c4 Qc6 13. Bxc6+ Nd7 14. d3 g5 15. Bxg5 h4 16. Qb8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "18"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqkb1r/ppp2ppp/8/4p3/8/2n3P1/PPPP1PBP/R1BQK1NR w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. b4 Nxd1 7. Kxd1 Qd4 8. g4 Qxa1 9. Ne2 Bxb4 10. Bf3 Ba3 11. Bc6+ Nxc6 12. c4 Bxg4 13. Ke1 Bxc1 14. Rg1 Bb2+ 15. Nc1 Qxc1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "19"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqk2r/ppp2ppp/3p1n2/2b5/3pPP2/2P2N2/PP4PP/RNBQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qb3 Na6 7. cxd4 Ng8 8. dxc5 dxc5 9. Ne5 Be6 10. Qxb7 Qd3 11. Bxd3 Bf5 12. Qxa8+ Ke7 13. Nc6+ Ke6 14. exf5+ Kd7 15. Bxa6 g6 16. Ke2 c4 17. Rd1# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "20"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqk2r/ppp2ppp/3p1n2/2b5/3pPP2/2P2N2/PP4PP/RNBQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Ng5 h6 7. b4 Bg4 8. Rg1 Bxd1 9. g4 Bb6 10. a4 d3 11. Rg3 Bxg4 12. Rf3 Nxe4 13. Nd2 hxg5 14. Ra3 Qe7 15. Be2 Nxd2 16. Ra2 Qxe2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "21"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqk2r/pppnbppp/3p1n2/4p3/2BPP3/2N2N2/PPP2PPP/R1BQK2R w KQkq - 5 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. dxe5 Bf8 7. exf6 c5 8. Bb5 Be7 9. fxe7 h6 10. exd8=Q+ Kxd8 11. Qxd6 a6 12. Nd5 Re8 13. Qc7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "22"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqk2r/pppnbppp/3p1n2/4p3/2BPP3/2N2N2/PPP2PPP/R1BQK2R w KQkq - 5 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nxe5 dxe5 7. Rg1 Bb4 8. Be6 fxe6 9. a3 exd4 10. Ke2 Bxc3 11. Bd2 Bxb2 12. Kf1 Bxa1 13. Qh5+ Nxh5 14. g3 Bb2 15. g4 Nhf6 16. Be1 Nxe4 17. Rg3 Nxg3+ 18. hxg3 Qg5 19. f3 Qc1 20. c4 Bc3 21. a4 Bxe1 22. a5 Bxa5+ 23. Kf2 d3 24. f4 d2 25. Ke3 d1=Q+ 26. Kf2 Qcd2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "23"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bg5 Ra7 7. Qf3 Bh3 8. Qxh3 d5 9. Qg3 Ng8 10. Nxd5 Qb6 11. Qxb8+ Qd8 12. Qxa7 a5 13. Bb5+ Qd7 14. Qa8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "24"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Rg1 Qc7 7. f4 Qa5 8. Qd3 d5 9. Be2 Nbd7 10. Qd1 Nxe4 11. f5 Nxc3 12. Kf2 Nxd1+ 13. Rxd1 Qb6 14. Bd3 Qxd4+ 15. Ke1 Qh4+ 16. Kf1 Qxh2 17. a3 Qh1+ 18. Kf2 Qxd1 19. Rb1 Ne5 20. Bf4 Nxd3+ 21. Kg3 Qxb1 22. f6 Qe1+ 23. Kf3 Qf2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "25"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. e5 Qb6 7. exf6 Bh6 8. Bxh6 Qb5 9. Ndxb5 g5 10. Bg7 g4 11. Bxh8 Be6 12. Nc7+ Kf8 13. Nxa8 a5 14. Bg7+ Kg8 15. fxe7 Na6 16. e8=Q+ Kxg7 17. Qxd6 Nc5 18. Qxc5 Bc8 19. Qg5# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "26"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Ke2 Qb6 7. Kd2 Qxd4+ 8. Bd3 Qxf2+ 9. Qe2 Nxe4+ 10. Kd1 Qxe2+ 11. Bxe2 Nf2+ 12. Ke1 Nxh1 13. Ne4 Bf5 14. g4 Bxe4 15. Bb5+ Bc6 16. Bd2 Bxb5 17. b3 Bg7 18. Bg5 Bxa1 19. h3 Bd7 20. Bh4 Nc6 21. Bxe7 Kxe7 22. Kf1 Bd4 23. h4 Bxg4 24. Kg2 Nf2 25. Kg1 Ne4+ 26. Kg2 Nb4 27. Kh2 Nxc2 28. a4 Be6 29. Kh1 Bxb3 30. h5 gxh5 31. Kh2 Bxa4 32. Kg2 Bc6 33. Kf1 Ng3# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "27"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/pp2pppp/2np1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bb5 Qa5 7. Nxc6 Be6 8. Nxa5+ Kd8 9. e5 a6 10. Ba4 Ng8 11. Qf3 f5 12. Qxb7 Rb8 13. Qxb8+ Bc8 14. Nb7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "28"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqkb1r/pp2pppp/2np1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. a3 Bg4 7. Kd2 Bxd1 8. Rb1 Nxd4 9. b4 Bxc2 10. f4 Nxe4+ 11. Ke3 Nf5+ 12. Kf3 Nxc3 13. Kf2 Qb6+ 14. Be3 Qxe3# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "29"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqkb1r/pp3ppp/3ppn2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bg5 Bd7 7. Bb5 Nd5 8. Bxd8 f5 9. exd5 g5 10. Bf6 g4 11. Bxh8 exd5 12. Nxd5 g3 13. Nc7+ Kd8 14. Nxa8 Bg7 15. Bxg7 Ke8 16. Bxd7+ Ke7 17. Nxf5+ Kf7 18. Qh5+ Kg8 19. Qe8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "30"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqkb1r/pp3ppp/3ppn2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qh5 Nxh5 7. h4 Qf6 8. Bf4 Nxf4 9. Nc6 bxc6 10. a3 Nd7 11. b3 Qxc3+ 12. Kd1 Qxa1+ 13. Kd2 e5 14. Rh3 Nxh3 15. Ke2 Nf4+ 16. Kd2 Qxf1 17. c4 Qxf2+ 18. Kc1 Qe2 19. g3 Nd3+ 20. Kb1 Qb2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "31"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1b1kbnr/ppqp1ppp/2n1p3/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Ndb5 Ne5 7. Nxc7+ Ke7 8. Nxa8 Ng4 9. Qxg4 a6 10. Nb6 Ke8 11. Nxc8 b5 12. Nd6+ Kd8 13. Nxf7+ Ke8 14. Nxh8 Nf6 15. Qf3 h6 16. e5 b4 17. exf6 Bc5 18. Qa8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "32"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1b1kbnr/ppqp1ppp/2n1p3/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. b3 Nxd4 7. Rg1 Qxc3+ 8. Qd2 Nxc2+ 9. Ke2 Nd4+ 10. Kd1 Qxa1 11. Qe1 Ba3 12. Qe2 Qxc1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "33"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/pp1p1ppp/2n2n2/4p3/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq e6 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nxc6 Qc7 7. Nd8 Qxd8 8. a3 Qe7 9. Bg5 Rb8 10. Bb5 Kd8 11. Nd5 Nh5 12. Bxe7+ Bxe7 13. Qxh5 f6 14. Qf7 a6 15. Qxe7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "34"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqkb1r/pp1p1ppp/2n2n2/4p3/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq e6 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nb3 Bb4 7. a4 Qb6 8. f4 Nxe4 9. Nc5 Qxc5 10. Qe2 Bxc3+ 11. bxc3 Qxc3+ 12. Kd1 Qd4+ 13. Ke1 Qxa1 14. Qd2 Nxd2 15. Bc4 Qxc1+ 16. Kf2 Qxh1 17. Bd3 exf4 18. c3 Qxh2 19. Bc2 f3 20. Be4 Qxg2+ 21. Ke3 Nc4+ 22. Kf4 d5 23. Bxd5 Qg4# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "35"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqk2r/pp1pppbp/2n2np1/1Bp5/4P3/2P2N2/PP1P1PPP/RNBQ1RK1 w kq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. e5 h6 7. exf6 Nb8 8. fxg7 b6 9. gxh8=Q# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "36"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqk2r/pp1pppbp/2n2np1/1Bp5/4P3/2P2N2/PP1P1PPP/RNBQ1RK1 w kq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qe2 Qa5 7. e5 Nd5 8. Rd1 O-O 9. Ba4 Qxa4 10. g3 e6 11. Ng5 Nxe5 12. Kh1 Nd3 13. b3 Qa6 14. Kg2 N3f4+ 15. Kh1 Qxe2 16. h4 Qxd1+ 17. Kh2 Qxc1 18. d3 Nxd3 19. Nf3 Qb2 20. Kg1 Qxf2+ 21. Kh1 Qxg3 22. a4 Nf2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "37"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/pp1ppppp/2n5/3nP3/3p4/2P2N2/PP3PPP/RNBQKB1R w KQkq - 2 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qb3 Nf4 7. Bxf4 b5 8. Qxb5 h5 9. Bc4 Rg8 10. cxd4 Qc7 11. Bxf7+ Kxf7 12. e6+ Kf6 13. Bxc7 Na5 14. Qe5+ Kg6 15. Qg5+ Kh7 16. Qxh5# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "38"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqkb1r/pp1ppppp/2n5/3nP3/3p4/2P2N2/PP3PPP/RNBQKB1R w KQkq - 2 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Be2 Qa5 7. a3 dxc3 8. Qa4 cxb2+ 9. Bd2 Qxa4 10. Nd4 bxa1=Q 11. Bd1 Q4xd4 12. e6 Qe4+ 13. Be2 Qaxb1+ 14. Bc1 Qxc1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "39"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqk1nr/pp2ppbp/2np2p1/2p5/4P3/2NP2P1/PPP2PBP/R1BQK1NR w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bd2 Bf6 7. Nf3 Kf8 8. h3 Bxc3 9. bxc3 Bf5 10. exf5 c4 11. Qb1 Na5 12. dxc4 e6 13. fxg6 a6 14. Qb4 Qd7 15. Ne5 fxg6 16. Nxd7+ Kg7 17. Qxa5 Re8 18. Bxb7 d5 19. Bf4 Rb8 20. Be5+ Kf7 21. Nxb8 Ke8 22. Bxh8 dxc4 23. Bxa6 g5 24. Bb5+ Kf8 25. Qd8+ Kf7 26. Qe8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "40"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqk1nr/pp2ppbp/2np2p1/2p5/4P3/2NP2P1/PPP2PBP/R1BQK1NR w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Na4 Qa5+ 7. Ke2 Qxa4 8. Be3 Bxb2 9. f3 Bxa1 10. Qf1 Qxc2+ 11. Bd2 Bc3 12. Qf2 Qxd2+ 13. Kf1 Qd1+ 14. Qe1 Qxe1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "41"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqk2r/pp2nppp/4p3/2ppP3/3P4/P1P5/2P2PPP/R1BQKBNR w KQkq - 1 7"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+7. dxc5 a5 8. Nf3 Na6 9. Bb5+ Nc6 10. Be3 Kd7 11. Qe2 Qh4 12. Nxh4 Rf8 13. Qg4 Rd8 14. Qxg7 Ra7 15. Qxf7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "42"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqk2r/pp2nppp/4p3/2ppP3/3P4/P1P5/2P2PPP/R1BQKBNR w KQkq - 1 7"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+7. Bg5 cxd4 8. Qb1 h6 9. Bd3 hxg5 10. Qa2 dxc3 11. Bc4 dxc4 12. f3 Qd4 13. Qxc4 Qxc4 14. a4 Qd4 15. h3 Qxe5+ 16. Ne2 g4 17. Rg1 gxf3 18. Rc1 Qxe2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "43"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqk2r/pppnbppp/4p3/3pP1B1/3P4/2N5/PPP2PPP/R2QKBNR w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bxe7 Nf6 7. Bxd8 Bd7 8. Bxc7 a5 9. exf6 b5 10. fxg7 Ra6 11. gxh8=Q+ Ke7 12. Qd8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "44"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqk2r/pppnbppp/4p3/3pP1B1/3P4/2N5/PPP2PPP/R2QKBNR w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. a4 Bxg5 7. Ba6 Nxa6 8. Nh3 Bh6 9. Ra3 O-O 10. Qd3 Nb4 11. Nd1 Nxd3+ 12. Ke2 Nb4 13. Re1 Nxc2 14. Kf3 Nxe1+ 15. Kg3 Nc2 16. a5 Nxa3 17. Nc3 Nc4 18. a6 bxa6 19. Nf4 Qg5+ 20. Kh3 Qxf4 21. f3 Qxd4 22. Nb5 axb5 23. g4 Qxb2 24. f4 Bxf4 25. Kh4 Qxh2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "45"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqkb1r/pp1n1ppp/4p3/2ppP3/3P4/3B4/PPPN1PPP/R1BQK1NR w KQkq c6 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bb5 f6 7. Qh5+ Ke7 8. exf6+ gxf6 9. Ngf3 b6 10. O-O Ba6 11. Re1 Bxb5 12. Qxd5 c4 13. Qxe6# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "46"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqkb1r/pp1n1ppp/4p3/2ppP3/3P4/3B4/PPPN1PPP/R1BQK1NR w KQkq c6 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. c4 cxd4 7. Qa4 Qg5 8. Qc2 Nxe5 9. Be2 Qxg2 10. b4 Qxh1 11. Bh5 Qxg1+ 12. Nf1 Bxb4+ 13. Qd2 Bxd2+ 14. Kd1 Bxc1 15. Ke2 d3+ 16. Ke1 Bb2 17. cxd5 Bc3+ 18. Kd1 Qxf1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "47"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1b1kbnr/pp3ppp/1qn1p3/2ppP3/3P4/2P2N2/PP3PPP/RNBQKB1R w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nbd2 Nb4 7. cxb4 g5 8. bxc5 Qd8 9. Qb3 Qd6 10. exd6 Bd7 11. Qxb7 Bc8 12. Bb5+ Kd8 13. Qc7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "48"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1b1kbnr/pp3ppp/1qn1p3/2ppP3/3P4/2P2N2/PP3PPP/RNBQKB1R w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. h3 cxd4 7. Ng1 dxc3 8. Be3 cxb2 9. Bc5 Bxc5 10. h4 Bxf2+ 11. Ke2 Qe3# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "49"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rn1qkbnr/pp2pppp/2p3b1/8/3P4/6N1/PPP2PPP/R1BQKBNR w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. c3 Qxd4 7. cxd4 a6 8. Qg4 b6 9. Qc8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "50"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rn1qkbnr/pp2pppp/2p3b1/8/3P4/6N1/PPP2PPP/R1BQKBNR w KQkq - 3 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nf3 e5 7. Be2 e4 8. b3 exf3 9. Qd2 fxe2 10. Ne4 Bxe4 11. Qf4 Qxd4 12. Bd2 Qxa1+ 13. Kxe2 Qxh1 14. Qg5 Bxc2 15. Qe5+ Be7 16. Bf4 Qd1+ 17. Ke3 Qd3# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "51"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rn1qkbnr/pp3ppp/4p3/2ppPb2/3P4/5N2/PPP1BPPP/RNBQK2R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bb5+ Nc6 7. Nc3 Qe7 8. dxc5 Kd8 9. Bg5 Bh3 10. Bxe7+ Ke8 11. Bxf8 f5 12. Bxg7 Kf7 13. Bxh8 Nh6 14. Ng5+ Ke7 15. Bf6+ Kd7 16. gxh3 f4 17. Qd3 Rh8 18. Bxh8 Kc8 19. Bxc6 Kc7 20. Nxe6+ Kc8 21. Qxh7 d4 22. Qxb7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "52"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rn1qkbnr/pp3ppp/4p3/2ppPb2/3P4/5N2/PPP1BPPP/RNBQK2R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nbd2 Qa5 7. c3 Nc6 8. Nh4 cxd4 9. Rb1 Bxb1 10. Bh5 Bxa2 11. Nf1 dxc3 12. Bf4 c2+ 13. Nd2 cxd1=Q+ 14. Kxd1 Qa4+ 15. Nb3 Bxb3+ 16. Ke2 Qxf4 17. Kf1 Bc4+ 18. Kg1 Qc1+ 19. Bd1 Qxd1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "53"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbq1rk1/ppp1ppbp/3p1np1/8/3PP3/2N2N2/PPP1BPPP/R1BQK2R w KQ - 4 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bg5 Bh3 7. gxh3 e5 8. dxe5 Nxe4 9. Bxd8 c6 10. Nxe4 Bf6 11. Nxf6+ Kg7 12. Qxd6 Kh8 13. Qxf8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "54"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbq1rk1/ppp1ppbp/3p1np1/8/3PP3/2N2N2/PPP1BPPP/R1BQK2R w KQ - 4 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Na4 c6 7. a3 Nxe4 8. Bg5 Bg4 9. Bh6 Bxh6 10. Ng5 Bxe2 11. b3 Bxd1 12. Nxf7 Rxf7 13. c4 Bxb3 14. f4 Qa5+ 15. Nc3 Qxc3+ 16. Kf1 Bxc4+ 17. Kg1 Qxa1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "55"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnb1kb1r/pp2pppp/2p2n2/q7/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qd2 Ne4 7. Nxe4 e5 8. Qxa5 Ba3 9. bxa3 Bg4 10. Qxe5+ Kd7 11. Nfg5 b5 12. Qxg7 Be2 13. Qxh8 Bd3 14. Bxd3 b4 15. axb4 c5 16. Nxc5+ Kc7 17. Bf4+ Kc6 18. b5+ Kb6 19. Qd8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "56"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnb1kb1r/pp2pppp/2p2n2/q7/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Ke2 Bg4 7. Be3 Nbd7 8. Qd3 e5 9. b4 Bxb4 10. Nb1 e4 11. Bg5 exd3+ 12. Ke3 dxc2 13. Kf4 c1=Q+ 14. Kg3 Qb2 15. Kh4 Qxa1 16. d5 Bxf3 17. Kh3 Bxd5 18. Be3 Qxb1 19. Bg5 Qf5+ 20. Kh4 Qg4# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "57"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "0-1"]
+[FEN "rn1qkb1r/ppp2ppp/3pp3/3nP3/3P2b1/5N2/PPP1BPPP/RNBQK2R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "time_forfeit"]
+
+6. h3 Qd7 7. hxg4 a6 8. c4 Nc6 9. cxd5 b6 10. dxc6 Qd8 11. Nc3 Qf6 12. exf6 d5 13. Bf4 Rb8 14. Bxc7 Bd6 15. fxg7 Be7 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "58"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rn1qkb1r/ppp2ppp/3pp3/3nP3/3P2b1/5N2/PPP1BPPP/RNBQK2R w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. a3 Nd7 7. Rf1 dxe5 8. Bd2 Nf4 9. Bxf4 exf4 10. Bb5 c6 11. Kd2 cxb5 12. Qe2 Qa5+ 13. Nc3 b4 14. axb4 Qxb4 15. Rad1 Bxf3 16. Rg1 Bxe2 17. b3 Bxd1 18. d5 Qd4+ 19. Kc1 Ba3+ 20. Kb1 Qxc3 21. Rh1 Qb2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "59"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbq1rk1/ppp1bppp/4pn2/3p2B1/2PP4/2N1P3/PP3PPP/R2QKBNR w KQ - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nge2 g6 7. cxd5 Re8 8. dxe6 Kg7 9. exf7 Nfd7 10. fxe8=Q Ne5 11. Qxd8 Bd6 12. dxe5 Nd7 13. exd6 Nf8 14. Qd4+ Kg8 15. Qh8+ Kf7 16. Qe7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "60"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbq1rk1/ppp1bppp/4pn2/3p2B1/2PP4/2N1P3/PP3PPP/R2QKBNR w KQ - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. b4 Ne4 7. Bf4 Bxb4 8. Qa4 Bxc3+ 9. Kd1 Nxf2+ 10. Ke2 Nxh1 11. Bg3 Nxg3+ 12. Kf3 Nxf1 13. a3 Bxa1 14. Qa5 Nxh2+ 15. Kg3 Qd6+ 16. Kf2 Nc6 17. Ne2 Nxa5 18. g3 Nxc4 19. Ke1 Qxa3 20. Kf2 Qxe3+ 21. Kg2 Qxe2+ 22. Kh1 Nf3 23. g4 Qf1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "61"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqkb1r/pp3ppp/4pn2/2p5/2BP4/4PN2/PP3PPP/RNBQK2R w KQkq c6 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nc3 Bd7 7. dxc5 Rg8 8. Ne5 Nc6 9. f4 Bd6 10. Qxd6 Nxe5 11. fxe5 h5 12. exf6 Qxf6 13. e4 Qd4 14. Qxd4 Rh8 15. Qxg7 f6 16. Qxh8+ Ke7 17. Qxa8 a5 18. Qg8 Bc6 19. Qxe6+ Kd8 20. Qxf6+ Ke8 21. Bg5 Bxe4 22. Qe7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "62"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqkb1r/pp3ppp/4pn2/2p5/2BP4/4PN2/PP3PPP/RNBQK2R w KQkq c6 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nc3 Qa5 7. b4 Qxb4 8. Bf1 Qxc3+ 9. Qd2 Qxa1 10. Ba6 Nxa6 11. g3 cxd4 12. Qd1 dxe3 13. Ke2 exf2 14. h4 Ne4 15. Rf1 Nc3+ 16. Kd3 Nxd1 17. Bg5 Qxa2 18. Nd2 Nc5+ 19. Ke2 e5 20. Bf4 Bg4# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "63"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rn1qkb1r/pp2pppp/2p2n2/5b2/P1pP4/2N2N2/1P2PPPP/R1BQKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. e3 Be4 7. Bxc4 Nbd7 8. Qb3 Bd5 9. Bxd5 Ne5 10. dxe5 Qb8 11. Bxf7+ Kd8 12. Nd4 Qd6 13. exd6 Kd7 14. Qxb7+ Kd8 15. Nxc6# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "64"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rn1qkb1r/pp2pppp/2p2n2/5b2/P1pP4/2N2N2/1P2PPPP/R1BQKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qd2 Ne4 7. Nd1 Nxd2 8. a5 Nb3 9. Ng1 Nxa1 10. e3 Qxa5+ 11. Ke2 Bd3+ 12. Kf3 Qd5+ 13. Kg3 Qg5+ 14. Kf3 Bxf1 15. g3 Qf5# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "65"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/pp1n1ppp/2p1pn2/3p4/2PP4/2N1PN2/PP3PPP/R1BQKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qa4 b5 7. cxb5 Ba3 8. bxc6 Rb8 9. bxa3 Nh5 10. Qxa7 Kf8 11. c7 Rb1 12. cxd8=Q# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "66"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqkb1r/pp1n1ppp/2p1pn2/3p4/2PP4/2N1PN2/PP3PPP/R1BQKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nd2 Bb4 7. Qh5 Nxh5 8. g4 Nhf6 9. Rg1 Qc7 10. g5 Ne4 11. Ne2 Qxh2 12. g6 Bxd2+ 13. Bxd2 Qxf2+ 14. Kd1 hxg6 15. Nc3 Qxd2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "67"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqkbnr/pp3ppp/2n5/2pp4/3P4/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 2 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qa4 Be6 7. Ng5 h5 8. dxc5 Qd7 9. e4 Bh3 10. gxh3 Na5 11. Qxa5 Qe7 12. Bb5+ Qd7 13. Bxd7+ Kxd7 14. Nxf7 Nf6 15. Nxh8 Kc6 16. Ng6 Kd7 17. exd5 Ke8 18. Qb5+ Nd7 19. Nxf8 g6 20. Qxd7+ Kxf8 21. Bh6+ Kg8 22. Qg7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "68"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "r1bqkbnr/pp3ppp/2n5/2pp4/3P4/2N2N2/PP2PPPP/R1BQKB1R w KQkq - 2 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bd2 cxd4 7. Ng1 dxc3 8. Bc1 Bb4 9. Be3 cxb2+ 10. Qd2 bxa1=Q# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "69"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbq1rk1/ppp2ppp/4pn2/3p4/1bPP4/2NBP3/PP3PPP/R1BQK1NR w KQ d6 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Ne2 Nfd7 7. cxd5 Re8 8. a3 g5 9. axb4 exd5 10. Nxd5 c5 11. Bb5 Ne5 12. Bxe8 h6 13. dxe5 Bg4 14. Nf6+ Kf8 15. Qxd8 Bxe2 16. Ba4+ Kg7 17. Qg8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "70"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbq1rk1/ppp2ppp/4pn2/3p4/1bPP4/2NBP3/PP3PPP/R1BQK1NR w KQ d6 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qc2 dxc4 7. Be4 Nxe4 8. Nh3 Qh4 9. Qxe4 Qxe4 10. Nf4 Nc6 11. d5 Bxc3+ 12. Ke2 Be5 13. a4 exd5 14. Kf1 Qc2 15. Ng6 Qd1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "71"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbq1rk1/p1pp1ppp/1p2pn2/8/2PP4/P1Q5/1P2PPPP/R1B1KBNR w KQ - 0 7"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+7. Qf3 b5 8. Qxa8 Kh8 9. cxb5 Na6 10. Qxa7 Nb8 11. Qxb8 Ng8 12. Bf4 h6 13. Bxc7 Qxc7 14. Qxc7 Bb7 15. Qxb7 Kh7 16. Qxd7 Re8 17. Qxe8 Nf6 18. Qxf7 Nh5 19. Qxh5 Kh8 20. Nf3 Kg8 21. b6 Kh7 22. Ng5+ Kg8 23. Qe8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "72"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbq1rk1/p1pp1ppp/1p2pn2/8/2PP4/P1Q5/1P2PPPP/R1B1KBNR w KQ - 0 7"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+7. Qg3 Nc6 8. Qb3 Nxd4 9. Qb5 Nxb5 10. h4 Nd4 11. b3 Nc2+ 12. Kd1 Nxa1 13. g4 Nxg4 14. c5 Nxf2+ 15. Ke1 Nxh1 16. e3 Qxh4+ 17. Kd2 Qf2+ 18. Kd1 Qxf1+ 19. Kd2 Nxb3+ 20. Kc2 Nxc5 21. Nh3 Qxh3 22. Bb2 Qxe3 23. Kb1 Qe1+ 24. Kc2 Qe4+ 25. Kc1 Nb3+ 26. Kd1 Nf2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "73"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rn1qk2r/p1pp1ppp/bp2pn2/8/1bPP4/1P3NP1/P3PP1P/RNBQKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bd2 Bc8 7. Bxb4 d6 8. Nc3 g6 9. e4 a6 10. e5 b5 11. exf6 g5 12. Nxg5 bxc4 13. Qf3 Ra7 14. Bxc4 O-O 15. Qd3 Qd7 16. Qxh7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "74"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rn1qk2r/p1pp1ppp/bp2pn2/8/1bPP4/1P3NP1/P3PP1P/RNBQKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Nc3 Bxc3+ 7. Qd2 Bxd2+ 8. Nxd2 Bb7 9. Bh3 Bxh1 10. Bxe6 dxe6 11. a3 Qxd4 12. f4 Qxa1 13. b4 Qxc1+ 14. Kf2 Ng4# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "75"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbq1rk1/ppp1bppp/4pn2/3p4/2PP4/5NP1/PP2PPBP/RNBQK2R w KQ - 4 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Bg5 a5 7. Nbd2 Nh5 8. Bxe7 Kh8 9. Bxd8 e5 10. Bxc7 Bh3 11. Bxh3 Nxg3 12. hxg3 Rg8 13. Nxe5 Nd7 14. Nxf7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "76"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbq1rk1/ppp1bppp/4pn2/3p4/2PP4/5NP1/PP2PPBP/RNBQK2R w KQ - 4 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. c5 h6 7. c6 Nxc6 8. Na3 e5 9. Qa4 e4 10. Nh4 g5 11. Bh3 Bxh3 12. Nc4 dxc4 13. Rf1 Bb4+ 14. Kd1 Qxd4+ 15. Bd2 Qxd2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "77"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbq1rk1/ppp2pbp/3p1np1/4p3/2PPP3/2N2N2/PP2BPPP/R1BQK2R w KQ e6 0 7"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+7. O-O b5 8. cxb5 h5 9. h3 a5 10. Bg5 Re8 11. dxe5 Ra6 12. exf6 Bh6 13. bxa6 Re7 14. fxe7 Bf5 15. exd8=Q+ Kg7 16. Bf6+ Kh7 17. Qh8# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "78"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbq1rk1/ppp2pbp/3p1np1/4p3/2PPP3/2N2N2/PP2BPPP/R1BQK2R w KQ e6 0 7"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+7. Ng5 exd4 8. Qc2 dxc3 9. Qb3 Nfd7 10. h3 cxb2 11. Bd3 bxa1=Q 12. Bb1 Nc6 13. Qc2 Nd4 14. Bd2 Nxc2+ 15. Ke2 Na3 16. Nxh7 Kxh7 17. Bg5 Qxg5 18. Rg1 Nxb1 19. a4 Qa2+ 20. Kd1 Qad2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "79"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqk2r/ppp1ppbp/6p1/8/3PP3/2P5/P4PPP/R1BQKBNR w KQkq - 1 7"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+7. Nf3 Bh3 8. gxh3 Bf6 9. Qb3 h6 10. Qxb7 h5 11. Qxa8 Qd5 12. exd5 Rg8 13. Bb5+ c6 14. Qxb8+ Kd7 15. Bxc6# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "80"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqk2r/ppp1ppbp/6p1/8/3PP3/2P5/P4PPP/R1BQKBNR w KQkq - 1 7"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+7. Qd2 O-O 8. g4 Bxg4 9. h3 Bc8 10. Bd3 Nc6 11. Ba3 Nxd4 12. Bf1 Nc6 13. Nf3 Qxd2+ 14. Kxd2 Rd8+ 15. Bd3 Ne5 16. Rac1 Rxd3+ 17. Kc2 Rxf3 18. c4 Rxa3 19. Rcg1 Rxa2+ 20. Kd1 Nxc4 21. Rg2 Ra1+ 22. Kc2 Rxh1 23. Rg5 e5 24. Rxe5 Bxe5 25. Kd3 Be6 26. Ke2 Rxh3 27. Kf1 Nd2+ 28. Ke2 Nxe4 29. Ke1 Bc4 30. f4 Rh1# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "81"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "0-1"]
+[FEN "rnbqkb1r/pp3ppp/3p1n2/2pP4/8/2N5/PP2PPPP/R1BQKBNR w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "time_forfeit"]
+
+6. Bg5 Nbd7 7. Qa4 Nh5 8. Bxd8 a6 9. Bb6 f6 10. Qe4+ Be7 11. Bc7 f5 12. Qxf5 g5 13. e3 Ne5 14. Qc2 Bf6 15. Ne4 Ng6 16. Nxd6+ Kd7 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "82"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqkb1r/pp3ppp/3p1n2/2pP4/8/2N5/PP2PPPP/R1BQKBNR w KQkq - 0 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. a4 Qa5 7. Rb1 Bf5 8. h3 Bxb1 9. g3 Bf5 10. Nf3 Be4 11. g4 Nxd5 12. Rh2 Nxc3 13. Ng1 Nxd1+ 14. b4 Qxa4 15. e3 Nc3 16. f4 Qd1+ 17. Kf2 Qxc1 18. Kg3 Qxf1 19. Ra2 Qxg1+ 20. Kh4 Nxa2 21. Kh5 Qg3 22. Kg5 Qxh3 23. b5 Qh6# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "83"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "rnbqk2r/ppp3pp/3bpn2/3p1p2/3P4/5NP1/PPP1PPBP/RNBQ1RK1 w kq - 2 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. Qd3 Ne4 7. Nbd2 Nc6 8. Nb3 Bf4 9. Bxf4 Kd7 10. Be5 f4 11. gxf4 b6 12. e3 Nd2 13. Nbxd2 Rg8 14. Qxh7 Qe8 15. Bxg7 Qe7 16. Qxg8 Ne5 17. Nxe5+ Kd6 18. Bf8 a5 19. Qf7 b5 20. Bxe7# 1-0
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "84"]
+[White "random v0"]
+[Black "alpha-beta v-1.2.0"]
+[Result "0-1"]
+[FEN "rnbqk2r/ppp3pp/3bpn2/3p1p2/3P4/5NP1/PPP1PPBP/RNBQ1RK1 w kq - 2 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. e4 fxe4 7. g4 exf3 8. c3 fxg2 9. Qf3 gxf1=Q+ 10. Kxf1 O-O 11. h4 Ne4 12. Qxe4 dxe4 13. f3 Rxf3+ 14. Ke1 Qxh4+ 15. Kd2 Qxg4 16. b4 Rf2+ 17. Ke3 Re2# 0-1
+
+[Event "alpha-beta v-1.2.0 vs random v0"]
+[Site "Chess Arena"]
+[Round "85"]
+[White "alpha-beta v-1.2.0"]
+[Black "random v0"]
+[Result "1-0"]
+[FEN "r1bqkb1r/pp3ppp/2n1pn2/2pp4/3P1B2/2P1PN2/PP3PPP/RN1QKB1R w KQkq - 1 6"]
+[SetUp "1"]
+[Termination "checkmate"]
+
+6. dxc5 Be7 7. Bb5 a5 8. Qd4 Rf8 9. Nbd2 Ra7 10. O-O b6 11. Bxc6+ Bd7 12. cxb6 Qc8 13. bxa7 Qc7 14. a8=Q+ Qc8 15. Qxc8+ Bd8 16. Qxf6 Bxc6 17. Qxc6# 1-0
